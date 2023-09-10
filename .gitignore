@@ -1,1 +1,8 @@
+/bin/
 build/
+**/__pycache__/
+*.swp
+*~
+
+# Ignore auto-generated scripts
+/build_and_run.sh

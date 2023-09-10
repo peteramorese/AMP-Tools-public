@@ -1,0 +1,1 @@
+configure_file(VisualizeEnvironment.py ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/VisualizeEnvironment.py COPYONLY)

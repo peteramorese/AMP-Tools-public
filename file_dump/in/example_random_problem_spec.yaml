@@ -1,0 +1,17 @@
+q_init:
+  x: 1
+  y: 1
+q_goal:
+  x: 9
+  y: 9
+x_min: 0
+x_max: 10
+y_min: 0
+y_max: 10
+n_obstacles: 2
+max_obstacle_vertices: 7
+max_obstacle_region_radius: 5
+min_obstacle_region_radius: 0.29999999999999999
+path_clearance: 0.01
+n_waypoints: 3
+d_sep: 0.01

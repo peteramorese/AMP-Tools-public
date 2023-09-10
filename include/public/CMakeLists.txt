@@ -1,0 +1,1 @@
+configure_file(_VarsPublic.h.in VarsPublic.h @ONLY)

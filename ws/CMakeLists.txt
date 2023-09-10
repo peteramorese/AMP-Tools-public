@@ -3,10 +3,8 @@ add_executable(main ${USER_SOURCES})
 target_link_libraries(main PRIVATE
     yaml-cpp
 	Eigen3::Eigen
-    AMPCore
-	${PYTHON_LIBRARIES}
-    #OpenSSL::SSL
-    #OpenSSL::Crypto
+    AMPCorePrivate
+    AMPCorePublic
 )
 target_include_directories(main PUBLIC
     ${AMP_INCLUDE_DIRS}

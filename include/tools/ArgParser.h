@@ -23,7 +23,7 @@ namespace amp {
 
     class IndicatorArgument {};
 
-    template <typename T, typename BASE = std::conditional<!std::is_same<T, void>::value, DataArgument<T>, IndicatorArgument>::type>
+    template <typename T, typename BASE = typename std::conditional<!std::is_same<T, void>::value, DataArgument<T>, IndicatorArgument>::type>
     class Argument : public BASE {
         public:
             Argument(bool valid) : m_valid(valid) {}
@@ -79,7 +79,7 @@ namespace amp {
                 return _parse<T>(&flag, nullptr, &default_value, description);
             }
 
-            template <typename T = void, typename _ENABLE = std::enable_if<!std::is_same<T, char>::value>::type>
+            template <typename T = void, typename _ENABLE = typename std::enable_if<!std::is_same<T, char>::value>::type>
             Argument<T> parse(const std::string& key, char flag, const std::string& description) {
                 //static_assert(!std::is_same)
                 return _parse<T>(&flag, &key, nullptr, description);
@@ -191,13 +191,13 @@ namespace amp {
                     throw std::invalid_argument("Both key and flag cannot be unspecified");
                 }
 
-                if (key && m_unique_keys.contains(*key)) {
+                if (key && (m_unique_keys.find(*key) != m_unique_keys.end())) {
                     ASSERT(false, "Duplicate key: " << *key);
                 } else if (key) {
                     m_unique_keys.insert(*key);
                 }
 
-                if (flag && m_unique_flags.contains(*flag)) {
+                if (flag && (m_unique_flags.find(*flag) != m_unique_flags.end())) {
                     ASSERT(false, "Duplicate flag: " << *flag);
                 } else if (flag) {
                     m_unique_flags.insert(*flag);

@@ -42,11 +42,11 @@ If your OS is not supported, and the project does not compile, please reach out 
 
 ---
 ### Ubuntu (or WSL)
-On Ubuntu (or WSL), first install Eigen 3.3.7 (C++ matrix library), and OpenSSL
+On Ubuntu (or WSL), first install Eigen 3.3.7 (C++ matrix library), and OpenSSL, and the python3 GUI backend
 
 ```
 sudo apt update
-sudo apt install build-essential libeigen3-dev libssl-dev
+sudo apt install build-essential libeigen3-dev libssl-dev python3-tk
 ```
 
 Now install the `python3.x-dev` library for your system. To determine which version of python you are using:
@@ -77,7 +77,6 @@ git submodule update --init --recursive
 
 Install the python dependencies
 ```
-cd /path/to/AMP-Tools-public
 pip3 install -r requirements.txt 
 ```
 
@@ -107,7 +106,6 @@ git submodule update --init --recursive
 
 Install the python dependencies
 ```
-cd /path/to/AMP-Tools-public
 pip3 install -r requirements.txt 
 ```
 

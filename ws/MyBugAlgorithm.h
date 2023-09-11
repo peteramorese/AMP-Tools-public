@@ -10,7 +10,9 @@ class MyBugAlgorithm : public amp::BugAlgorithm {
         virtual amp::Path2D plan(const amp::Problem2D& problem) const override;
 
         // Add any other methods here...
-    
+        Eigen::Vector2d stepToGoal(const amp::Problem2D& problem, Eigen::Vector2d location, float delta) const;
+        bool occupied(Eigen::Vector2d location, const amp::Problem2D& problem) const;
+        bool isPointOnLine(Eigen::Vector2d vert1, Eigen::Vector2d  vert2, Eigen::Vector2d  location) const;
+
     private:
-        // Add any member variables here...
 };

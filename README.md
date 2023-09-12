@@ -33,11 +33,23 @@ After you build your project for the first time, this directory will automatical
 ## Release Setup/Installation
 Forking the `https://github.com/peteramorese/AMP-Tools-public` is preferred, especially if you would like to commit your changes to GitHub. If you would not like to fork the repository, you can directly clone the repository.
 
+**NOTE:** Please clone via `ssh` protocol if you are not doing so already. The submodule url uses the ssh-protocol, so even if you are able to clone the repository using HTTPS, you will not be able to update the submodule. If you have not setup and/or used a ssh key for github:
+
+Creating an ssh key: https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent
+
+Adding the ssh key to your github account: https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account
+
+
+
 Currently supported OS:
  - Ubuntu 20.04 (including WSL on Windows)
  - Ubuntu 22.04 (including WSL on Windows)
  - macOS x86
+<<<<<<< HEAD
  - macOS arm64 
+=======
+ - macOS arm64 (coming soon...)
+>>>>>>> 857490f47a4f89224280ce8630ee059749252e76
 
 If your OS is not supported, and the project does not compile, please reach out to me (info at the bottom of the page).
 
@@ -47,7 +59,7 @@ On Ubuntu (or WSL), first install Eigen 3.3.7 (C++ matrix library), and OpenSSL,
 
 ```
 sudo apt update
-sudo apt install build-essential libeigen3-dev libssl-dev python3-tk
+sudo apt install cmake build-essential libeigen3-dev libssl-dev python3-tk
 ```
 
 Now install the `python3.x-dev` library for your system. To determine which version of python you are using:
@@ -81,14 +93,20 @@ Install the python dependencies
 pip3 install -r requirements.txt 
 ```
 
+Try building
+```
+bash build.sh
+```
+
 ### macOS
 Install `homebrew` if you do not already have it
 ```
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
-Install Eigen 3.3.7 and OpenSSL.
+Install CMake, Eigen 3.3.7, and OpenSSL. 
 ```
+brew install cmake
 brew install eigen
 brew install openssl
 ```
@@ -109,6 +127,23 @@ Install the python dependencies
 ```
 pip3 install -r requirements.txt 
 ```
+
+Try building
+```
+bash build.sh
+```
+
+### Troubleshooting (macOS)
+#### PythonLibs
+The python headers should already be installed, however, if you receive a CMake error similar to
+```
+CMake Error... Cound NOT find PythonLibs
+```
+install the PythonLibs
+```
+brew install python3
+```
+
 
 ## Issues, bugs, comments
 Please feel free to raise issues on the GitHub page as they arise. If you experience an issue and are unsure if it is caused by a bug, don't hesitate to reach out to me at `peter.amorese@colorado.edu`.

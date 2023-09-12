@@ -24,6 +24,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     message("Detected Linux operating system")
+    message("Detected Linux architecture: ${SYSTEM_ARCHITECTURE}")
 
     execute_process(COMMAND bash -c "lsb_release -rs"
         OUTPUT_VARIABLE LINUX_UBUNTU_VERSION
@@ -42,8 +43,17 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     endif()
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     message("Detected macOS operating system")
-    message("Detected macOS version: ${CMAKE_SYSTEM_VERSION}")
-    set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/install/macos)
+    message("Detected macOS architecture: ${SYSTEM_ARCHITECTURE}")
+	
+    if(SYSTEM_ARCHITECTURE MATCHES "x86_64")
+        message("Detected macOS x86 architecture version: ${CMAKE_SYSTEM_VERSION}")
+        set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/install/macos_x86)
+    elseif(SYSTEM_ARCHITECTURE MATCHES "arm64")    
+        message("Detected macOS arm64 (Apple Silicon) architecture version: ${CMAKE_SYSTEM_VERSION}")
+        set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/install/macos_arm64)
+    else()
+        message(FATAL_ERROR "Unsupported macos architecture: ${SYSTEM_ARCHITECTURE}, defaulting to macos_x86")
+    endif()
 else()
     message(FATAL_ERROR "Unsupported operating system: ${CMAKE_SYSTEM_NAME}")
 endif()

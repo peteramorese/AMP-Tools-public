@@ -37,6 +37,7 @@ Currently supported OS:
  - Ubuntu 20.04 (including WSL on Windows)
  - Ubuntu 22.04 (including WSL on Windows)
  - macOS x86
+ - macOS arm64 
 
 If your OS is not supported, and the project does not compile, please reach out to me (info at the bottom of the page).
 

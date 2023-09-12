@@ -2,7 +2,7 @@
 #include <vector>
 #include <cmath>
 #include "tools/Obstacle.h" 
-#include "World.h"
+#include "Line.h"
 
 // Implement your methods in the `.cpp` file, for example:
 amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem) const {
@@ -11,9 +11,9 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem) const {
     amp::Path2D path;
     Eigen::Vector2d step; // robot's next potential position
     Eigen::Vector2d robotPosition(problem.q_init[0] , problem.q_init[1]); // robot's current position
-    amp::Obstacle2D* currentObstacle;
-    Eigen::Vector2d* vert1;
-    Eigen:: Vector2d* vert2;
+    amp::Obstacle2D* hitObstaclePtr;
+    Eigen::Vector2d* vert1Ptr;
+    Eigen:: Vector2d* vert2Ptr;
     Eigen::Vector2d qShortest;
     float delta = 0.01;
 
@@ -21,16 +21,34 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem) const {
 
     // head towards goal:
     step = stepToGoal(problem, robotPosition, delta);
-    while ( !occupied(step, problem, vert1, vert2)){
+    while ( !occupied(step, problem, hitObstaclePtr, vert1Ptr, vert2Ptr)){
         robotPosition = step;
         step = stepToGoal(problem, step, delta);
     }
+    step = robotPosition;
     path.waypoints.push_back(robotPosition);
 
     // follow obstacle boundry:
     
 
     return path;
+}
+
+Eigen::Vector2d MyBugAlgorithm::stepLine(Eigen::Vector2d* vert1Ptr, Eigen::Vector2d* vert2Ptr, Eigen::Vector2d step, float delta) const {
+    
+    // Handle vertical line case:
+    if ((*vert1Ptr)[0] == (*vert2Ptr)[0]) {
+        if ((*vert1Ptr)[0] > step[1]) {
+            return Eigen::Vector2d (step[0], step[0] - delta);
+        } else {
+            return Eigen::Vector2d (step[0], step[0] + delta);
+        }
+    }
+
+    float m = ((*vert2Ptr)[1] - (*vert1Ptr)[1]) / ((*vert2Ptr)[0] - (*vert1Ptr)[0]);
+    float stepX = ( (*vert1Ptr)[0] > (*vert2Ptr)[0] ) ? step[0] - delta : step[0] + delta;
+    float stepY = m * (stepX - step[0]) + step[1];
+    return Eigen::Vector2d (stepX, stepY);
 }
 
 Eigen::Vector2d MyBugAlgorithm::stepToGoal(const amp::Problem2D& problem, Eigen::Vector2d location, float delta) const {
@@ -44,12 +62,12 @@ Eigen::Vector2d MyBugAlgorithm::stepToGoal(const amp::Problem2D& problem, Eigen:
     }
 
     float m = (problem.q_goal[1] - location[1]) / (problem.q_goal[0] - location[0]);
-    float stepX = location[0] + delta;
+    float stepX = ( problem.q_goal[0] > location[0] ) ? location[0] + delta : location[0] - delta;
     float stepY = m * (stepX - location[0]) + location[1];
     return Eigen::Vector2d (stepX, stepY);
 }
 
-bool MyBugAlgorithm::occupied(Eigen::Vector2d location, const amp::Problem2D& problem) const {
+bool MyBugAlgorithm::occupied(Eigen::Vector2d location, const amp::Problem2D& problem, amp::Obstacle2D* hitObstaclePtr, Eigen::Vector2d* vert1Ptr, Eigen::Vector2d* vert2Ptr) const {
     // given a robot location (x,y) check to see if the location is occupied by an obstacle.
     bool isOccupied = false;
     for (amp::Obstacle2D obstacle : problem.obstacles){
@@ -57,11 +75,17 @@ bool MyBugAlgorithm::occupied(Eigen::Vector2d location, const amp::Problem2D& pr
         for (size_t i = 0; i < vertices.size(); ++i){
             if (i == vertices.size() - 1) {
                 if (isPointOnLine(vertices[i], vertices[0], location)) {
+                    hitObstaclePtr = &obstacle;
+                    vert2Ptr = &vertices[i];
+                    vert1Ptr = &vertices[0];
                     return true;
                 }
             }
             else{
                 if (isPointOnLine(vertices[i], vertices[i+1], location)) {
+                    hitObstaclePtr = &obstacle;
+                    vert2Ptr = &vertices[i];
+                    vert1Ptr = &vertices[i+1];
                     return true;
                 }
             }

@@ -11,7 +11,8 @@ class MyBugAlgorithm : public amp::BugAlgorithm {
 
         // Add any other methods here...
         Eigen::Vector2d stepToGoal(const amp::Problem2D& problem, Eigen::Vector2d location, float delta) const;
-        bool occupied(Eigen::Vector2d location, const amp::Problem2D& problem) const;
+        Eigen::Vector2d stepLine(Eigen::Vector2d* vert1Ptr, Eigen::Vector2d* vert2Ptr, Eigen::Vector2d step, float delta) const;
+        bool occupied(Eigen::Vector2d location, const amp::Problem2D& problem, amp::Obstacle2D* hitObstaclePtr, Eigen::Vector2d* vert1Ptr, Eigen::Vector2d* vert2Ptr) const;
         bool isPointOnLine(Eigen::Vector2d vert1, Eigen::Vector2d  vert2, Eigen::Vector2d  location) const;
 
     private:

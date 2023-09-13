@@ -47,7 +47,7 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem) const {
         hitVert = robotPosition;
         closestDistance = distance(robotPosition, goalPosition);
         safeTraverseList = traverseObstacle(robotPosition, traverseList, obstaclePadding);
-
+        
         // traverse around obstacle:
         for (Eigen::Vector2d vertex : safeTraverseList){
             step = stepLine2(robotPosition, vertex, delta);
@@ -95,6 +95,35 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem) const {
  * @param paramName Description of parameter
  * @return returnType Description of return value
  **/
+std::vector<Eigen::Vector2d> MyBugAlgorithm::enlargeObstacle(amp::Obstacle2D obstacle, float delta) const{
+    std::vector<Eigen::Vector2d> enlargedObstacle;
+    std::vector<Eigen::Vector2d> vertices = obstacle.verticesCCW();
+    Eigen::Vector2d centroid = computeCentroid(vertices);
+    for (Eigen::Vector2d vertex : vertices){
+        Eigen::Vector2d enlargedVertex;
+        if (vertex[0] < centroid[0]){
+            enlargedVertex[0] = vertex[0] - delta;
+        }
+        else{
+            enlargedVertex[0] = vertex[0] + delta;
+        }
+        if (vertex[1] < centroid[1]){
+            enlargedVertex[1] = vertex[1] - delta;
+        }
+        else{
+            enlargedVertex[1] = vertex[1] + delta;
+        }
+        enlargedObstacle.push_back(enlargedVertex);
+    }
+    return enlargedObstacle;
+}
+
+/**
+ * @brief Describe the purpose of the function here
+ * 
+ * @param paramName Description of parameter
+ * @return returnType Description of return value
+ **/
 Eigen::Vector2d MyBugAlgorithm::computeCentroid(const std::vector<Eigen::Vector2d>& points) const{
     Eigen::Vector2d centroid(0, 0);
 
@@ -108,14 +137,6 @@ Eigen::Vector2d MyBugAlgorithm::computeCentroid(const std::vector<Eigen::Vector2
 
     return centroid / static_cast<double>(points.size());
 }
-
-/**
- * @brief Describe the purpose of the function here
- * 
- * @param paramName Description of parameter
- * @return returnType Description of return value
- **/
-
 
 /**
  * @brief Given a goal vert and a robot vert that appears twice on the path, return the points

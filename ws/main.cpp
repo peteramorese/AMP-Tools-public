@@ -32,11 +32,9 @@ int main(int argc, char** argv) {
     Problem2D problem = EnvironmentTools::generateRandom(spec); // Random environment
     */
 
-    // Declare your algorithm object 
-    MyBugAlgorithm algo;
-    
-    // Call your algorithm on the generated problem
-    amp::Path2D path = algo.plan(problem);
+    // Declare r algorithm object 
+    MyBugAlgorithm bug1(1)
+    amp::Path2D path = bug1.plan(problem);
 
     // Check your path to make sure that it does not collide with the environment 
     bool success = HW2::check(path, problem);

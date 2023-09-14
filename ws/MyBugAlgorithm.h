@@ -163,8 +163,8 @@ public:
 
 	void moveForward()
 	{
-		x += shortestPath / 1000 * std::cos(heading);
-		y += shortestPath / 1000 * std::sin(heading);
+		x += shortestPath / 500 * std::cos(heading);
+		y += shortestPath / 500 * std::sin(heading);
 		positionHistory.push_back({x, y});
 		path.waypoints.push_back(Eigen::Vector2d(x, y));
 		lockout--;
@@ -183,7 +183,7 @@ public:
 		mLine = findLineEquation(start, goal);
 		shortestPath = distanceBetweenPoints(start, goal);
 		turnToGoal();
-		for (int i = 0; i < 5000; ++i)
+		for (int i = 0; i < 2000; ++i)
 		{
 			moveForward();
 			detectEdges();
@@ -270,7 +270,10 @@ public:
 					// vector<Point>::iterator endIter = positionHistory.end();
 					// vector<Point> pointsOnPoly(startIter, endIter);
 					vector<Point> pointsOnPoly;
-					pointsOnPoly = vector<Point>(positionHistory.begin() + entryPointIndices[entryPointIndices.size() - 1], positionHistory.end());
+					// pointsOnPoly = vector<Point>(positionHistory.begin() + entryPointIndices[entryPointIndices.size() - 1], positionHistory.end());
+					for (int i = entryPointIndices[entryPointIndices.size() - 1]; i < positionHistory.size(); ++i) {
+						pointsOnPoly.push_back(positionHistory[i]);
+					}
 					for (const Point &point : pointsOnPoly)
 					{
 						closestPoint = comparePoints(closestPoint, point, goal, true);

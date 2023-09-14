@@ -1,2 +1,3 @@
 #pragma once
 #define AMP_BINARY_DIR "@CMAKE_RUNTIME_OUTPUT_DIR@"
+#define AMP_PYTHONPATH "@AMP_PYTHONPATH@"

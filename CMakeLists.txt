@@ -2,21 +2,31 @@ cmake_minimum_required(VERSION 3.8)
 
 project(amp-tools)
 
-find_package (Eigen3 3.3.4 REQUIRED NO_MODULE)
-find_package(PythonLibs 3.4 REQUIRED)
-find_package(OpenSSL REQUIRED)
-
-if(AMP_BUILD_LIB)
-    find_package(Boost 1.70 REQUIRED)
-endif()
-
-
-
+# Flag for determining if the library should be built
 if(NOT DEFINED AMP_BUILD_LIB)
     option(AMP_BUILD_LIB "Build library (ON), link only (OFF)" OFF)
 endif()
 
+# C++ libs
+find_package (Eigen3 3.3.4 REQUIRED NO_MODULE)
+find_package(OpenSSL REQUIRED)
+if(AMP_BUILD_LIB)
+    find_package(Boost 1.70 REQUIRED)
+endif()
+
+# Python stuff
+#set(Python_EXECUTABLE "/home/peter/miniconda3/bin/python3" CACHE STRING "Manually specify the python executable and package to find")
+#set(Python_EXECUTABLE CACHE STRING "/home/peter/miniconda3/bin/python3")
+find_package(PythonInterp)
+find_package(PythonLibs 3.4 REQUIRED)
+message("Python Executable: ${Python_EXECUTABLE}")
+message("Python Include Directories: ${PythonLibs_INCLUDE_DIRS}")
+message("Python Libraries: ${PythonLibs_LIBRARIES}")
+set(AMP_PYTHONPATH "" CACHE STRING "Manually specify the PYTHONPATH")
+
+# Directory for input and output files
 set(AMP_FILE_IO_DIR ${CMAKE_CURRENT_SOURCE_DIR}/file_dump)
+
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -70,6 +80,7 @@ set(AMP_INCLUDE_DIRS
     ${CMAKE_BINARY_DIR}/include
 )
 
+message("PYTHON INCLUDE DIRES: ${PYTHON_INCLUDE_DIRS}")
 set(AMP_DEPENDENCY_INCLUDE_DIRS 
     ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/yaml-cpp/include
     ${EIGEN3_INCLUDE_DIRS}

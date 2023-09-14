@@ -1,5 +1,19 @@
 #! /bin/bash
 
+while [[ $# -gt 0 ]]; do 
+    case "$1" in 
+        -r|--rebuild)
+            echo "Rebuilding from scratch..."
+            rm -rf build            
+            shift 1
+            ;;
+        *)
+            echo "Unknown arg '$1'"
+            exit 1
+            ;;
+    esac
+done
+
 export LD_LIBRARY_PATH=@AMP_OS_INSTALL_DIR@:$LD_LIBRARY_PATH
 echo $LD_LIBRARY_PATH
 mkdir -p build && cd build

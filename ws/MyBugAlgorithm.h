@@ -68,12 +68,12 @@ Edge findLineEquation(Point point1, Point point2)
 	return edge;
 }
 
-double distanceBetweenPoints(Point point1, Point point2)
+double distanceBetweenPoints(const Point &point1, const Point &point2)
 {
 	return std::sqrt(std::pow(point1.x - point2.x, 2) + std::pow(point1.y - point2.y, 2));
 }
 
-Point comparePoints(Point coord1, Point coord2, const Point &target, bool closest = false)
+Point comparePoints(const Point &coord1, const Point &coord2, const Point &target, bool closest = false)
 {
 	double distance1 = distanceBetweenPoints(coord1, target);
 	double distance2 = distanceBetweenPoints(coord2, target);
@@ -156,6 +156,7 @@ public:
 								  heading(0),
 								  lockout(0),
 								  lockMax(5),
+								  step(0),
 								  // positionHistory({ start }),
 								  mode("goal")
 	{
@@ -266,11 +267,7 @@ public:
 					cout << "Completed circumnavigation\n";
 					mode = "exiting";
 					Point closestPoint = start;
-					// vector<Point>::iterator startIter = positionHistory.begin() + entryPointIndices[entryPointIndices.size() - 1];
-					// vector<Point>::iterator endIter = positionHistory.end();
-					// vector<Point> pointsOnPoly(startIter, endIter);
 					vector<Point> pointsOnPoly;
-					// pointsOnPoly = vector<Point>(positionHistory.begin() + entryPointIndices[entryPointIndices.size() - 1], positionHistory.end());
 					for (int i = entryPointIndices[entryPointIndices.size() - 1]; i < positionHistory.size(); ++i) {
 						pointsOnPoly.push_back(positionHistory[i]);
 					}
@@ -279,7 +276,7 @@ public:
 						closestPoint = comparePoints(closestPoint, point, goal, true);
 					}
 					exitPoint = closestPoint;
-					cout << "Exiting at point: " << exitPoint.x << ", " << exitPoint.y << "\n";
+					cout << "Exiting at point: " << exitPoint.x << ", " << y << "\n";
 					// vector<Point>::iterator it = std::find(pointsOnPoly.begin(), pointsOnPoly.end(), closestPoint);
 					// int index = std::distance(pointsOnPoly.begin(), it);
 					// if (index > pointsOnPoly.size() / 2) {

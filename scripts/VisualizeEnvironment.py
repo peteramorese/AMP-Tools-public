@@ -9,7 +9,7 @@ import sys
 
 visualize_config = {
     "path_line_width": 2.0,
-    "path_line_style": '-',
+    "path_line_style": '--',
     "path_line_color": "blue",
     "show_grid": True,
     "text_font_size": 10.0,
@@ -18,7 +18,9 @@ visualize_config = {
     "arrow_color": "path_line_color",
     "arrow_scale": 20.0,
     "arrow_head_width": 2,
-    "obstacle_color": "indianred",
+    "obstacle_color": "darkcyan",
+    "collision_point_marker": "*",
+    "collision_point_color": "red"
 }
 
 class Environment2DVisualizer:
@@ -72,10 +74,10 @@ def visualize_path(path : list, collision_points = None):
     for waypt in path:
         x_pts.append(waypt[0])
         y_pts.append(waypt[1])
+    ax.plot(x_pts, y_pts, ls=visualize_config["path_line_style"], color=visualize_config["path_line_color"], lw=visualize_config["path_line_width"], zorder=2)
     if collision_points is not None:
         for colpt in collision_points:
-            x_col_pts.append(waypt[0])
-            y_col_pts.append(waypt[1])
-        ax.scatter(x_col_pts, y_col_pts, "x")
-    ax.plot(x_pts, y_pts, ls=visualize_config["path_line_style"], color=visualize_config["path_line_color"], lw=visualize_config["path_line_width"])
+            x_col_pts.append(colpt[0])
+            y_col_pts.append(colpt[1])
+        ax.scatter(x_col_pts, y_col_pts, marker=visualize_config["collision_point_marker"], color=visualize_config["collision_point_color"], zorder=3)
 

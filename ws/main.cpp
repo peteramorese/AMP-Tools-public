@@ -14,6 +14,8 @@ int main(int argc, char** argv) {
     /*    Randomly generate the problem     */ 
 
     // Use WO1 from Exercise 2
+    cout << "DING DONG \nDING DONG \nDING DONG \nDING DONG \n";
+
     Problem2D problem = HW2::getWorkspace1();
 
     // Use WO1 from Exercise 2

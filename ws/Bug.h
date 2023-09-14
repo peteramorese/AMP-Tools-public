@@ -6,10 +6,11 @@
 class Bug {
     public:
         // methods:
-        Bug(const amp::Problem2D& p, float sZ);
+        Bug(const amp::Problem2D& p, float sZ, float d);
         ~Bug();
 
         void step();
+        void boundryFollow();
 
         // fields
         amp::Problem2D environment;
@@ -17,6 +18,7 @@ class Bug {
         Eigen::Vector2d hitPoint;
         Eigen::Vector2d position;
         float stepSize;
+        float delta;
         int mode;
         float minDist;
         Eigen::Vector2d minDistPoint;

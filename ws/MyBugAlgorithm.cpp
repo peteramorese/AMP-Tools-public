@@ -11,19 +11,14 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem) const {
 
     // Your algorithm solves the problem and generates a path. Here is a hard-coded to path for now...
     amp::Path2D path;
+    float stepSize = 0.1;
     float delta = 0.1;
 
-    //step 1: expand all boundries of obstacles by delta;
-    amp::Problem2D expandedProblem = expandProblem(problem, .1);
-
-    //step 2: initialize bug
-    Bug bug = Bug(expandedProblem, delta);
+    //step 1: initialize bug
+    Bug bug = Bug(problem, stepSize, delta);
 
     path.waypoints.push_back(problem.q_init);
-    for(int i = 0; i < 200; i++){
-        if(i == 188){
-            std::cout << "break" << std::endl;
-        }
+    for(int i = 0; i < 500; i++){
         bug.step();
         bug.waypoints.push_back(bug.position);
         path.waypoints.push_back(bug.position);

@@ -89,6 +89,71 @@ Eigen::Vector2d Helper::minDistance(Eigen::Vector2d point, std::vector<Eigen::Ve
         }
     }
     return minDistPoint;
+
+}
+
+std::vector<Eigen::Vector2d> Helper::expandObstacle(amp::Obstacle2D obstacle, float delta) const{
+    std::vector<Eigen::Vector2d> enlargedObstacle;
+    std::vector<Eigen::Vector2d> vertices = obstacle.verticesCCW();
+    Eigen::Vector2d centroid = computeCentroid(vertices);
+    for (Eigen::Vector2d vertex : vertices){
+        Eigen::Vector2d enlargedVertex;
+        if (vertex[0] < centroid[0]){
+            enlargedVertex[0] = vertex[0] - delta;
+        }
+        else{
+            enlargedVertex[0] = vertex[0] + delta;
+        }
+        if (vertex[1] < centroid[1]){
+            enlargedVertex[1] = vertex[1] - delta;
+        }
+        else{
+            enlargedVertex[1] = vertex[1] + delta;
+        }
+        enlargedObstacle.push_back(enlargedVertex);
+    }
+    return enlargedObstacle;
+}
+
+Eigen::Vector2d Helper::computeCentroid(const std::vector<Eigen::Vector2d>& points) const{
+    Eigen::Vector2d centroid(0, 0);
+
+    if (points.empty()) {
+        return centroid;  // Return (0,0) if no points are provided.
+    }
+
+    for (const auto& point : points) {
+        centroid += point;
+    }
+
+    return centroid / static_cast<double>(points.size());
+}
+
+Eigen::Vector2d Helper::expandVertex(amp::Obstacle2D obstacle, Eigen::Vector2d vertex, float delta){
+    Eigen::Vector2d enlargedVertex;
+    std::vector<Eigen::Vector2d> vertices = obstacle.verticesCCW();
+    Eigen::Vector2d centroid = computeCentroid(vertices);
+    if (vertex[0] < centroid[0]){
+        enlargedVertex[0] = vertex[0] - delta;
+    }
+    else{
+        enlargedVertex[0] = vertex[0] + delta;
+    }
+    if (vertex[1] < centroid[1]){
+        enlargedVertex[1] = vertex[1] - delta;
+    }
+    else{
+        enlargedVertex[1] = vertex[1] + delta;
+    }
+    return enlargedVertex;
+}
+
+bool Helper::close(Eigen::Vector2d goal, Eigen::Vector2d position, float stepSize){
+    Eigen::Vector2d direction1 = goal - position;
+    if (direction1.norm() < stepSize) {
+        return true;
+    }
+    return false;
 }
 
 

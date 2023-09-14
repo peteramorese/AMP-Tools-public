@@ -14,6 +14,10 @@ class Helper {
         std::list<Eigen::Vector2d> shortestPath(Eigen::Vector2d position, Eigen::Vector2d problem, std::vector<Eigen::Vector2d> waypoints);
         float getDistance(Eigen::Vector2d point1, Eigen::Vector2d point2);
         Eigen::Vector2d minDistance(Eigen::Vector2d point, std::vector<Eigen::Vector2d> waypoints);
+        Eigen::Vector2d computeCentroid(const std::vector<Eigen::Vector2d>& points) const;
+        std::vector<Eigen::Vector2d> expandObstacle(amp::Obstacle2D obstacle, float delta) const;
+        Eigen::Vector2d expandVertex(amp::Obstacle2D obstacle, Eigen::Vector2d position, float delta);
+        bool close(Eigen::Vector2d goal, Eigen::Vector2d position, float delta);
 
         // fields
 };

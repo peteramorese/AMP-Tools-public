@@ -12,12 +12,6 @@ struct Point
 	double y;
 };
 
-struct Limit
-{
-	double lower;
-	double upper;
-};
-
 struct Coefficients
 {
 	double a;
@@ -40,7 +34,7 @@ struct Edge
 
 Edge findLineEquation(Point point1, Point point2)
 {
-	int buffer = 0.2;
+	double buffer = 0.1;
 	double a, b, c;
 	if (point1.x == point2.x)
 	{
@@ -64,7 +58,8 @@ Edge findLineEquation(Point point1, Point point2)
 		{limitX[0] - buffer, limitX[1] + buffer},
 		{limitY[0] - buffer, limitY[1] + buffer}};
 
-	cout << a << ", " << b << ", " << c << "\n";
+	cout << a << "x + " << b << "y = " << c << "\n";
+	cout << limits.x[0] << ", " << limits.x[1] << ", " << limits.y[0] << ", " << limits.y[1] << "\n\n";
 	Edge edge = {
 		{a, b, c},
 		limits,
@@ -117,7 +112,8 @@ vector<Edge> findEdges(const amp::Problem2D &problem)
 		vertices.push_back(vertices[0]);
 		for (int i = 1; i < vertices.size(); ++i)
 		{
-			cout << vertices[i](0) << " , " << vertices[i](1) << "\n";
+			// cout << vertices[i -1](0) << " , " << vertices[i -1 ](1) << "\n";
+			// cout << vertices[i](0) << " , " << vertices[i](1) << "\n\n";
 			edges.push_back(findLineEquation({vertices[i](0), vertices[i](1)}, {vertices[i - 1](0), vertices[i - 1](1)}));
 		}
 	}
@@ -167,8 +163,8 @@ public:
 
 	void moveForward()
 	{
-		x += shortestPath / 500 * std::cos(heading);
-		y += shortestPath / 500 * std::sin(heading);
+		x += shortestPath / 1000 * std::cos(heading);
+		y += shortestPath / 1000 * std::sin(heading);
 		positionHistory.push_back({x, y});
 		path.waypoints.push_back(Eigen::Vector2d(x, y));
 		lockout--;

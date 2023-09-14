@@ -279,6 +279,7 @@ public:
 						closestPoint = comparePoints(closestPoint, point, goal, true);
 					}
 					exitPoint = closestPoint;
+					cout << "Exiting at point: " << exitPoint.x << ", " << exitPoint.y << "\n";
 					// vector<Point>::iterator it = std::find(pointsOnPoly.begin(), pointsOnPoly.end(), closestPoint);
 					// int index = std::distance(pointsOnPoly.begin(), it);
 					// if (index > pointsOnPoly.size() / 2) {

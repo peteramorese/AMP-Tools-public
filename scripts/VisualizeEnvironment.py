@@ -7,9 +7,6 @@ import yaml
 import argparse
 import sys
 
-print("Python executable: ", sys.executable)
-print("sys path: ", sys.path)
-
 visualize_config = {
     "path_line_width": 2.0,
     "path_line_style": '-',

@@ -28,7 +28,8 @@ int main(int argc, char** argv) {
     spec.n_obstacles = 2;
     spec.path_clearance = 0.01;
     spec.d_sep = 0.01;
-    Randomly generate the environment;
+
+    //Randomly generate the environment;
     Problem2D problem = EnvironmentTools::generateRandom(spec); // Random environment
     */
 

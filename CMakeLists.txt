@@ -15,8 +15,6 @@ if(AMP_BUILD_LIB)
 endif()
 
 # Python stuff
-#set(Python_EXECUTABLE "/home/peter/miniconda3/bin/python3" CACHE STRING "Manually specify the python executable and package to find")
-#set(Python_EXECUTABLE CACHE STRING "/home/peter/miniconda3/bin/python3")
 find_package(PythonInterp)
 find_package(PythonLibs 3.4 REQUIRED)
 message("Python Executable: ${Python_EXECUTABLE}")

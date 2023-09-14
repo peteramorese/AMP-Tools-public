@@ -183,7 +183,7 @@ public:
 		mLine = findLineEquation(start, goal);
 		shortestPath = distanceBetweenPoints(start, goal);
 		turnToGoal();
-		for (int i = 0; i < 2000; ++i)
+		for (int i = 0; i < 5000; ++i)
 		{
 			moveForward();
 			detectEdges();
@@ -263,13 +263,14 @@ public:
 				bool isComplete = detectPoint(entryPoints[entryPoints.size() - 1]);
 				if (isComplete)
 				{
-					cout << "Completed circumnavigation";
-					lockout = lockMax;
+					cout << "Completed circumnavigation\n";
 					mode = "exiting";
 					Point closestPoint = start;
-					vector<Point>::iterator startIter = positionHistory.begin() + entryPointIndices[entryPointIndices.size() - 1];
-					vector<Point>::iterator endIter = positionHistory.end();
-					vector<Point> pointsOnPoly(startIter, endIter);
+					// vector<Point>::iterator startIter = positionHistory.begin() + entryPointIndices[entryPointIndices.size() - 1];
+					// vector<Point>::iterator endIter = positionHistory.end();
+					// vector<Point> pointsOnPoly(startIter, endIter);
+					vector<Point> pointsOnPoly;
+					pointsOnPoly = vector<Point>(positionHistory.begin() + entryPointIndices[entryPointIndices.size() - 1], positionHistory.end());
 					for (const Point &point : pointsOnPoly)
 					{
 						closestPoint = comparePoints(closestPoint, point, goal, true);
@@ -279,7 +280,6 @@ public:
 					// int index = std::distance(pointsOnPoly.begin(), it);
 					// if (index > pointsOnPoly.size() / 2) {
 					// heading += M_PI;
-					// }
 				}
 			}
 		}
@@ -287,7 +287,7 @@ public:
 		{
 			if (detectPoint(exitPoint))
 			{
-				cout << "Exiting Polygon";
+				cout << "Exiting Polygon\n";
 				lockout = lockMax;
 				turnToGoal();
 				mode = "goal";
@@ -303,7 +303,7 @@ public:
 
 	bool findCollision(const Edge &edge)
 	{
-		if (edge.limits.x[0] < x < edge.limits.x[1] && edge.limits.y[0] < y < edge.limits.y[1])
+		if (edge.limits.x[0] < x && x < edge.limits.x[1] && edge.limits.y[0] < y &&  y < edge.limits.y[1])
 		{
 			Point perviousPoint = positionHistory[positionHistory.size() - 2];
 			bool previousSide = edge.coeff.a * perviousPoint.x + edge.coeff.b * perviousPoint.y < edge.coeff.c;

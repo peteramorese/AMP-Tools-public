@@ -20,7 +20,8 @@ class MyBugAlgorithm : public amp::BugAlgorithm {
         Eigen::Vector2d stepLine2(Eigen::Vector2d vert1, Eigen::Vector2d vert2, float delta) const;
         float distance(Eigen::Vector2d vert1, Eigen::Vector2d vert2) const;
         Eigen::Vector2d computeCentroid(const std::vector<Eigen::Vector2d>& points) const;
-        std::vector<Eigen::Vector2d> enlargeObstacle(amp::Obstacle2D obstacle, float delta) const;
+        std::vector<Eigen::Vector2d> expandObstacle(amp::Obstacle2D obstacle, float delta) const;
+        amp::Problem2D expandProblem(const amp::Problem2D& problem, float delta) const;
 
     private:
 };

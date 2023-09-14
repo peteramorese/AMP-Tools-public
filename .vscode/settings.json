@@ -61,6 +61,9 @@
         "iterator": "cpp",
         "memory_resource": "cpp",
         "utility": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "core": "cpp",
+        "geometry": "cpp",
+        "filesystem": "cpp"
     }
 }

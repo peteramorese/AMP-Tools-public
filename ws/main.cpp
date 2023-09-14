@@ -33,8 +33,10 @@ int main(int argc, char** argv) {
     */
 
     // Declare r algorithm object 
-    MyBugAlgorithm bug1(1)
+    MyBugAlgorithm bug1(1);
     amp::Path2D path = bug1.plan(problem);
+
+ 
 
     // Check your path to make sure that it does not collide with the environment 
     bool success = HW2::check(path, problem);
@@ -46,7 +48,7 @@ int main(int argc, char** argv) {
     Visualizer::showFigures();
 
     // Let's get crazy and generate a random environment and test your algorithm
-    bool random_trial_success = HW2::generateAndCheck(algo);
+    bool random_trial_success = HW2::generateAndCheck(bug1);
     LOG("Found valid solution in random environment: " << (random_trial_success ? "Yes!" : "No :("));
 
     return 0;

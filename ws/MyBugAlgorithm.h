@@ -95,7 +95,7 @@ Point comparePoints(const Point& coord1, const Point& coord2, const Point& targe
 vector<vector<Edge>> findEdges(const amp::Problem2D& problem) {
 	vector<vector<Edge>> edges;
 	for (const amp::Obstacle2D& obstacle : problem.obstacles) {
-		< vector<Edge> polyEdges;
+		vector<Edge> polyEdges;
 		vector<Eigen::Vector2d> vertices = obstacle.verticesCCW();
 		vertices.push_back(vertices[0]);
 		for (int j = 1; j < vertices.size(); ++j) {
@@ -204,17 +204,17 @@ public:
 	}
 
 	void detectEdges() {
-		for (int i = 1; i < edges.size(); ++i) {
+		for (int i = 0; i < edges.size(); ++i) {
 			if (i != polyInd) {
 				for (const Edge& edge : edges[i]) {
-					if (findCollision(edge)) {
+					if (findCollision(edge, false)) {
 						if (mode == "goal") {
 							entryPoints.push_back({ x, y });
 							entryPointIndices.push_back(step);
 							mode = "circ";
 						}
 						polyInd = i;
-						endInd = edge.edgeInd;
+						edgeInd = edge.edgeInd;
 						cout << "Crossed Edge at " << x << ", " << y << "\n";
 						turnAlongEdge(edge);
 						rewind();
@@ -232,9 +232,9 @@ public:
 				ind = edges[polyInd].size();
 			}
 			Edge nextEdge = edges[polyInd][ind];
-			if (findCollision(nextEdge) {
-				turnAlongEdge(edge);
-				edgeInd = ind
+			if (findCollision(nextEdge)) {
+				turnAlongEdge(nextEdge);
+				edgeInd = ind;
 			}
 
 		}
@@ -242,7 +242,7 @@ public:
 
 	void detectMLine() {
 		if (mode == "circ") {
-			if (findCollision(mLine)) {
+			if (findCollision(mLine, true)) {
 				cout << "Crossed M-Line\n";
 				lockout = lockMax;
 				mLineIntercepts.push_back({x, y});
@@ -295,8 +295,12 @@ public:
 		return distance / shortestPath < 0.005;
 	}
 
-	bool findCollision(const Edge& edge) {
-		if (edge.limits.x[0] < x && x < edge.limits.x[1] && edge.limits.y[0] < y && y < edge.limits.y[1]) {
+	bool findCollision(const Edge& edge, bool checkLimits=false) {
+		bool condition = true;
+		if (checkLimits) {
+			condition = edge.limits.x[0] < x && x < edge.limits.x[1] && edge.limits.y[0] < y && y < edge.limits.y[1];
+		}
+		if (condition) {
 			Point perviousPoint = positionHistory[positionHistory.size() - 2];
 			bool previousSide = edge.coeff.a * perviousPoint.x + edge.coeff.b * perviousPoint.y < edge.coeff.c;
 			bool currentSide = edge.coeff.a * x + edge.coeff.b * y < edge.coeff.c;

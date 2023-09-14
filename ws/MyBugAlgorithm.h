@@ -30,10 +30,11 @@ struct Edge
 	Coefficients coeff;
 	Limits limits;
 	vector<Point> points;
+	int edgeInd;
 };
 
 Edge findLineEquation(Point point1, Point point2) {
-	double buffer = 0.1;
+	double buffer = 0;
 	double a, b, c;
 	if (point1.x == point2.x) {
 		// auto [a, b, c] = tuple{ 1, 0, point1.x };
@@ -91,19 +92,20 @@ Point comparePoints(const Point& coord1, const Point& coord2, const Point& targe
 	}
 }
 
-vector<Edge> findEdges(const amp::Problem2D& problem)
-{
-	vector<Point> vertices;
-	vector<Edge> edges;
-	for (const amp::Obstacle2D& obstacle : problem.obstacles)
-	{
+vector<vector<Edge>> findEdges(const amp::Problem2D& problem) {
+	vector<vector<Edge>> edges;
+	for (const amp::Obstacle2D& obstacle : problem.obstacles) {
+		< vector<Edge> polyEdges;
 		vector<Eigen::Vector2d> vertices = obstacle.verticesCCW();
 		vertices.push_back(vertices[0]);
-		for (int i = 1; i < vertices.size(); ++i) {
+		for (int j = 1; j < vertices.size(); ++j) {
 			// cout << vertices[i -1](0) << " , " << vertices[i -1 ](1) << "\n";
 			// cout << vertices[i](0) << " , " << vertices[i](1) << "\n\n";
-			edges.push_back(findLineEquation({ vertices[i](0), vertices[i](1) }, { vertices[i - 1](0), vertices[i - 1](1) }));
+			Edge edge = findLineEquation({ vertices[j](0), vertices[j](1) }, { vertices[j - 1](0), vertices[j - 1](1) });
+			edge.edgeInd = j;
+			polyEdges.push_back(edge);
 		}
+		edges.push_back(polyEdges);
 	}
 
 	return edges;
@@ -126,25 +128,25 @@ private:
 	vector<Point> mLineIntercepts;
 	vector<int> entryPointIndices;
 	string mode;
-	vector<Edge> edges;
+	vector<vector<Edge>> edges;
 	Edge mLine;
 	int lockout;
 	int lockMax;
 	double shortestPath;
 	amp::Path2D path;
+	std::deque<Edge> myDeque;
+	int polyInd;
+	int edgeInd;
 
 public:
 	MyBugAlgorithm(int bugType) : // start(start),
-		// goal(goal),
-		// edges(edges),
 		bugType(bugType),
-		// x(start.x),
-		// y(start.y),
 		heading(0),
 		lockout(0),
 		lockMax(5),
+		polyInd(-1),
+		edgeInd(-1),
 		step(0),
-		// positionHistory({ start }),
 		mode("goal") {}
 
 	void moveForward() {
@@ -157,16 +159,8 @@ public:
 	}
 
 	virtual amp::Path2D plan(const amp::Problem2D& problem) {
-		cout << "Starting Bug " << bugType << "\n";
-		x = problem.q_init(0);
-		y = problem.q_init(1);
-		start = {x, y};
-		positionHistory.push_back(start);
-		goal = {problem.q_goal(0), problem.q_goal(1)};
-		edges = findEdges(problem);
-		mLine = findLineEquation(start, goal);
-		shortestPath = distanceBetweenPoints(start, goal);
-		turnToGoal();
+		initWorkspace(problem);
+
 		for (int i = 0; i < 2000; ++i) {
 			moveForward();
 			detectEdges();
@@ -184,40 +178,79 @@ public:
 		return path;
 	}
 
+	void initWorkspace(const amp::Problem2D& problem) {
+		cout << "Starting Bug " << bugType << "\n";
+		x = problem.q_init(0);
+		y = problem.q_init(1);
+		start = { x, y };
+		positionHistory.push_back(start);
+		goal = { problem.q_goal(0), problem.q_goal(1) };
+		edges = findEdges(problem);
+		mLine = findLineEquation(start, goal);
+		shortestPath = distanceBetweenPoints(start, goal);
+		turnToGoal();
+	}
+
+
 	void turnToGoal() {
 		heading = std::atan((y - goal.y) / (x - goal.x));
 	}
 
+	void rewind() {
+		Point previousPoint = positionHistory[positionHistory.size() - 1];
+		positionHistory.pop_back();
+		x = previousPoint.x;
+		y = previousPoint.y;
+	}
+
 	void detectEdges() {
-		if (lockout < 0) {
-			for (const Edge& edge : edges) {
-				if (findCollision(edge)) {
-					if (mode == "goal") {
-						entryPoints.push_back({x, y});
-						entryPointIndices.push_back(step);
-						mode = "circ";
+		for (int i = 1; i < edges.size(); ++i) {
+			if (i != polyInd) {
+				for (const Edge& edge : edges[i]) {
+					if (findCollision(edge)) {
+						if (mode == "goal") {
+							entryPoints.push_back({ x, y });
+							entryPointIndices.push_back(step);
+							mode = "circ";
+						}
+						polyInd = i;
+						endInd = edge.edgeInd;
+						cout << "Crossed Edge at " << x << ", " << y << "\n";
+						turnAlongEdge(edge);
+						rewind();
+						break;
 					}
-					cout << "Crossed Edge at " << x << ", " << y << "\n";
-					lockout = lockMax;
-					turnAlongEdge(edge);
 				}
 			}
 		}
 	}
 
+	void detectNextEdge() {
+		if (mode == "circ") {
+			int ind = edgeInd - 1;
+			if (edgeInd == 0) {
+				ind = edges[polyInd].size();
+			}
+			Edge nextEdge = edges[polyInd][ind];
+			if (findCollision(nextEdge) {
+				turnAlongEdge(edge);
+				edgeInd = ind
+			}
+
+		}
+	}
+
 	void detectMLine() {
 		if (mode == "circ") {
-			if (lockout < 0) {
-				if (findCollision(mLine)) {
-					cout << "Crossed M-Line\n";
-					lockout = lockMax;
-					mLineIntercepts.push_back({x, y});
-					Point previousEntry = entryPoints[entryPoints.size() - 1];
-					Point checkFartherPoint = comparePoints(previousEntry, {x, y}, goal);
-					if (checkFartherPoint.x == previousEntry.x && checkFartherPoint.y == previousEntry.y) {
-						findDirectionToTurn(mLine, true);
-						mode = "goal";
-					}
+			if (findCollision(mLine)) {
+				cout << "Crossed M-Line\n";
+				lockout = lockMax;
+				mLineIntercepts.push_back({x, y});
+				Point previousEntry = entryPoints[entryPoints.size() - 1];
+				Point checkFartherPoint = comparePoints(previousEntry, {x, y}, goal);
+				if (checkFartherPoint.x == previousEntry.x && checkFartherPoint.y == previousEntry.y) {
+					findDirectionToTurn(mLine, true);
+					mode = "goal";
 				}
 			}
 		}
@@ -275,22 +308,17 @@ public:
 	}
 
 	void turnAlongEdge(const Edge& edge) {
-		if (mode == "circ" || mode == "exiting") {
-			findDirectionToTurn(edge);
-		}
-		else {
-			heading = std::atan(-edge.coeff.a);
-		}
+		findDirectionToTurn(edge);
 	}
 
 	void findDirectionToTurn(const Edge& edge, bool isMLine = false) {
-		Point fartherstVertex;
+		Point targetVertex;
 		double guessHeading;
 		if (isMLine) {
-			fartherstVertex = goal;
+			targetVertex = goal;
 		}
 		else {
-			fartherstVertex = comparePoints(edge.points[0], edge.points[1], {x, y});
+			targetVertex = edge.points[0];
 		}
 		if (edge.coeff.b == 0) {
 			guessHeading = M_PI / 2;
@@ -299,7 +327,7 @@ public:
 			guessHeading = std::atan(-edge.coeff.a);
 		}
 		Point projectedPoint = {x + std::cos(guessHeading), y + std::sin(guessHeading)};
-		Point fartherPoint = comparePoints({x, y}, projectedPoint, fartherstVertex);
+		Point fartherPoint = comparePoints({x, y}, projectedPoint, targetVertex);
 		if (projectedPoint.x == fartherPoint.x && projectedPoint.y == fartherPoint.y) {
 			heading = guessHeading + M_PI;
 		}

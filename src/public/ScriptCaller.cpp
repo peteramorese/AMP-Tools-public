@@ -54,6 +54,7 @@ ampprivate::pybridge::ScriptCaller::_Lifeline::_Lifeline() {
     if (*sys_path) {
         // Add the build directory to the path
         PyList_Append(sys_path->get(), PyUnicode_DecodeFSDefault(AMP_BINARY_DIR));
+        //PyList_Append(sys_path->get(), PyUnicode_DecodeFSDefault(AMP_PYTHONPATH));
     } else {
         PyErr_Print();
     }

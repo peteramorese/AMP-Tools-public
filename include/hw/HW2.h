@@ -11,7 +11,7 @@ class BugAlgorithm {
         /// @brief Solve a motion planning problem using a bug algorithm. Create a derived class and override this method
         /// @param problem Motion planning problem
         /// @return Path solution
-        virtual amp::Path2D plan(const amp::Problem2D& problem) const = 0;
+        virtual amp::Path2D plan(const amp::Problem2D& problem) = 0;
 };
 
 class HW2 {

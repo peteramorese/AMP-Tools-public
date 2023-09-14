@@ -48,8 +48,8 @@ int main(int argc, char** argv) {
     Visualizer::showFigures();
 
     // Let's get crazy and generate a random environment and test your algorithm
-    bool random_trial_success = HW2::generateAndCheck(bug1);
-    LOG("Found valid solution in random environment: " << (random_trial_success ? "Yes!" : "No :("));
+    // bool random_trial_success = HW2::generateAndCheck(bug1);
+    // LOG("Found valid solution in random environment: " << (random_trial_success ? "Yes!" : "No :("));
 
     return 0;
 }

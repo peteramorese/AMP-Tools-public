@@ -40,7 +40,7 @@ struct Edge
 
 Edge findLineEquation(Point point1, Point point2)
 {
-	int buffer = 5;
+	int buffer = 0.2;
 	double a, b, c;
 	if (point1.x == point2.x)
 	{
@@ -64,6 +64,7 @@ Edge findLineEquation(Point point1, Point point2)
 		{limitX[0] - buffer, limitX[1] + buffer},
 		{limitY[0] - buffer, limitY[1] + buffer}};
 
+	cout << a << ", " << b << ", " << c << "\n";
 	Edge edge = {
 		{a, b, c},
 		limits,
@@ -114,8 +115,9 @@ vector<Edge> findEdges(const amp::Problem2D &problem)
 	{
 		vector<Eigen::Vector2d> vertices = obstacle.verticesCCW();
 		vertices.push_back(vertices[0]);
-		for (int i = 0; i < vertices.size() - 1; ++i)
+		for (int i = 1; i < vertices.size(); ++i)
 		{
+			cout << vertices[i](0) << " , " << vertices[i](1) << "\n";
 			edges.push_back(findLineEquation({vertices[i](0), vertices[i](1)}, {vertices[i - 1](0), vertices[i - 1](1)}));
 		}
 	}
@@ -208,8 +210,6 @@ public:
 
 	void turnToGoal()
 	{
-		cout << "testing\n";
-
 		heading = std::atan((y - goal.y) / (x - goal.x));
 	}
 
@@ -227,7 +227,7 @@ public:
 						entryPointIndices.push_back(step);
 						mode = "circ";
 					}
-					cout << "Crossed Edge\n";
+					cout << "Crossed Edge at " << x << ", " << y << "\n";
 					lockout = lockMax;
 					turnAlongEdge(edge);
 				}
@@ -335,6 +335,7 @@ public:
 	void findDirectionToTurn(const Edge &edge, bool isMLine = false)
 	{
 		Point fartherstVertex;
+		double guessHeading;
 		if (isMLine)
 		{
 			fartherstVertex = goal;
@@ -343,7 +344,14 @@ public:
 		{
 			fartherstVertex = comparePoints(edge.points[0], edge.points[1], {x, y});
 		}
-		double guessHeading = std::atan(-edge.coeff.a);
+		if (edge.coeff.b == 0)
+		{
+			guessHeading = M_PI / 2;
+		}
+		else
+		{
+			guessHeading = std::atan(-edge.coeff.a);
+		}
 		Point projectedPoint = {x + std::cos(guessHeading), y + std::sin(guessHeading)};
 		Point fartherPoint = comparePoints({x, y}, projectedPoint, fartherstVertex);
 		if (projectedPoint.x == fartherPoint.x && projectedPoint.y == fartherPoint.y)

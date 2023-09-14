@@ -13,16 +13,10 @@ int main(int argc, char** argv) {
 
     /*    Randomly generate the problem     */ 
 
-    // Use WO1 from Exercise 2
-    cout << "DING DONG \nDING DONG \nDING DONG \n";
-
-    Problem2D problem = HW2::getWorkspace1();
-
-    // Use WO1 from Exercise 2
-    /*
-    Problem2D problem = HW2::getWorkspace2();
-    */
-
+    // Use WO from Exercise 2
+    Problem2D problem1 = HW2::getWorkspace1();
+    Problem2D problem2 = HW2::getWorkspace2();
+    
     // Make a random environment spec, edit properties about it such as the number of obstacles
     /*
     Random2DEnvironmentSpecification spec;
@@ -36,17 +30,20 @@ int main(int argc, char** argv) {
 
     // Declare r algorithm object 
     MyBugAlgorithm bug1(1);
-    amp::Path2D path = bug1.plan(problem);
+    // amp::Path2D path1 = bug1.plan(problem1);
+    // bool success1 = HW2::check(path1, problem1);
+    // Visualizer::makeFigure(problem1, path1);
+    // LOG("Found valid solution to workspace 1: " << (success1 ? "Yes!" : "No :("));
 
- 
+    amp::Path2D path2 = bug1.plan(problem2);
+    bool success2 = HW2::check(path2, problem2);
+    Visualizer::makeFigure(problem2, path2);
+    LOG("Found valid solution to workspace 1: " << (success2 ? "Yes!" : "No :(")); 
 
     // Check your path to make sure that it does not collide with the environment 
-    bool success = HW2::check(path, problem);
 
-    LOG("Found valid solution to workspace 1: " << (success ? "Yes!" : "No :("));
 
     // Visualize the path and environment
-    Visualizer::makeFigure(problem, path);
     Visualizer::showFigures();
 
     // Let's get crazy and generate a random environment and test your algorithm

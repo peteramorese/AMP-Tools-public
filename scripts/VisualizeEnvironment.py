@@ -68,6 +68,7 @@ def visualize_environment(bounds, obstacles, q_init = None, q_goal = None, path 
 
 def visualize_path(path : list, collision_points = None):
     ax = plt.gca() 
+    ax.set_aspect('equal', adjustable='box')
     x_pts = list()
     y_pts = list()
     x_col_pts = list()

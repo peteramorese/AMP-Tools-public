@@ -56,8 +56,8 @@ Edge findLineEquation(Point point1, Point point2) {
 		{limitX[0] - buffer, limitX[1] + buffer},
 		{limitY[0] - buffer, limitY[1] + buffer} };
 
-	cout << a << "x + " << b << "y = " << c << "\n";
-	cout << limits.x[0] << ", " << limits.x[1] << ", " << limits.y[0] << ", " << limits.y[1] << "\n\n";
+	// cout << a << "x + " << b << "y = " << c << "\n";
+	// cout << limits.x[0] << ", " << limits.x[1] << ", " << limits.y[0] << ", " << limits.y[1] << "\n\n";
 	Edge edge = {
 		{a, b, c},
 		limits,
@@ -152,8 +152,8 @@ public:
 		mode("goal") {}
 
 	void moveForward() {
-		x += shortestPath / 500 * std::cos(heading);
-		y += shortestPath / 500 * std::sin(heading);
+		x += shortestPath / 1000 * std::cos(heading);
+		y += shortestPath / 1000 * std::sin(heading);
 		positionHistory.push_back({x, y});
 		path.waypoints.push_back(Eigen::Vector2d(x, y));
 		lockout--;
@@ -162,7 +162,7 @@ public:
 
 	virtual amp::Path2D plan(const amp::Problem2D& problem) {
 		init(problem);
-		for (int i = 0; i < 5000; ++i) {
+		for (int i = 0; i < 15000; ++i) {
 			moveForward();
 			detectAllEdges();
 			if (bugType == 1) {
@@ -183,12 +183,12 @@ public:
 	void init(const amp::Problem2D& problem) {
 		cout << "Starting Bug " << bugType << "\n";
 		x = problem.q_init(0);
-		y = problem.q_init(1) + 0.5;
+		y = problem.q_init(1);
 		start = { x, y };
 		positionHistory.push_back(start);
-		path.waypoints.push_back(Eigen::Vector2d(x, y - 0.5));
+		path.waypoints.push_back(Eigen::Vector2d(x, y));
 
-		goal = { problem.q_goal(0), problem.q_goal(1) };
+		goal = { problem.q_goal(0), problem.q_goal(1)};
 		edges = findEdges(problem);
 		mLine = findLineEquation(start, goal);
 		shortestPath = distanceBetweenPoints(start, goal);
@@ -215,7 +215,9 @@ public:
 	void detectEdges() {
 		for (int i = 0; i < edges.size(); ++i) {
 			if (i != polyInd) {
-				for (const Edge& edge : edges[i]) {
+				// for (const Edge& edge : edges[i]) {
+				for (int j = edges[i].size() - 1; j >= 0; j--) {
+					Edge edge = edges[i][j];
 					if (findCollision(edge, true)) {
 						if (mode == "goal") {
 							entryPoints.push_back({ x, y });
@@ -307,7 +309,7 @@ public:
 
 	bool detectPoint(const Point& point) {
 		double distance = distanceBetweenPoints({x, y}, point);
-		return distance / shortestPath < 0.005;
+		return distance / shortestPath < 0.002;
 	}
 
 	bool findCollision(const Edge& edge, bool checkLimits=false) {

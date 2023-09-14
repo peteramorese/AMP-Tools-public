@@ -18,11 +18,12 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem) const {
     Bug bug = Bug(problem, stepSize, delta);
 
     path.waypoints.push_back(problem.q_init);
-    for(int i = 0; i < 500; i++){
+    while(bug.position != problem.q_goal){
         bug.step();
         bug.waypoints.push_back(bug.position);
         path.waypoints.push_back(bug.position);
-        // std::cout << "mode: " << bug.mode << std::endl;
+        std::cout << "mode: " << bug.mode << std::endl;
+        std::cout << "position: " << bug.position[0] << ", " << bug.position[1] << std::endl;
         // for(Eigen::Vector2d point : bug.goalQueue){
         //     std::cout << point[0] << ", " <<point[1] << "-";
         // }

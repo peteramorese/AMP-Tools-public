@@ -62,12 +62,12 @@ std::list<Eigen::Vector2d> Helper::shortestPath(Eigen::Vector2d position, Eigen:
         }
     }
     if(leftDist < rightDist){
-        for(int i = positionLeftIdx; i < goalIndex; i++){
+        for(int i = positionLeftIdx + 1; i <= goalIndex; i++){
             path.push_back(waypoints[i]);
         }
     }
     else{
-        for(int i = positionRightIdx; i > goalIndex; i--){
+        for(int i = positionRightIdx - 1; i >= goalIndex; i--){
             path.push_back(waypoints[i]);
         }
     }
@@ -129,23 +129,13 @@ Eigen::Vector2d Helper::computeCentroid(const std::vector<Eigen::Vector2d>& poin
     return centroid / static_cast<double>(points.size());
 }
 
-Eigen::Vector2d Helper::expandVertex(amp::Obstacle2D obstacle, Eigen::Vector2d vertex, float delta){
-    Eigen::Vector2d enlargedVertex;
-    std::vector<Eigen::Vector2d> vertices = obstacle.verticesCCW();
-    Eigen::Vector2d centroid = computeCentroid(vertices);
-    if (vertex[0] < centroid[0]){
-        enlargedVertex[0] = vertex[0] - delta;
-    }
-    else{
-        enlargedVertex[0] = vertex[0] + delta;
-    }
-    if (vertex[1] < centroid[1]){
-        enlargedVertex[1] = vertex[1] - delta;
-    }
-    else{
-        enlargedVertex[1] = vertex[1] + delta;
-    }
-    return enlargedVertex;
+Eigen::Vector2d Helper::expandVertex(Eigen::Vector2d vert1, Eigen::Vector2d vert2, Eigen::Vector2d vert3, Eigen::Vector2d vert4){
+    Eigen::Hyperplane<double,2> plane1;
+    Eigen::Hyperplane<double,2> plane2;
+    Eigen::Vector2d intersection;
+    plane1 = Eigen::Hyperplane<double,2>::Through(vert1, vert2);
+    plane2 = Eigen::Hyperplane<double,2>::Through(vert3, vert4);
+    return plane1.intersection(plane2);
 }
 
 bool Helper::close(Eigen::Vector2d goal, Eigen::Vector2d position, float stepSize){
@@ -154,6 +144,24 @@ bool Helper::close(Eigen::Vector2d goal, Eigen::Vector2d position, float stepSiz
         return true;
     }
     return false;
+}
+
+Eigen::Vector2d Helper::shortestVectorDist(Eigen::Vector2d vert1, Eigen::Vector2d vert2, Eigen::Vector2d point){
+    Eigen::Vector2d dir = vert2 - vert1;
+    double lengthSquared = dir.squaredNorm();  // length of vert1-vert2 squared
+
+    // If the segment is just a point, return the point
+    if(lengthSquared == 0.0) return vert1;
+
+    // Calculate the projection of point onto the line defined by vert1 and vert2
+    double t = (point - vert1).dot(dir) / lengthSquared;
+
+    // If t is in the [0, 1] range, it means the projection is within the segment
+    if(t < 0.0) return vert1;
+    else if(t > 1.0) return vert2;
+
+    Eigen::Vector2d projection = vert1 + t * dir;
+    return projection;
 }
 
 

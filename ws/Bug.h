@@ -16,6 +16,7 @@ class Bug {
         amp::Problem2D environment;
         std::list<Eigen::Vector2d> goalQueue;
         Eigen::Vector2d hitPoint;
+        Eigen::Vector2d leavePoint;
         Eigen::Vector2d position;
         float stepSize;
         float delta;

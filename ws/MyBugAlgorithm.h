@@ -68,12 +68,12 @@ Edge findLineEquation(Point point1, Point point2)
 	return edge;
 }
 
-double distanceBetweenPoints(const Point &point1, const Point &point2)
+double distanceBetweenPoints(Point point1, Point point2)
 {
 	return std::sqrt(std::pow(point1.x - point2.x, 2) + std::pow(point1.y - point2.y, 2));
 }
 
-Point comparePoints(const Point &coord1, const Point &coord2, const Point &target, bool closest = false)
+Point comparePoints(Point coord1, Point coord2, const Point &target, bool closest = false)
 {
 	double distance1 = distanceBetweenPoints(coord1, target);
 	double distance2 = distanceBetweenPoints(coord2, target);

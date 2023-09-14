@@ -102,7 +102,7 @@ vector<vector<Edge>> findEdges(const amp::Problem2D& problem) {
 			// cout << vertices[i -1](0) << " , " << vertices[i -1 ](1) << "\n";
 			// cout << vertices[i](0) << " , " << vertices[i](1) << "\n\n";
 			Edge edge = findLineEquation({ vertices[j](0), vertices[j](1) }, { vertices[j - 1](0), vertices[j - 1](1) });
-			edge.edgeInd = j;
+			edge.edgeInd = j - 1;
 			polyEdges.push_back(edge);
 		}
 		edges.push_back(polyEdges);
@@ -137,6 +137,7 @@ private:
 	std::deque<Edge> myDeque;
 	int polyInd;
 	int edgeInd;
+	bool hasTurned;
 
 public:
 	MyBugAlgorithm(int bugType) : // start(start),
@@ -147,6 +148,7 @@ public:
 		polyInd(-1),
 		edgeInd(-1),
 		step(0),
+		hasTurned(false),
 		mode("goal") {}
 
 	void moveForward() {
@@ -159,11 +161,10 @@ public:
 	}
 
 	virtual amp::Path2D plan(const amp::Problem2D& problem) {
-		initWorkspace(problem);
-
-		for (int i = 0; i < 2000; ++i) {
+		init(problem);
+		for (int i = 0; i < 5000; ++i) {
 			moveForward();
-			detectEdges();
+			detectAllEdges();
 			if (bugType == 1) {
 				detectEntryExitPoints();
 			}
@@ -172,18 +173,21 @@ public:
 			}
 			if (detectPoint(goal)) {
 				cout << "Goal reached in " << i << " steps\n";
+				path.waypoints.push_back(Eigen::Vector2d(goal.x, goal.y));
 				break;
 			}
 		}
 		return path;
 	}
 
-	void initWorkspace(const amp::Problem2D& problem) {
+	void init(const amp::Problem2D& problem) {
 		cout << "Starting Bug " << bugType << "\n";
 		x = problem.q_init(0);
-		y = problem.q_init(1);
+		y = problem.q_init(1) + 0.5;
 		start = { x, y };
 		positionHistory.push_back(start);
+		path.waypoints.push_back(Eigen::Vector2d(x, y - 0.5));
+
 		goal = { problem.q_goal(0), problem.q_goal(1) };
 		edges = findEdges(problem);
 		mLine = findLineEquation(start, goal);
@@ -191,23 +195,28 @@ public:
 		turnToGoal();
 	}
 
-
 	void turnToGoal() {
-		heading = std::atan((y - goal.y) / (x - goal.x));
+		heading = std::atan2(-(y - goal.y), -(x - goal.x));
 	}
 
 	void rewind() {
-		Point previousPoint = positionHistory[positionHistory.size() - 1];
+		Point previousPoint = positionHistory[positionHistory.size() - 2];
 		positionHistory.pop_back();
+		path.waypoints.pop_back();
 		x = previousPoint.x;
 		y = previousPoint.y;
+	}
+
+	void detectAllEdges() {
+		detectEdges();
+		detectNextEdge();
 	}
 
 	void detectEdges() {
 		for (int i = 0; i < edges.size(); ++i) {
 			if (i != polyInd) {
 				for (const Edge& edge : edges[i]) {
-					if (findCollision(edge, false)) {
+					if (findCollision(edge, true)) {
 						if (mode == "goal") {
 							entryPoints.push_back({ x, y });
 							entryPointIndices.push_back(step);
@@ -216,6 +225,7 @@ public:
 						polyInd = i;
 						edgeInd = edge.edgeInd;
 						cout << "Crossed Edge at " << x << ", " << y << "\n";
+						cout << "Index " << polyInd << ", " << edgeInd << "\n";
 						turnAlongEdge(edge);
 						rewind();
 						break;
@@ -226,15 +236,17 @@ public:
 	}
 
 	void detectNextEdge() {
-		if (mode == "circ") {
+		if (mode != "goal") {
 			int ind = edgeInd - 1;
 			if (edgeInd == 0) {
-				ind = edges[polyInd].size();
+				ind = edges[polyInd].size() - 1;
 			}
 			Edge nextEdge = edges[polyInd][ind];
-			if (findCollision(nextEdge)) {
+			if (findCollision(nextEdge,false)) {
+				cout << "Turning at Vertex " << x << ", " << y << "\n";
 				turnAlongEdge(nextEdge);
 				edgeInd = ind;
+				hasTurned = true;
 			}
 
 		}
@@ -257,37 +269,40 @@ public:
 	}
 
 	void detectEntryExitPoints() {
-		if (mode == "circ") {
-			if (lockout < 0) {
-				bool isComplete = detectPoint(entryPoints[entryPoints.size() - 1]);
-				if (isComplete) {
-					cout << "Completed circumnavigation\n";
-					mode = "exiting";
-					Point closestPoint = start;
-					vector<Point> pointsOnPoly;
-					for (int i = entryPointIndices[entryPointIndices.size() - 1]; i < positionHistory.size(); ++i) {
-						pointsOnPoly.push_back(positionHistory[i]);
+		if (hasTurned) {
+			if (mode == "circ") {
+				if (lockout < 0) {
+					bool isComplete = detectPoint(entryPoints[entryPoints.size() - 1]);
+					if (isComplete) {
+						cout << "Completed circumnavigation at "<< x << ", " << y << "\n";
+						mode = "exiting";
+						Point closestPoint = start;
+						vector<Point> pointsOnPoly;
+						for (int i = entryPointIndices[entryPointIndices.size() - 1]; i < positionHistory.size(); ++i) {
+							pointsOnPoly.push_back(positionHistory[i]);
+						}
+						for (const Point& point : pointsOnPoly) {
+							closestPoint = comparePoints(closestPoint, point, goal, true);
+						}
+						exitPoint = closestPoint;
+						cout << "Exiting at point: " << exitPoint.x << ", " << exitPoint.y << "\n";
+						// vector<Point>::iterator it = std::find(pointsOnPoly.begin(), pointsOnPoly.end(), closestPoint);
+						// int index = std::distance(pointsOnPoly.begin(), it);
+						// if (index > pointsOnPoly.size() / 2) {
+						// heading += M_PI;
 					}
-					for (const Point& point : pointsOnPoly) {
-						closestPoint = comparePoints(closestPoint, point, goal, true);
-					}
-					exitPoint = closestPoint;
-					cout << "Exiting at point: " << exitPoint.x << ", " << y << "\n";
-					// vector<Point>::iterator it = std::find(pointsOnPoly.begin(), pointsOnPoly.end(), closestPoint);
-					// int index = std::distance(pointsOnPoly.begin(), it);
-					// if (index > pointsOnPoly.size() / 2) {
-					// heading += M_PI;
+				}
+			}
+			else if (mode == "exiting") {
+				if (detectPoint(exitPoint)) {
+					cout << "Exiting Polygon\n";
+					turnToGoal();
+					mode = "goal";
+					hasTurned = false;
 				}
 			}
 		}
-		else if (mode == "exiting") {
-			if (detectPoint(exitPoint)) {
-				cout << "Exiting Polygon\n";
-				lockout = lockMax;
-				turnToGoal();
-				mode = "goal";
-			}
-		}
+
 	}
 
 	bool detectPoint(const Point& point) {
@@ -298,7 +313,13 @@ public:
 	bool findCollision(const Edge& edge, bool checkLimits=false) {
 		bool condition = true;
 		if (checkLimits) {
-			condition = edge.limits.x[0] < x && x < edge.limits.x[1] && edge.limits.y[0] < y && y < edge.limits.y[1];
+			if (edge.coeff.a == 0) {
+				condition = edge.limits.x[0] < x && x < edge.limits.x[1];
+			} else if (edge.coeff.b == 0) {
+				condition = edge.limits.y[0] < y && y < edge.limits.y[1];
+			} else {
+				condition = edge.limits.x[0] < x && x < edge.limits.x[1] && edge.limits.y[0] < y && y < edge.limits.y[1];
+			}
 		}
 		if (condition) {
 			Point perviousPoint = positionHistory[positionHistory.size() - 2];
@@ -322,7 +343,7 @@ public:
 			targetVertex = goal;
 		}
 		else {
-			targetVertex = edge.points[0];
+			targetVertex = edge.points[1];
 		}
 		if (edge.coeff.b == 0) {
 			guessHeading = M_PI / 2;

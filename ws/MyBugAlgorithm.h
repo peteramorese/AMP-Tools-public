@@ -7,7 +7,7 @@
 class MyBugAlgorithm : public amp::BugAlgorithm {
     public:
         // Override and implement the bug algorithm in the plan method. The methods are declared here in the `.h` file
-        virtual amp::Path2D plan(const amp::Problem2D& problem) const override;
+        virtual amp::Path2D plan(const amp::Problem2D& problem) override;
 
         // Add any other methods here...
     

@@ -73,35 +73,37 @@ double distanceBetweenPoints(const Point& point1, const Point& point2) {
 Point comparePoints(const Point& coord1, const Point& coord2, const Point& target, bool closest = false) {
 	double distance1 = distanceBetweenPoints(coord1, target);
 	double distance2 = distanceBetweenPoints(coord2, target);
-
+	Point result;
 	if (closest) {
 		if (distance1 < distance2) {
-			return coord1;
+			result = coord1;
 		}
 		else {
-			return coord2;
+			result =coord2;
 		}
 	}
 	else {
 		if (distance1 > distance2) {
-			return coord1;
+			result =coord1;
 		}
 		else {
-			return coord2;
+			result =coord2;
 		}
 	}
+	return result;
 }
 
 vector<vector<Edge>> findEdges(const amp::Problem2D& problem) {
 	vector<vector<Edge>> edges;
 	for (const amp::Obstacle2D& obstacle : problem.obstacles) {
 		vector<Edge> polyEdges;
-		vector<Eigen::Vector2d> vertices = obstacle.verticesCCW();
+		vector<Eigen::Vector2d> vertices = obstacle.verticesCW();
 		vertices.push_back(vertices[0]);
+		// cout << "\nPolygon with " << vertices.size() - 1 << " vertices\n";
 		for (int j = 1; j < vertices.size(); ++j) {
-			// cout << vertices[i -1](0) << " , " << vertices[i -1 ](1) << "\n";
-			// cout << vertices[i](0) << " , " << vertices[i](1) << "\n\n";
-			Edge edge = findLineEquation({ vertices[j](0), vertices[j](1) }, { vertices[j - 1](0), vertices[j - 1](1) });
+			cout << vertices[j - 1](0) << " , " << vertices[j - 1](1) << "\n";
+			// cout << vertices[j](0) << " , " << vertices[j](1) << "\n\n";
+			Edge edge = findLineEquation({ vertices[j - 1](0), vertices[j - 1](1) }, { vertices[j](0), vertices[j](1) });
 			edge.edgeInd = j - 1;
 			polyEdges.push_back(edge);
 		}
@@ -152,8 +154,8 @@ public:
 		mode("goal") {}
 
 	void moveForward() {
-		x += shortestPath / 1000 * std::cos(heading);
-		y += shortestPath / 1000 * std::sin(heading);
+		x += shortestPath / 1500 * std::cos(heading);
+		y += shortestPath / 1500 * std::sin(heading);
 		positionHistory.push_back({x, y});
 		path.waypoints.push_back(Eigen::Vector2d(x, y));
 		lockout--;
@@ -162,7 +164,8 @@ public:
 
 	virtual amp::Path2D plan(const amp::Problem2D& problem) {
 		init(problem);
-		for (int i = 0; i < 15000; ++i) {
+		int maxSteps = 5000;
+		for (int i = 0; i < maxSteps; ++i) {
 			moveForward();
 			detectAllEdges();
 			if (bugType == 1) {
@@ -176,6 +179,9 @@ public:
 				path.waypoints.push_back(Eigen::Vector2d(goal.x, goal.y));
 				break;
 			}
+		}
+		if (step == maxSteps) {
+			cout << "Max steps of " << step << "reached. maxSteps should be increased.\n";
 		}
 		return path;
 	}
@@ -345,15 +351,15 @@ public:
 			targetVertex = goal;
 		}
 		else {
-			targetVertex = edge.points[1];
+			targetVertex = edge.points[0];
 		}
-		if (edge.coeff.b == 0) {
-			guessHeading = M_PI / 2;
+		if (edge.coeff.b == 0.0) {
+			guessHeading = - M_PI / 2;
 		}
 		else {
 			guessHeading = std::atan(-edge.coeff.a);
 		}
-		Point projectedPoint = {x + std::cos(guessHeading), y + std::sin(guessHeading)};
+		Point projectedPoint = {x + shortestPath / 1500 * std::cos(guessHeading), y + shortestPath / 1500 * std::sin(guessHeading)};
 		Point fartherPoint = comparePoints({x, y}, projectedPoint, targetVertex);
 		if (projectedPoint.x == fartherPoint.x && projectedPoint.y == fartherPoint.y) {
 			heading = guessHeading + M_PI;
@@ -361,6 +367,7 @@ public:
 		else {
 			heading = guessHeading;
 		}
+		cout << "New Heading: " << 180 * heading / M_PI << "\n";
 	}
 
 	// Override and implement the bug algorithm in the plan method. The methods are declared here in the `.h` file

@@ -101,7 +101,7 @@ vector<vector<Edge>> findEdges(const amp::Problem2D& problem) {
 		vertices.push_back(vertices[0]);
 		// cout << "\nPolygon with " << vertices.size() - 1 << " vertices\n";
 		for (int j = 1; j < vertices.size(); ++j) {
-			cout << vertices[j - 1](0) << " , " << vertices[j - 1](1) << "\n";
+			// cout << vertices[j - 1](0) << " , " << vertices[j - 1](1) << "\n";
 			// cout << vertices[j](0) << " , " << vertices[j](1) << "\n\n";
 			Edge edge = findLineEquation({ vertices[j - 1](0), vertices[j - 1](1) }, { vertices[j](0), vertices[j](1) });
 			edge.edgeInd = j - 1;
@@ -142,7 +142,7 @@ private:
 	bool hasTurned;
 
 public:
-	MyBugAlgorithm(int bugType) : // start(start),
+	MyBugAlgorithm(int bugType) :
 		bugType(bugType),
 		heading(0),
 		lockout(0),
@@ -164,7 +164,7 @@ public:
 
 	virtual amp::Path2D plan(const amp::Problem2D& problem) {
 		init(problem);
-		int maxSteps = 20000;
+		int maxSteps = 25000;
 		for (int i = 0; i < maxSteps; ++i) {
 			moveForward();
 			detectAllEdges();
@@ -196,7 +196,7 @@ public:
 
 		goal = { problem.q_goal(0), problem.q_goal(1)};
 		edges = findEdges(problem);
-		mLine = findLineEquation(start, goal);
+		mLine = findLineEquation(goal, start);
 		shortestPath = distanceBetweenPoints(start, goal);
 		turnToGoal();
 	}
@@ -233,8 +233,7 @@ public:
 						polyInd = i;
 						edgeInd = edge.edgeInd;
 						cout << "Crossed Edge at " << x << ", " << y << "\n";
-						cout << "Index " << polyInd << ", " << edgeInd << "\n";
-						turnAlongEdge(edge);
+						findDirectionToTurn(edge);
 						rewind();
 						break;
 					}
@@ -252,7 +251,7 @@ public:
 			Edge nextEdge = edges[polyInd][ind];
 			if (findCollision(nextEdge,false)) {
 				cout << "Turning at Vertex " << x << ", " << y << "\n";
-				turnAlongEdge(nextEdge);
+				findDirectionToTurn(nextEdge);
 				edgeInd = ind;
 				hasTurned = true;
 			}
@@ -263,8 +262,7 @@ public:
 	void detectMLine() {
 		if (mode == "circ") {
 			if (findCollision(mLine, true)) {
-				cout << "Crossed M-Line\n";
-				lockout = lockMax;
+				cout << "Crossed M-Line at " << x << ", " << y << "\n";
 				mLineIntercepts.push_back({x, y});
 				Point previousEntry = entryPoints[entryPoints.size() - 1];
 				Point checkFartherPoint = comparePoints(previousEntry, {x, y}, goal);
@@ -340,10 +338,6 @@ public:
 		}
 	}
 
-	void turnAlongEdge(const Edge& edge) {
-		findDirectionToTurn(edge);
-	}
-
 	void findDirectionToTurn(const Edge& edge, bool isMLine = false) {
 		Point targetVertex;
 		double guessHeading;
@@ -367,6 +361,5 @@ public:
 		else {
 			heading = guessHeading;
 		}
-		cout << "New Heading: " << 180 * heading / M_PI << "\n";
 	}
 };

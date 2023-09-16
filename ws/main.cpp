@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
     spec.max_obstacle_region_radius = 15.0;
     spec.n_obstacles = 10;
     spec.path_clearance = 0.01;
-    spec.d_sep = 0.005;
+    spec.d_sep = 0.01;
     Problem2D problem3 = EnvironmentTools::generateRandom(spec); // Random environment
 
     // Declare r algorithm object 
@@ -44,19 +44,6 @@ int main(int argc, char** argv) {
     LOG("Found valid solution to workspace 1: " << (success3 ? "Yes!" : "No :(")); 
 
     // Check your path to make sure that it does not collide with the environment 
-
-
-    // Visualize the path and environment
-    Visualizer::showFigures();
-
-    // Let's get crazy and generate a random environment and test your algorithm
-    // bool random_trial_success = HW2::generateAndCheck(bug1);
-    // LOG("Found valid solution in random environment: " << (random_trial_success ? "Yes!" : "No :("));
-
-        // Visualize the path environment, and any collision points with obstacles
-        Visualizer::makeFigure(random_prob, path, collision_points);
-    }
-
     Visualizer::showFigures();
     return 0;
 }

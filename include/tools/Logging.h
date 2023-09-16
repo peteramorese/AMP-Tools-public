@@ -9,6 +9,8 @@
 #ifdef AMP_LOG_COLOR
     #define LOG(msg) std::cout << "\033[1;36m >[LOG]\033[0;37m " << msg << "\033[0m \n"
     #define PRINT(msg) std::cout << "\033[0;37m" << msg << "\033[0m \n"
+    #define PRINT_VEC2(msg, vec2) std::cout << "\033[0;37m" << msg << " (" << vec2[0] << ", " << vec2[1] << ")\033[0m \n"
+    #define PRINT_VEC3(msg, vec3) std::cout << "\033[0;37m" << msg << " (" << vec3[0] << ", " << vec3[1] << ", " << vec3[2] ")\033[0m \n"
     #define PRINT_NAMED(name, msg) std::cout << "\033[1;32m        "<< name << ": \033[0;37m" << msg << "\033[0m \n"
     #define DEBUG(msg) std::cout << "\033[1;36m >[DBG]("<< __func__ << "): \033[0;37m" << msg << "\033[0m \n"
     #define INFO(msg) std::cout << "\033[1;37m >[IFO] \033[0;37m" << msg << "\033[0m \n"

@@ -53,5 +53,10 @@ int main(int argc, char** argv) {
     // bool random_trial_success = HW2::generateAndCheck(bug1);
     // LOG("Found valid solution in random environment: " << (random_trial_success ? "Yes!" : "No :("));
 
+        // Visualize the path environment, and any collision points with obstacles
+        Visualizer::makeFigure(random_prob, path, collision_points);
+    }
+
+    Visualizer::showFigures();
     return 0;
 }

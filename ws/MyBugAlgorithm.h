@@ -97,7 +97,7 @@ vector<vector<Edge>> findEdges(const amp::Problem2D& problem) {
 	vector<vector<Edge>> edges;
 	for (const amp::Obstacle2D& obstacle : problem.obstacles) {
 		vector<Edge> polyEdges;
-		vector<Eigen::Vector2d> vertices = obstacle.verticesCW();
+		vector<Eigen::Vector2d> vertices = obstacle.verticesCCW();
 		vertices.push_back(vertices[0]);
 		// cout << "\nPolygon with " << vertices.size() - 1 << " vertices\n";
 		for (int j = 1; j < vertices.size(); ++j) {
@@ -154,8 +154,8 @@ public:
 		mode("goal") {}
 
 	void moveForward() {
-		x += shortestPath / 1500 * std::cos(heading);
-		y += shortestPath / 1500 * std::sin(heading);
+		x += shortestPath / 2000 * std::cos(heading);
+		y += shortestPath / 2000 * std::sin(heading);
 		positionHistory.push_back({x, y});
 		path.waypoints.push_back(Eigen::Vector2d(x, y));
 		lockout--;
@@ -164,7 +164,7 @@ public:
 
 	virtual amp::Path2D plan(const amp::Problem2D& problem) {
 		init(problem);
-		int maxSteps = 5000;
+		int maxSteps = 20000;
 		for (int i = 0; i < maxSteps; ++i) {
 			moveForward();
 			detectAllEdges();
@@ -181,7 +181,7 @@ public:
 			}
 		}
 		if (step == maxSteps) {
-			cout << "Max steps of " << step << "reached. maxSteps should be increased.\n";
+			cout << "Max steps of " << step << " reached. maxSteps should be increased.\n";
 		}
 		return path;
 	}

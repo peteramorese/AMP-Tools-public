@@ -9,7 +9,7 @@ import sys
 
 visualize_config = {
     "path_line_width": 2.0,
-    "path_line_style": '--',
+    "path_line_style": '-',
     "path_line_color": "blue",
     "show_grid": True,
     "text_font_size": 10.0,

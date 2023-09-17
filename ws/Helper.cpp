@@ -27,6 +27,24 @@ bool Helper::isPointOnSegment(const Eigen::Vector2d &start, const Eigen::Vector2
     return false;
 }
 
+bool Helper::isIntersecting(const Eigen::Vector2d &vert1, const Eigen::Vector2d &vert2, const Eigen::Vector2d &vert3, const Eigen::Vector2d &vert4) {
+    Eigen::Hyperplane<double,2> plane1 = Eigen::Hyperplane<double,2>::Through(vert1, vert2);
+    Eigen::Hyperplane<double,2> plane2 = Eigen::Hyperplane<double,2>::Through(vert3, vert4);
+    Eigen::Vector2d intersection = plane1.intersection(plane2);
+    if(isPointOnSegment(vert1, vert2, intersection)){
+        return true;
+    }
+    return false;
+}
+
+Eigen::Vector2d Helper::getIntersect(const Eigen::Vector2d &vert1, const Eigen::Vector2d &vert2, const Eigen::Vector2d &vert3, const Eigen::Vector2d &vert4) {
+    Eigen::Hyperplane<double,2> plane1 = Eigen::Hyperplane<double,2>::Through(vert1, vert2);
+    Eigen::Hyperplane<double,2> plane2 = Eigen::Hyperplane<double,2>::Through(vert3, vert4);
+    Eigen::Vector2d intersection = plane1.intersection(plane2);
+    return intersection;
+}
+
+
 std::list<Eigen::Vector2d> Helper::getObstacleTraverseVertices(std::vector<Eigen::Vector2d>& vertices, int j, Eigen::Vector2d position) {
     std::list<Eigen::Vector2d> traverseOrder;
     for(int i = j; i >= 0; i--){

@@ -3,14 +3,13 @@
 #include "AMPCore.h"
 #include "hw/HW2.h"
 
-class Bug {
+class Bug1 {
     public:
         // methods:
-        Bug(const amp::Problem2D& p, float sZ, float d);
-        ~Bug();
+        Bug1(const amp::Problem2D& p, float sZ, float d);
+        ~Bug1();
 
         void step();
-        void boundryFollow();
 
         // fields
         amp::Problem2D environment;

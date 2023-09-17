@@ -11,7 +11,7 @@ class BugAlgorithm {
         /// @brief Solve a motion planning problem using a bug algorithm. Create a derived class and override this method
         /// @param problem Motion planning problem
         /// @return Path solution
-        virtual amp::Path2D plan(const amp::Problem2D& problem) const = 0;
+        virtual amp::Path2D plan(const amp::Problem2D& problem) = 0;
 };
 
 class HW2 {
@@ -37,7 +37,7 @@ class HW2 {
         /// @param seed Seed the random generator. If the seed is `0u`, no seed is used (random)
         /// @param verbose Output logs displaying result
         /// @return `true` if path is a valid solution, `false` otherwise
-        static bool generateAndCheck(const BugAlgorithm& algo, bool verbose = true, uint32_t seed = 0u);
+        static bool generateAndCheck(BugAlgorithm& algo, bool verbose = true, uint32_t seed = 0u);
 
         /// @brief Generates a random problem, runs the algorithm, then check the validity of the returned solution.
         /// Similar to what the benchmarker in `grade()` will do
@@ -47,7 +47,7 @@ class HW2 {
         /// @param seed Seed the random generator. If the seed is `0u`, no seed is used (random)
         /// @param verbose Output logs displaying result
         /// @return `true` if path is a valid solution, `false` otherwise
-        static bool generateAndCheck(const BugAlgorithm& algo, amp::Path2D& path, amp::Problem2D& prob, bool verbose = true, uint32_t seed = 0u);
+        static bool generateAndCheck(BugAlgorithm& algo, amp::Path2D& path, amp::Problem2D& prob, bool verbose = true, uint32_t seed = 0u);
 
         // COMING SOON :)
         /// @brief Tests your algorithm on Workspace1, Workspace2, and benchmars your algorithm against many randomized environments

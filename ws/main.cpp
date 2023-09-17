@@ -20,13 +20,16 @@ int main(int argc, char** argv) {
     Problem2D problem = HW2::getWorkspace2();
 
     // Make a random environment spec, edit properties about it such as the number of obstacles
-    // Random2DEnvironmentSpecification spec;
-    // spec.max_obstacle_region_radius = 5.0;
-    // spec.n_obstacles = 10;
-    // spec.path_clearance = 0.01;
-    // spec.d_sep = 0.01;
-    // Randomly generate the environment;
-    // Problem2D problem = EnvironmentTools::generateRandom(spec); // Random environment
+    /*
+    Random2DEnvironmentSpecification spec;
+    spec.max_obstacle_region_radius = 5.0;
+    spec.n_obstacles = 2;
+    spec.path_clearance = 0.01;
+    spec.d_sep = 0.01;
+
+    //Randomly generate the environment;
+    Problem2D problem = EnvironmentTools::generateRandom(spec); // Random environment
+    */
 
     // Declare your algorithm object 
     MyBugAlgorithm algo;

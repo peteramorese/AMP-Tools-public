@@ -5,6 +5,7 @@ from matplotlib.patches import Rectangle, FancyBboxPatch, Polygon
 import numpy as np
 import yaml
 import argparse
+import sys
 
 visualize_config = {
     "path_line_width": 2.0,

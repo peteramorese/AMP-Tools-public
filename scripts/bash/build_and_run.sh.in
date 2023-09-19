@@ -19,7 +19,7 @@ echo $LD_LIBRARY_PATH
 mkdir -p build && cd build
 
 architecture=$(uname -m)
-cmake ./.. -DAMP_BUILD_LIB=OFF -DSYSTEM_ARCHITECTURE="${architecture}" 
+cmake ./.. -DAMP_BUILD_LIB=OFF -DAMP_EXCLUDE_VIS=OFF -DAMP_EXCLUDE_LOGS=OFF -DSYSTEM_ARCHITECTURE="${architecture}" 
 
 make
 if [ $? == 0 ]; then

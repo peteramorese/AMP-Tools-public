@@ -1,9 +1,12 @@
+#ifndef AMP_EXCLUDE_VIS
+
 #include "tools/Visualizer.h"
 
 #include "tools/Logging.h"
 
 #include "public/PythonObjects.h"
 #include "public/ScriptCaller.h"
+
 
 // Local methods for converting things to python object (not in header)
 namespace amp {
@@ -106,3 +109,5 @@ void amp::Visualizer::createAxes(const Problem2D& prob, const Path2D& path, cons
     std::unique_ptr<ampprivate::pybridge::PythonObject> collison_points_arg = listOfPointsToPythonObject(collision_points);
     ampprivate::pybridge::ScriptCaller::call("VisualizeEnvironment", "visualize_path", std::make_tuple(path_arg->get(), collison_points_arg->get()));
 }
+
+#endif

@@ -1,0 +1,12 @@
+#! /bin/bash
+
+export LD_LIBRARY_PATH=@AMP_OS_INSTALL_DIR@:$LD_LIBRARY_PATH
+case "$1" in 
+    --hw2)
+        echo "Grading hw2"
+        cd bin/hw2 && ./grade
+        exit 1
+        ;;
+    *)
+        echo "Unrecognized homework '$1'"
+esac

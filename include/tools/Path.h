@@ -11,6 +11,10 @@ struct Path2D {
     Path2D() = default;
     std::vector<Eigen::Vector2d> waypoints;
 
+    /// @brief Get the path length
+    /// @return Total path length
+    double length() const;
+
     void serialize(Serializer& szr) const;
     void deserialize(const Deserializer& dszr);
 

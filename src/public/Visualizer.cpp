@@ -1,9 +1,12 @@
+#ifndef AMP_EXCLUDE_VIS
+
 #include "tools/Visualizer.h"
 
 #include "tools/Logging.h"
 
 #include "public/PythonObjects.h"
 #include "public/ScriptCaller.h"
+
 
 // Local methods for converting things to python object (not in header)
 namespace amp {
@@ -41,11 +44,11 @@ std::unique_ptr<ampprivate::pybridge::PythonObject> workspaceBoundsToPythonObjec
     return ampprivate::pybridge::makeList(std::move(python_object_ptrs));
 }
 
-std::unique_ptr<ampprivate::pybridge::PythonObject> pathToPythonObject(const Path2D& path) {
+std::unique_ptr<ampprivate::pybridge::PythonObject> listOfPointsToPythonObject(const std::vector<Eigen::Vector2d>& list_of_points) {
     ampprivate::pybridge::ListOfPairs<double> list_of_doubles;
-    list_of_doubles.list_of_tuples.reserve(path.waypoints.size());
-    for (const auto& waypt : path.waypoints) {
-        list_of_doubles.list_of_tuples.push_back({{waypt[0], waypt[1]}});
+    list_of_doubles.list_of_tuples.reserve(list_of_points.size());
+    for (const auto& pt : list_of_points) {
+        list_of_doubles.list_of_tuples.push_back({{pt[0], pt[1]}});
     }
     return list_of_doubles.toPyList();
 }
@@ -65,6 +68,11 @@ void amp::Visualizer::makeFigure(const Problem2D& prob) {
 void amp::Visualizer::makeFigure(const Problem2D& prob, const Path2D& path) {
     newFigure();
     createAxes(prob, path);
+}
+
+void amp::Visualizer::makeFigure(const Problem2D& prob, const Path2D& path, const std::vector<Eigen::Vector2d>& collision_points) {
+    newFigure();
+    createAxes(prob, path, collision_points);
 }
 
 void amp::Visualizer::showFigures() {
@@ -91,6 +99,15 @@ void amp::Visualizer::createAxes(const Problem2D& prob) {
 
 void amp::Visualizer::createAxes(const Problem2D& prob, const Path2D& path) {
     createAxes(prob);
-    std::unique_ptr<ampprivate::pybridge::PythonObject> path_arg = pathToPythonObject(path);
+    std::unique_ptr<ampprivate::pybridge::PythonObject> path_arg = listOfPointsToPythonObject(path.waypoints);
     ampprivate::pybridge::ScriptCaller::call("VisualizeEnvironment", "visualize_path", std::make_tuple(path_arg->get()));
 }
+
+void amp::Visualizer::createAxes(const Problem2D& prob, const Path2D& path, const std::vector<Eigen::Vector2d>& collision_points) {
+    createAxes(prob);
+    std::unique_ptr<ampprivate::pybridge::PythonObject> path_arg = listOfPointsToPythonObject(path.waypoints);
+    std::unique_ptr<ampprivate::pybridge::PythonObject> collison_points_arg = listOfPointsToPythonObject(collision_points);
+    ampprivate::pybridge::ScriptCaller::call("VisualizeEnvironment", "visualize_path", std::make_tuple(path_arg->get(), collison_points_arg->get()));
+}
+
+#endif

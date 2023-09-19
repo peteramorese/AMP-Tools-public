@@ -179,7 +179,7 @@ namespace amp {
             std::string from(const T& v);
 
             bool isValue(const std::string& arg) const {
-                return arg.find("-") != 0u;
+                return !arg.empty() && arg[0] != '-';
             }
         
             template <typename T>
@@ -212,7 +212,7 @@ namespace amp {
                 // Key
                 std::string key_str = std::string();
                 if (key) {
-                    ASSERT(isValue(key_str), "Do not use dashes '--' when specifying a key label");
+                    ASSERT(isValue(*key), "Do not use dashes '--' when specifying a key label");
                     key_str = getKey(*key);
                 }
 

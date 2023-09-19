@@ -1,10 +1,24 @@
 cmake_minimum_required(VERSION 3.8)
 
 project(amp-tools)
+#set(CMAKE_BUILD_TYPE Debug)
+if(DEFINED CMAKE_BUILD_TYPE)
+    message("Building type is DEBUG")
+else()
+    message("Building type is RELEASE")
+endif()
 
 # Flag for determining if the library should be built
 if(NOT DEFINED AMP_BUILD_LIB)
     option(AMP_BUILD_LIB "Build library (ON), link only (OFF)" OFF)
+endif()
+
+if(NOT DEFINED AMP_EXCLUDE_VIS)
+    option(AMP_EXCLUDE_VIS "Build without the visualizer" OFF)
+endif()
+
+if(NOT DEFINED AMP_EXCLUDE_LOGS)
+    option(AMP_EXCLUDE_LOGS "Build without logging" OFF)
 endif()
 
 # C++ libs
@@ -78,7 +92,6 @@ set(AMP_INCLUDE_DIRS
     ${CMAKE_BINARY_DIR}/include
 )
 
-message("PYTHON INCLUDE DIRES: ${PYTHON_INCLUDE_DIRS}")
 set(AMP_DEPENDENCY_INCLUDE_DIRS 
     ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/yaml-cpp/include
     ${EIGEN3_INCLUDE_DIRS}

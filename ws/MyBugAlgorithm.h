@@ -2,6 +2,7 @@
 
 #include "AMPCore.h"
 #include "hw/HW2.h"
+#include "Utils.h"
 
 /// @brief Declare your bug algorithm class here. Note this class derives the bug algorithm class declared in HW2.h
 class MyBugAlgorithm : public amp::BugAlgorithm {
@@ -10,7 +11,17 @@ class MyBugAlgorithm : public amp::BugAlgorithm {
         virtual amp::Path2D plan(const amp::Problem2D& problem) override;
 
         // Add any other methods here...
-    
+        Eigen::Vector2d step(std::vector<Eigen::Vector2d> path, const amp::Problem2D& problem);
+        
     private:
         // Add any member variables here...
+        int bugType = 1;
+        int boundaryFollowing = 0;
+        std::vector<Eigen::Vector2d> boundaryTrace;
+        std::vector<double> boundaryDistances;
+        Eigen::Vector2d hitPoint;
+        Eigen::Vector2d curDir;
+        double stepSize = .1;
+        int maxSteps = 100000;
+        Eigen::Vector2d curGoal;
 };

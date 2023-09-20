@@ -68,12 +68,17 @@ class HW2 {
         /// @return `true` if path is a valid solution, `false` otherwise
         static bool generateAndCheck(BugAlgorithm& algo, amp::Path2D& path, amp::Problem2D& prob, std::vector<Eigen::Vector2d>& collision_points, bool verbose = true, uint32_t seed = 0u);
 
-        // COMING SOON :)
-        /// @brief Tests your algorithm on Workspace1, Workspace2, and benchmars your algorithm against many randomized environments
+        /// @brief Tests your algorithm on Workspace1, Workspace2, and benchmars your algorithm against many randomized environments.
+        /// NOTE: Make sure your member variables are correctly reset after each call to plan(). This method does not reconstruct the 
+        /// BugAlgorithm object that you pass in
         /// @param algo Your implemented bug algorithm
-        /// @return `true`
-        //static Result grade(const BugAlgorithm& algo);
-
+        /// @param email Your identikey@colorado.edu email
+        /// @param argc Pass the cmd line args from main
+        /// @param argv Pass the cmd line args from main
+        /// @return Result struct that shows the results of the benchmark (with score calculation)
+        static int grade(BugAlgorithm& algo, const std::string& email, int argc, char** argv);
 };
 
+#define AMP_HW2_ALIAS "hw2"
+#define AMP_HW2_PACKAGE_NAME "hw2_report_card"
 }

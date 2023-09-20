@@ -2,7 +2,6 @@
 #include "public/VarsPublic.h"
 #include "tools/Logging.h"
 
-
 ampprivate::pybridge::PythonObject::PythonObject(PyObject* py_object) : m_py_object{py_object} {
     if (!m_py_object)
         PyErr_Print();

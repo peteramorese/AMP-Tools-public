@@ -2,6 +2,8 @@
 
 #include "Environment.h"
 
+#ifndef AMP_EXCLUDE_VIS
+
 namespace amp {
 
 class Visualizer {
@@ -36,3 +38,19 @@ class Visualizer {
         static void newFigure();
 };
 }
+
+#else
+
+namespace amp {
+
+class Visualizer {
+    public:
+        static void makeFigure(const Environment2D& env) {}
+        static void makeFigure(const Problem2D& prob) {}
+        static void makeFigure(const Problem2D& prob, const Path2D& path) {}
+        static void makeFigure(const Problem2D& prob, const Path2D& path, const std::vector<Eigen::Vector2d>& collision_points) {}
+        static void showFigures() {}
+};
+}
+
+#endif

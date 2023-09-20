@@ -45,5 +45,8 @@ int main(int argc, char** argv) {
 
     // Check your path to make sure that it does not collide with the environment 
     Visualizer::showFigures();
+
+    HW2::grade(algo, "nonhuman.biologic@myspace.edu", argc, argv);
+
     return 0;
 }

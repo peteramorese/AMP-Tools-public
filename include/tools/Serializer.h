@@ -2,6 +2,7 @@
 
 #include <yaml-cpp/yaml.h>
 #include <fstream>
+#include <filesystem>
 
 #include "tools/Logging.h"
 
@@ -23,8 +24,18 @@ class Serializer {
         void done() {
             m_emitter << YAML::EndMap;
             m_emitter << YAML::Newline;
+            
+            // Make sure the parent path exists so that the file is created
+            std::filesystem::path fs_fp(m_filepath);
+            LOG("In szr writing to: " << fs_fp);
+            if (!std::filesystem::exists(fs_fp.parent_path())) {
+                if (!std::filesystem::create_directories(fs_fp.parent_path())) {
+                    ERROR("Could not create directory: " << fs_fp.parent_path());
+                }
+            }
             std::ofstream fout(m_filepath, m_open_mode);
             fout << m_emitter.c_str();
+            fout.close();
         }
     private:
         std::ios_base::openmode m_open_mode;

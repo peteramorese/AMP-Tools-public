@@ -17,7 +17,6 @@ int main(int argc, char** argv) {
     Problem2D problem1 = HW2::getWorkspace1();
     Problem2D problem2 = HW2::getWorkspace2();
     
-    // Make a random environment spec, edit properties about it such as the number of obstacles
     Random2DEnvironmentSpecification spec;
     spec.max_obstacle_region_radius = 15.0;
     spec.n_obstacles = 10;
@@ -26,8 +25,8 @@ int main(int argc, char** argv) {
     Problem2D problem3 = EnvironmentTools::generateRandom(spec); // Random environment
 
     // Declare r algorithm object 
-    // MyBugAlgorithm bug1(1);
-    MyBugAlgorithm bug2(2);
+    MyBugAlgorithm bug1(1);
+    // MyBugAlgorithm bug2(2);
 
     // amp::Path2D path1 = bug2.plan(problem1);
     // bool success1 = HW2::check(path1, problem1);
@@ -39,7 +38,7 @@ int main(int argc, char** argv) {
     // Visualizer::makeFigure(problem2, path2);
     // LOG("Found valid solution to workspace 1: " << (success2 ? "Yes!" : "No :(")); 
 
-    amp::Path2D path3 = bug2.plan(problem3);
+    amp::Path2D path3 = bug1.plan(problem3);
     bool success3 = HW2::check(path3, problem3);
     Visualizer::makeFigure(problem3, path3);
     LOG("Found valid solution to workspace 1: " << (success3 ? "Yes!" : "No :(")); 

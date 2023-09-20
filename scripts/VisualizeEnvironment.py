@@ -18,7 +18,7 @@ visualize_config = {
     "arrow_color": "path_line_color",
     "arrow_scale": 20.0,
     "arrow_head_width": 2,
-    "obstacle_color": "darkcyan",
+    "obstacle_color": "indianred",
     "collision_point_marker": "*",
     "collision_point_color": "red"
 }

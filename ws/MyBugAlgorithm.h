@@ -154,7 +154,7 @@ public:
 		mode("goal") {}
 
 	void moveForward() {
-		x += shortestPath / 2000 * std::cos(heading);
+		x += shortestPath / 2000 * std::cos(heading); // x = x + cos(heading)
 		y += shortestPath / 2000 * std::sin(heading);
 		positionHistory.push_back({x, y});
 		path.waypoints.push_back(Eigen::Vector2d(x, y));
@@ -313,7 +313,7 @@ public:
 
 	bool detectPoint(const Point& point) {
 		double distance = distanceBetweenPoints({x, y}, point);
-		return distance / shortestPath < 0.002;
+		return distance / shortestPath < 0.001;
 	}
 
 	bool findCollision(const Edge& edge, bool checkLimits=false) {

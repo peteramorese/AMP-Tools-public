@@ -45,7 +45,7 @@ Adding the ssh key to your github account: https://docs.github.com/en/authentica
 
 
 Currently supported OS:
- - Ubuntu 20.04 (including WSL Ubuntu 20.04 on Windows)
+ - Ubuntu 20.04 (including WSL Ubuntu 20.04 on Windows - you may experience issues with the visualizer, see "Troubleshooting (linux)")
  - Ubuntu 22.04 (including WSL Ubuntu 22.04 on Windows)
  - macOS x86
  - macOS arm64 
@@ -96,6 +96,16 @@ Try building
 ```
 bash build.sh
 ```
+
+### Troubleshooting (linux)
+#### Compiles and runs on WSL, however no figures show up (Visualizer not working)
+Refer to the solution here: https://stackoverflow.com/questions/43397162/show-matplotlib-plots-and-other-gui-in-ubuntu-wsl1-wsl2. If you are running Ubuntu 22.04, this solution seems to fix graphical issues. If you are running Ubuntu 20.04, I have not been able to find a fix for this issue yet - consider instead using 22.04 if possible.
+
+Specifically:
+1) Install VcXsrv (https://sourceforge.net/projects/vcxsrv/)
+2) Run VcXsrv with default settings, except make sure to check "Disable Access Control"
+3) In your WSL terminal, run this: `export DISPLAY=\`grep -oP "(?<=nameserver ).+" /etc/resolv.conf\`:0.0`
+4) Try build_and_run.sh again, if you see figures, make sure to add the previous command to the end of your `~/.bashrc` so that it runs every time you open a new terminal.
 
 ### macOS
 Install `homebrew` if you do not already have it
@@ -156,4 +166,4 @@ Do not edit/tamper with the `hw#_report_card.zip` file, doing so is a violation 
 ## Issues, bugs, comments
 Please feel free to raise issues on the GitHub page as they arise. If you experience an issue and are unsure if it is caused by a bug, don't hesitate to reach out to me at `peter.amorese@colorado.edu`.
 
-I really hope you enjoy this toolbox!! - Peter
+I hope you enjoy this toolbox! 

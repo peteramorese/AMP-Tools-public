@@ -25,7 +25,7 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem) {
         path.waypoints.push_back(bug1.position);
     }
 
-    //Bug 2 implementation:
+    // Bug 2 implementation:
     // Bug2 bug2 = Bug2(problem, stepSize, delta);
     // path.waypoints.push_back(problem.q_init);
     // while(bug2.position != problem.q_goal){
@@ -34,11 +34,11 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem) {
     //     path.waypoints.push_back(bug2.position);
     // }
 
-    float distance = 0;
-    for(int i = 1; i < path.waypoints.size(); i++){
-        distance += sqrt(pow(path.waypoints[i][0] - path.waypoints[i-1][0], 2) + pow(path.waypoints[i][1] - path.waypoints[i-1][1], 2));
-    }
-    std::cout << "Distance: " << distance << std::endl;
+    // float distance = 0;
+    // for(int i = 1; i < path.waypoints.size(); i++){
+    //     distance += sqrt(pow(path.waypoints[i][0] - path.waypoints[i-1][0], 2) + pow(path.waypoints[i][1] - path.waypoints[i-1][1], 2));
+    // }
+    // std::cout << "Distance: " << distance << std::endl;
 
     return path;
 

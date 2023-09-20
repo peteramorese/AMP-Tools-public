@@ -23,7 +23,7 @@ void Bug1::step(){
     // step 1: Take potential step to first goal point in queue.
     Eigen::Vector2d newPosition = goalQueue.front();
 
-    if (mode == 1 && helper.isPointOnSegment(position, newPosition, hitPoint) && position != hitPoint){
+    if (mode == 1 && helper.isPointOnSegment(position, newPosition, hitPoint) && position != hitPoint && helper.pathIsClear(position, hitPoint, environment)){
         goalQueue.clear();
         position = hitPoint;
         waypoints.push_back(position);
@@ -99,10 +99,13 @@ void Bug1::step(){
     }
     if(hit){
         Eigen::Vector2d cloestVert = helper.shortestVectorDist(position, minSafeVert, environment.q_goal);
-        waypoints.push_back(cloestVert);
+        waypoints.push_back(minSafeVert);
         position = minSafeVert;
         if(position == goalQueue.front()){
             goalQueue.pop_front();
+        }
+        if(mode == 1){
+            goalQueue.push_back(hitPoint);
         }
         if(mode == 0){
             // Tansitioning to boundry follow mode. Make bug return to this point.

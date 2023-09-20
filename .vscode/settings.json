@@ -64,6 +64,7 @@
         "list": "cpp",
         "core": "cpp",
         "geometry": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "valarray": "cpp"
     }
 }

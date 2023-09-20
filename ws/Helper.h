@@ -21,5 +21,6 @@ class Helper {
         bool close(Eigen::Vector2d goal, Eigen::Vector2d position, float delta);
         bool isIntersecting(const Eigen::Vector2d &vert1, const Eigen::Vector2d &vert2, const Eigen::Vector2d &vert3, const Eigen::Vector2d &vert4);
         Eigen::Vector2d getIntersect(const Eigen::Vector2d &vert1, const Eigen::Vector2d &vert2, const Eigen::Vector2d &vert3, const Eigen::Vector2d &vert4);
+        bool pathIsClear(Eigen::Vector2d vert1, Eigen::Vector2d vert2, const amp::Problem2D& problem);
         // fields
 };

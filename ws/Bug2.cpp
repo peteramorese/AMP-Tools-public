@@ -26,9 +26,9 @@ void Bug2::step(){
     // step 1: Take potential step to first goal point in queue.
     Eigen::Vector2d newPosition = goalQueue.front();
 
-    if (mode == 1 && helper.isIntersecting(position, newPosition, environment.q_init, environment.q_goal) && position != hitPoint){
+    if (mode == 1 && helper.isIntersecting(position, newPosition, environment.q_init, environment.q_goal) && helper.getDistance(position, hitPoint) > delta){
         mLineintersection = helper.getIntersect(position, newPosition, environment.q_init, environment.q_goal);
-        if(helper.getDistance(mLineintersection, environment.q_goal) < helper.getDistance(hitPoint, environment.q_goal)){
+        if(helper.getDistance(mLineintersection, environment.q_goal) < helper.getDistance(hitPoint, environment.q_goal) && helper.pathIsClear(position, mLineintersection, environment)){
             newPosition = mLineintersection;
             goalQueue.clear();
             goalQueue.push_back(newPosition);

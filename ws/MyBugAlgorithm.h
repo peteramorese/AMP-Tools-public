@@ -22,6 +22,6 @@ class MyBugAlgorithm : public amp::BugAlgorithm {
         Eigen::Vector2d hitPoint;
         Eigen::Vector2d curDir;
         double stepSize = .1;
-        int maxSteps = 100000;
+        int maxSteps = 5000;
         Eigen::Vector2d curGoal;
 };

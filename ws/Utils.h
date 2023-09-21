@@ -11,5 +11,8 @@ namespace Utils {
     bool checkLineSegmentIntersect(Eigen::Vector2d start, Eigen::Vector2d stop,
         Eigen::Vector2d obsStart, Eigen::Vector2d obsStop);
 
+    bool checkCollinearOverlap(double x1, double y1, double x2, double y2, 
+        double x3, double y3);
+
     Eigen::Vector2d rotateVec(Eigen::Vector2d vector, double angle);
 }

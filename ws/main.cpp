@@ -14,11 +14,19 @@ int main(int argc, char** argv) {
     /*    Randomly generate the problem     */ 
 
     // Use WO1 from Exercise 2
-    Problem2D problem = HW2::getWorkspace1();
+    Problem2D problem1 = HW2::getWorkspace1();
 
     // Use WO1 from Exercise 2
+    
+    Problem2D problem2 = HW2::getWorkspace2();
+    
     /*
-    Problem2D problem = HW2::getWorkspace2();
+    Eigen::Vector2d start(0,0);
+    Eigen::Vector2d stop(1,0);
+    Eigen::Vector2d obsStart(9,0);
+    Eigen::Vector2d obsStop(10,0);
+
+    DEBUG(Utils::checkLineSegmentIntersect(start, stop, obsStart, obsStop));
     */
 
     // Make a random environment spec, edit properties about it such as the number of obstacles
@@ -36,19 +44,36 @@ int main(int argc, char** argv) {
     // Declare your algorithm object 
     MyBugAlgorithm algo;
     
+    //problem 1
     {
         // Call your algorithm on the problem
-        amp::Path2D path = algo.plan(problem);
+        amp::Path2D path = algo.plan(problem1);
 
         // Check your path to make sure that it does not collide with the environment 
-        bool success = HW2::check(path, problem);
+        bool success = HW2::check(path, problem1);
 
         LOG("Found valid solution to workspace 1: " << (success ? "Yes!" : "No :("));
 
         // Visualize the path and environment
-        Visualizer::makeFigure(problem, path);
+        Visualizer::makeFigure(problem1, path);
     }
+    
+   
+    //problem 2
+    {
+        // Call your algorithm on the problem
+        amp::Path2D path = algo.plan(problem2);
 
+        // Check your path to make sure that it does not collide with the environment 
+        bool success = HW2::check(path, problem2);
+
+        LOG("Found valid solution to workspace 2: " << (success ? "Yes!" : "No :("));
+
+        // Visualize the path and environment
+        Visualizer::makeFigure(problem2, path);
+    }
+    
+    
     // Let's get crazy and generate a random environment and test your algorithm
     {
         amp::Path2D path; // Make empty path, problem, and collision points, as they will be created by generateAndCheck()
@@ -62,7 +87,7 @@ int main(int argc, char** argv) {
         // Visualize the path environment, and any collision points with obstacles
         Visualizer::makeFigure(random_prob, path, collision_points);
     }
-
+    
     Visualizer::showFigures();
 
     HW2::grade(algo, "nonhuman.biologic@myspace.edu", argc, argv);

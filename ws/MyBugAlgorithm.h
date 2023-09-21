@@ -154,8 +154,8 @@ public:
 		mode("goal") {}
 
 	void moveForward() {
-		x += shortestPath / 2000 * std::cos(heading); // x = x + cos(heading)
-		y += shortestPath / 2000 * std::sin(heading);
+		x += shortestPath / 3000 * std::cos(heading); // x = x + cos(heading)
+		y += shortestPath / 3000 * std::sin(heading);
 		positionHistory.push_back({x, y});
 		path.waypoints.push_back(Eigen::Vector2d(x, y));
 		lockout--;
@@ -164,7 +164,7 @@ public:
 
 	virtual amp::Path2D plan(const amp::Problem2D& problem) {
 		init(problem);
-		int maxSteps = 25000;
+		int maxSteps = 35000;
 		for (int i = 0; i < maxSteps; ++i) {
 			moveForward();
 			detectAllEdges();
@@ -187,13 +187,13 @@ public:
 	}
 
 	void init(const amp::Problem2D& problem) {
+
 		cout << "Starting Bug " << bugType << "\n";
 		x = problem.q_init(0);
 		y = problem.q_init(1);
 		start = { x, y };
 		positionHistory.push_back(start);
 		path.waypoints.push_back(Eigen::Vector2d(x, y));
-
 		goal = { problem.q_goal(0), problem.q_goal(1)};
 		edges = findEdges(problem);
 		mLine = findLineEquation(goal, start);

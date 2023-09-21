@@ -8,6 +8,7 @@ while [[ $# -gt 0 ]]; do
             rm -rf build            
             rm build_and_run.sh
             rm grade.sh
+            rm .env.sh
             shift 1
             ;;
         -d|--debug)

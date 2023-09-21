@@ -77,14 +77,9 @@ class EnvironmentTools {
     public:
         /// @brief Generate a random environment according the the specification
         /// @param spec Specification that dictates how the environment is generated
+        /// @param seed Seed the generator to produce the same environment for a given seed (seed = 0 does not reseed the generator)
         /// @return Problem struct with the same init/goal states in spec
-        static Problem2D generateRandom(const Random2DEnvironmentSpecification& spec);
-
-        /// @brief Generate a random environment according the the specification
-        /// @param spec Specification that dictates how the environment is generated
-        /// @param seed Seed the generator to produce the same environment for a given seed
-        /// @return Problem struct with the same init/goal states in spec
-        static Problem2D generateRandom(const Random2DEnvironmentSpecification& spec, uint32_t seed);
+        static Problem2D generateRandom(const Random2DEnvironmentSpecification& spec, uint32_t seed = 0u);
 };
 
 }

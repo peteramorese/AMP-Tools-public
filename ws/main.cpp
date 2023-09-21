@@ -10,6 +10,8 @@
 using namespace amp;
 
 int main(int argc, char** argv) {
+    /*    Include this line to have different randomized environments every time you run your code (NOTE: this has no affect on grade()) */
+    amp::RNG::seed(amp::RNG::randiUnbounded());
 
     /*    Randomly generate the problem     */ 
 
@@ -91,6 +93,12 @@ int main(int argc, char** argv) {
     Visualizer::showFigures();
 
     HW2::grade(algo, "nonhuman.biologic@myspace.edu", argc, argv);
+    
+    /* If you want to reconstruct your bug algorithm object every trial (to reset member variables from scratch or initialize), use this method instead*/
+    //HW2::grade<MyBugAlgorithm>("nonhuman.biologic@myspace.edu", argc, argv, constructor_parameter_1, constructor_parameter_2, etc...);
+    
+    // This will reconstruct using the default constructor every trial
+    //HW2::grade<MyBugAlgorithm>("nonhuman.biologic@myspace.edu", argc, argv);
 
     return 0;
 }

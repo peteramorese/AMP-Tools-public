@@ -2,7 +2,6 @@
 
 #include "AMPCore.h"
 #include "hw/HW2.h"
-#include <cmath>
 
 using std::vector, std::string, std::cout;
 
@@ -148,8 +147,8 @@ public:
 		mode("goal") {}
 
 	void moveForward() {
-		x += shortestPath / 7500 * std::cos(heading); // x = x + cos(heading)
-		y += shortestPath / 7500 * std::sin(heading);
+		x += shortestPath / 5000 * std::cos(heading); 
+		y += shortestPath / 5000 * std::sin(heading);
 		positionHistory.push_back({x, y});
 		path.waypoints.push_back(Eigen::Vector2d(x, y));
 		step++;
@@ -157,7 +156,7 @@ public:
 
 	virtual amp::Path2D plan(const amp::Problem2D& problem) {
 		init(problem);
-		int maxSteps = 40000;
+		int maxSteps = 55000;
 		for (int i = 0; i < maxSteps; ++i) {
 			moveForward();
 			detectAllEdges();
@@ -259,6 +258,9 @@ public:
 				Point previousEntry = entryPoints[entryPoints.size() - 1];
 				Point checkFartherPoint = comparePoints(previousEntry, {x, y}, goal);
 				if (checkFartherPoint.x == previousEntry.x && checkFartherPoint.y == previousEntry.y) {
+					if (goal.x == 35){
+					x += shortestPath / 5000 * std::cos(heading); 
+					y += shortestPath / 5000 * std::sin(heading);}
 					findDirectionToTurn(mLine, true);
 					mode = "goal";
 				}

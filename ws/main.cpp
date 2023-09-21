@@ -14,8 +14,6 @@ int main(int argc, char** argv) {
     amp::RNG::seed(amp::RNG::randiUnbounded());
 
     /*    Randomly generate the problem     */ 
-    std::cout << "hello" << std::endl;
-    // Use WO from Exercise 2
     Problem2D problem1 = HW2::getWorkspace1();
     Problem2D problem2 = HW2::getWorkspace2();
     
@@ -24,10 +22,10 @@ int main(int argc, char** argv) {
     spec.n_obstacles = 10;
     spec.path_clearance = 0.01;
     spec.d_sep = 0.01;
-    Problem2D problem3 = EnvironmentTools::generateRandom(spec); // Random environment
+    Problem2D problem3 = EnvironmentTools::generateRandom(spec, 30); // Random environment
 
     // Declare r algorithm object 
-    MyBugAlgorithm bug1(1);
+    MyBugAlgorithm bug(1);
     // MyBugAlgorithm bug2(2);
 
     // amp::Path2D path1 = bug2.plan(problem1);
@@ -40,7 +38,7 @@ int main(int argc, char** argv) {
     // Visualizer::makeFigure(problem2, path2);
     // LOG("Found valid solution to workspace 1: " << (success2 ? "Yes!" : "No :(")); 
 
-    amp::Path2D path3 = bug1.plan(problem3);
+    amp::Path2D path3 = bug.plan(problem3);
     bool success3 = HW2::check(path3, problem3);
     Visualizer::makeFigure(problem3, path3);
     LOG("Found valid solution to workspace 1: " << (success3 ? "Yes!" : "No :(")); 
@@ -48,10 +46,10 @@ int main(int argc, char** argv) {
     // Check your path to make sure that it does not collide with the environment 
     Visualizer::showFigures();
 
-    HW2::grade(algo, "nonhuman.biologic@myspace.edu", argc, argv);
+    // HW2::grade(algo, "nonhuman.biologic@myspace.edu", argc, argv);
     
     /* If you want to reconstruct your bug algorithm object every trial (to reset member variables from scratch or initialize), use this method instead*/
-    //HW2::grade<MyBugAlgorithm>("nonhuman.biologic@myspace.edu", argc, argv, constructor_parameter_1, constructor_parameter_2, etc...);
+    // HW2::grade<MyBugAlgorithm>("yusif.razzaq@colorado.edu", argc, argv, 2);
     
     // This will reconstruct using the default constructor every trial
     //HW2::grade<MyBugAlgorithm>("nonhuman.biologic@myspace.edu", argc, argv);

@@ -127,16 +127,12 @@ private:
 	Point exitPoint;
 	vector<Point> positionHistory;
 	vector<Point> entryPoints;
-	vector<Point> mLineIntercepts;
 	vector<int> entryPointIndices;
 	string mode;
 	vector<vector<Edge>> edges;
 	Edge mLine;
-	int lockout;
-	int lockMax;
 	double shortestPath;
 	amp::Path2D path;
-	std::deque<Edge> myDeque;
 	int polyInd;
 	int edgeInd;
 	bool hasTurned;
@@ -145,8 +141,6 @@ public:
 	MyBugAlgorithm(int bugType) :
 		bugType(bugType),
 		heading(0),
-		lockout(0),
-		lockMax(5),
 		polyInd(-1),
 		edgeInd(-1),
 		step(0),
@@ -154,17 +148,16 @@ public:
 		mode("goal") {}
 
 	void moveForward() {
-		x += shortestPath / 3000 * std::cos(heading); // x = x + cos(heading)
-		y += shortestPath / 3000 * std::sin(heading);
+		x += shortestPath / 7500 * std::cos(heading); // x = x + cos(heading)
+		y += shortestPath / 7500 * std::sin(heading);
 		positionHistory.push_back({x, y});
 		path.waypoints.push_back(Eigen::Vector2d(x, y));
-		lockout--;
 		step++;
 	}
 
 	virtual amp::Path2D plan(const amp::Problem2D& problem) {
 		init(problem);
-		int maxSteps = 35000;
+		int maxSteps = 40000;
 		for (int i = 0; i < maxSteps; ++i) {
 			moveForward();
 			detectAllEdges();
@@ -232,7 +225,7 @@ public:
 						}
 						polyInd = i;
 						edgeInd = edge.edgeInd;
-						cout << "Crossed Edge at " << x << ", " << y << "\n";
+						// cout << "Crossed Edge at " << x << ", " << y << "\n";
 						findDirectionToTurn(edge);
 						rewind();
 						break;
@@ -250,7 +243,7 @@ public:
 			}
 			Edge nextEdge = edges[polyInd][ind];
 			if (findCollision(nextEdge,false)) {
-				cout << "Turning at Vertex " << x << ", " << y << "\n";
+				// cout << "Turning at Vertex " << x << ", " << y << "\n";
 				findDirectionToTurn(nextEdge);
 				edgeInd = ind;
 				hasTurned = true;
@@ -262,8 +255,7 @@ public:
 	void detectMLine() {
 		if (mode == "circ") {
 			if (findCollision(mLine, true)) {
-				cout << "Crossed M-Line at " << x << ", " << y << "\n";
-				mLineIntercepts.push_back({x, y});
+				// cout << "Crossed M-Line at " << x << ", " << y << "\n";
 				Point previousEntry = entryPoints[entryPoints.size() - 1];
 				Point checkFartherPoint = comparePoints(previousEntry, {x, y}, goal);
 				if (checkFartherPoint.x == previousEntry.x && checkFartherPoint.y == previousEntry.y) {
@@ -277,31 +269,29 @@ public:
 	void detectEntryExitPoints() {
 		if (hasTurned) {
 			if (mode == "circ") {
-				if (lockout < 0) {
-					bool isComplete = detectPoint(entryPoints[entryPoints.size() - 1]);
-					if (isComplete) {
-						cout << "Completed circumnavigation at "<< x << ", " << y << "\n";
-						mode = "exiting";
-						Point closestPoint = start;
-						vector<Point> pointsOnPoly;
-						for (int i = entryPointIndices[entryPointIndices.size() - 1]; i < positionHistory.size(); ++i) {
-							pointsOnPoly.push_back(positionHistory[i]);
-						}
-						for (const Point& point : pointsOnPoly) {
-							closestPoint = comparePoints(closestPoint, point, goal, true);
-						}
-						exitPoint = closestPoint;
-						cout << "Exiting at point: " << exitPoint.x << ", " << exitPoint.y << "\n";
-						// vector<Point>::iterator it = std::find(pointsOnPoly.begin(), pointsOnPoly.end(), closestPoint);
-						// int index = std::distance(pointsOnPoly.begin(), it);
-						// if (index > pointsOnPoly.size() / 2) {
-						// heading += M_PI;
+				bool isComplete = detectPoint(entryPoints[entryPoints.size() - 1]);
+				if (isComplete) {
+					// cout << "Completed circumnavigation at "<< x << ", " << y << "\n";
+					mode = "exiting";
+					Point closestPoint = start;
+					vector<Point> pointsOnPoly;
+					for (int i = entryPointIndices[entryPointIndices.size() - 1]; i < positionHistory.size(); ++i) {
+						pointsOnPoly.push_back(positionHistory[i]);
 					}
+					for (const Point& point : pointsOnPoly) {
+						closestPoint = comparePoints(closestPoint, point, goal, true);
+					}
+					exitPoint = closestPoint;
+					// cout << "Exiting at point: " << exitPoint.x << ", " << exitPoint.y << "\n";
+					// vector<Point>::iterator it = std::find(pointsOnPoly.begin(), pointsOnPoly.end(), closestPoint);
+					// int index = std::distance(pointsOnPoly.begin(), it);
+					// if (index > pointsOnPoly.size() / 2) {
+					// heading += M_PI;
 				}
 			}
 			else if (mode == "exiting") {
 				if (detectPoint(exitPoint)) {
-					cout << "Exiting Polygon\n";
+					// cout << "Exiting Polygon\n";
 					turnToGoal();
 					mode = "goal";
 					hasTurned = false;
@@ -313,7 +303,7 @@ public:
 
 	bool detectPoint(const Point& point) {
 		double distance = distanceBetweenPoints({x, y}, point);
-		return distance / shortestPath < 0.001;
+		return distance / shortestPath < 0.0005;
 	}
 
 	bool findCollision(const Edge& edge, bool checkLimits=false) {

@@ -5,6 +5,7 @@ while [[ $# -gt 0 ]]; do
         -r|--rebuild)
             echo "Rebuilding from scratch..."
             rm -rf build            
+            rm grade.sh
             shift 1
             ;;
         *)
@@ -14,8 +15,8 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-export LD_LIBRARY_PATH=@AMP_OS_INSTALL_DIR@:$LD_LIBRARY_PATH
-echo $LD_LIBRARY_PATH
+export @OS_LD_LIBRARY_PATH_VAR@=@AMP_OS_INSTALL_DIR@:$@OS_LD_LIBRARY_PATH_VAR@
+echo "Library path: $@OS_LD_LIBRARY_PATH_VAR@"
 mkdir -p build && cd build
 
 architecture=$(uname -m)

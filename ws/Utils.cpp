@@ -1,5 +1,6 @@
 #include "Utils.h"
 
+// Return true if the possible step intersects an obstacle
 bool Utils::checkStep(Eigen::Vector2d start, Eigen::Vector2d stop, const amp::Problem2D& problem) {
     // Iterate through each obstacle, then each line segment, to check if the bug
     // motion from `start` to `stop` intersects those segments

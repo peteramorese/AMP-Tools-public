@@ -18,13 +18,13 @@ class MyBugAlgorithm : public amp::BugAlgorithm {
         
     private:
         // Add any member variables here...
-        int bugType = 1;
+        int bugType = 2;
         int boundaryFollowing = 0;
         std::vector<Eigen::Vector2d> boundaryTrace;
         std::vector<double> boundaryDistances;
         Eigen::Vector2d hitPoint;
         Eigen::Vector2d curDir;
-        double stepSize = .1;
-        int maxSteps = 10000;
+        const double stepSize = .1;
+        const int maxSteps = 10000;
         Eigen::Vector2d curGoal;
 };

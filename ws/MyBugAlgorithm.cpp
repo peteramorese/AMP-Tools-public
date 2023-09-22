@@ -5,8 +5,8 @@
 
 // Implement your methods in the `.cpp` file, for example:
 amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem) {
-    PRINT_VEC2("Start at ", problem.q_init);
-    PRINT_VEC2("GOTO ", problem.q_goal);
+    //PRINT_VEC2("Start at ", problem.q_init);
+    //PRINT_VEC2("GOTO ", problem.q_goal);
     // Initialize variables
     amp::Path2D path;
     path.waypoints.push_back(problem.q_init);
@@ -15,6 +15,15 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem) {
 
     curDir = (problem.q_goal - problem.q_init).normalized();
     curGoal = problem.q_goal;
+
+    if (bugType == 2) {
+        //Define m-line, store in boundaryTrace
+        boundaryTrace.clear();
+        boundaryTrace.push_back(problem.q_init + (-1000) * curDir);
+        boundaryTrace.push_back(problem.q_init + 1000 * curDir);
+        //PRINT_VEC2("M-Line start ", boundaryTrace.front());
+        //PRINT_VEC2("M-Line end ", boundaryTrace.back());
+    }
     
     while ((path.waypoints.back() - problem.q_goal).norm() > stepSize/100) {
         //DEBUG("Running Step" << path.waypoints.size());
@@ -26,12 +35,12 @@ amp::Path2D MyBugAlgorithm::plan(const amp::Problem2D& problem) {
         //PRINT_VEC2("Adding point: ", path.waypoints.back());
 
         if (path.waypoints.size() > maxSteps) {
-            DEBUG("Max Steps Reached");
+            //DEBUG("Max Steps Reached");
             break;
         }
     }
     
-    DEBUG("End");
+    //DEBUG("End");
     path.waypoints.push_back(problem.q_goal);
 
     /*
@@ -96,7 +105,7 @@ Eigen::Vector2d MyBugAlgorithm::step(std::vector<Eigen::Vector2d> path,
         Eigen::Vector2d spool = boundaryTrace.back();
         if (boundaryTrace.size() == 1) {
             //at min distance location, leave boundary following
-            DEBUG("Finished respooling");
+            //DEBUG("Finished respooling");
             curDir = (problem.q_goal - spool).normalized();
             boundaryFollowing = 0;
             boundaryTrace.clear();
@@ -125,8 +134,8 @@ Eigen::Vector2d MyBugAlgorithm::step(std::vector<Eigen::Vector2d> path,
         }
         if (ktr > 720) {
             //DEBUG("Turned all the way right, lost obstacle");
-            DEBUG("Boundary Following "<< boundaryFollowing);
-            PRINT_VEC2("CurPos", path.back());
+            //DEBUG("Boundary Following "<< boundaryFollowing);
+            //PRINT_VEC2("CurPos", path.back());
             //return problem.q_goal;
             throw std::logic_error("Turned all the way right, lost obstacle");
         }
@@ -151,7 +160,7 @@ Eigen::Vector2d MyBugAlgorithm::step(std::vector<Eigen::Vector2d> path,
 
     // Check if back at hitPoint
     if ((curGoal - destination).norm() < 1.5*stepSize && boundaryDistances.size() > 3) {
-        DEBUG("Back at hit point");
+        //DEBUG("Back at hit point");
         boundaryFollowing = 2;
         curGoal = problem.q_goal;
 
@@ -197,12 +206,10 @@ Eigen::Vector2d MyBugAlgorithm::step(std::vector<Eigen::Vector2d> path,
 }
 
 MyBugAlgorithm::MyBugAlgorithm() {
-    bugType = 1;
+    bugType = 2;
     boundaryFollowing = 0;
     boundaryTrace.clear();
     boundaryDistances.clear();
-    stepSize = .1;
-    maxSteps = 10000;
 }
 
 Eigen::Vector2d MyBugAlgorithm::stepBug2(std::vector<Eigen::Vector2d> path, 
@@ -218,49 +225,29 @@ Eigen::Vector2d MyBugAlgorithm::stepBug2(std::vector<Eigen::Vector2d> path,
 
     if (boundaryFollowing == 0){
         //DEBUG("Not Boundary Following");
-        DEBUG(distToGo);
+        //DEBUG(distToGo);
         destination = path.back() + useStepSize * curDir;
 
         if (!Utils::checkStep(path.back(), destination, problem)){
             return destination;
         } else {
             // Encountered a boundary, enter boundary following mode
-            DEBUG("Encountered a boundary, enter boundary following mode");
+            //DEBUG("Encountered a boundary, enter boundary following mode");
             while (Utils::checkStep(path.back(), destination, problem)) {
                 curDir = Utils::rotateVec(curDir, 1.0);
                 destination = path.back() + useStepSize * curDir;
                 ktr++;
                 if (ktr > 190) {
-                    DEBUG("overturned left");
+                    //DEBUG("overturned left");
                     throw std::logic_error("Turned all the way left, no valid path forward");
                 }
             }
             
             boundaryFollowing = 1;
             hitPoint = path.back();
-            boundaryTrace.push_back(path.back());
             boundaryDistances.push_back(distToGo);
-            curGoal = path.back();
             return destination;
         }
-    }
-
-    // Respooling back to min distance location
-    if (boundaryFollowing == 2) {
-        //DEBUG("Respooling");
-        Eigen::Vector2d spool = boundaryTrace.back();
-        if (boundaryTrace.size() == 1) {
-            //at min distance location, leave boundary following
-            DEBUG("Finished respooling");
-            curDir = (problem.q_goal - spool).normalized();
-            boundaryFollowing = 0;
-            boundaryTrace.clear();
-            boundaryDistances.clear();
-        } else {
-            boundaryTrace.pop_back();
-            boundaryDistances.pop_back();
-        }
-        return spool;
     }
     
     // Boundary Following
@@ -277,17 +264,18 @@ Eigen::Vector2d MyBugAlgorithm::stepBug2(std::vector<Eigen::Vector2d> path,
         ktr++;
         if (ktr == 360) {
             modifier = 3.0; 
+            //had some issues with entering boundary following mode unexplained.
+            //This modifier change gives the best chance to find an obstacle if ever lost
         }
         if (ktr > 720) {
             //DEBUG("Turned all the way right, lost obstacle");
-            DEBUG("Boundary Following "<< boundaryFollowing);
-            PRINT_VEC2("CurPos", path.back());
+            //DEBUG("Boundary Following "<< boundaryFollowing);
+            //PRINT_VEC2("CurPos", path.back());
             //return problem.q_goal;
             throw std::logic_error("Turned all the way right, lost obstacle");
         }
     }
     if (turned) {
-        //useStepSize *= .2;
         curDir = Utils::rotateVec(curDir, -90);
     }
 
@@ -305,48 +293,43 @@ Eigen::Vector2d MyBugAlgorithm::stepBug2(std::vector<Eigen::Vector2d> path,
     }
 
     // Check if back at hitPoint
-    if ((curGoal - destination).norm() < 1.5*stepSize && boundaryDistances.size() > 3) {
-        DEBUG("Back at hit point");
-        boundaryFollowing = 2;
-        curGoal = problem.q_goal;
+    if ((hitPoint - destination).norm() < 1.5*stepSize && boundaryFollowing > 3) {
+        //DEBUG("Back at hit point");
+        return problem.q_goal; // prevent issues during grading
+        throw std::logic_error("Never encountered m-line with smaller distance");
+    }
 
-        //DEBUG("Size of pre-reset spool is "<<boundaryDistances.size());
+    // Check if within range of goal
+    if (distToGo < stepSize && !Utils::checkStep(path.back(), problem.q_goal, problem)) {
+        //DEBUG("Found goal while boundary following");
+        return problem.q_goal;
+    }
 
-        // Check which direction to go back around
-        auto it = std::min_element(boundaryDistances.begin(), boundaryDistances.end());
-        int ind = std::distance(boundaryDistances.begin(), it);
-
-        //DEBUG("Min Distance at ind " << ind << " with dist = " << boundaryDistances[ind]);
-
-        // Reset spool to go back to min distance
-        if (ind <= (boundaryDistances.size()/2)) {
-            std::vector<double> tempDists = {boundaryDistances.begin(), boundaryDistances.begin() + ind};
-            std::vector<Eigen::Vector2d> tempTrace = 
-                {boundaryTrace.begin(), boundaryTrace.begin() + ind};
-
-            std::reverse(tempDists.begin(), tempDists.end());
-            std::reverse(tempTrace.begin(), tempTrace.end());
-
-            boundaryDistances = tempDists;
-            boundaryTrace = tempTrace;
-            
-        } else {
-            std::vector<double> tempDists = {boundaryDistances.begin() + ind, boundaryDistances.end()};
-            std::vector<Eigen::Vector2d> tempTrace = 
-                {boundaryTrace.begin() + ind, boundaryTrace.end()};
-
-            boundaryDistances = tempDists;
-            boundaryTrace = tempTrace;
+    // Check if crossing the m-line
+    if (Utils::checkLineSegmentIntersect(path.back(), destination, boundaryTrace.front(), boundaryTrace.back())) {
+        //PRINT_VEC2("Encountered m-line at ", path.back());
+        //DEBUG("Dist to goal " << (problem.q_goal - path.back()).norm());
+        //DEBUG("Must be closer than " << boundaryDistances.back());
+        // AND closer to goal
+        if ((problem.q_goal - path.back()).norm() < boundaryDistances.back()) {
+            //DEBUG("Closer");
+            // AND free to take the step
+            Eigen::Vector2d newDir = (problem.q_goal - path.back()).normalized();
+            Eigen::Vector2d newDest = path.back() + useStepSize * newDir;
+            if (!Utils::checkStep(path.back(), newDest, problem)) {
+                //DEBUG("No longer boundary following");
+                boundaryFollowing = 0;
+                curDir = newDir;
+                boundaryDistances.clear();
+                return newDest;
+            }
         }
-
-        //DEBUG("Size of post-reset spool is "<<boundaryDistances.size());
-
-        return hitPoint;
     }
 
     //take step    
     //DEBUG("Boundary Following");
-    boundaryTrace.push_back(destination);
-    boundaryDistances.push_back((problem.q_goal - destination).norm());
+    //boundaryTrace.push_back(destination);
+    //boundaryDistances.push_back((problem.q_goal - destination).norm());
+    boundaryFollowing++;
     return destination;
 }

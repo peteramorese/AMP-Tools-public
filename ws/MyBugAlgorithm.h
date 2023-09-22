@@ -8,10 +8,13 @@
 class MyBugAlgorithm : public amp::BugAlgorithm {
     public:
         // Override and implement the bug algorithm in the plan method. The methods are declared here in the `.h` file
+
+        MyBugAlgorithm();
         virtual amp::Path2D plan(const amp::Problem2D& problem) override;
 
         // Add any other methods here...
         Eigen::Vector2d step(std::vector<Eigen::Vector2d> path, const amp::Problem2D& problem);
+        Eigen::Vector2d stepBug2(std::vector<Eigen::Vector2d> path, const amp::Problem2D& problem);
         
     private:
         // Add any member variables here...
@@ -22,6 +25,6 @@ class MyBugAlgorithm : public amp::BugAlgorithm {
         Eigen::Vector2d hitPoint;
         Eigen::Vector2d curDir;
         double stepSize = .1;
-        int maxSteps = 5000;
+        int maxSteps = 10000;
         Eigen::Vector2d curGoal;
 };

@@ -46,6 +46,7 @@ int main(int argc, char** argv) {
     // Declare your algorithm object 
     MyBugAlgorithm algo;
     
+    /*
     //problem 1
     {
         // Call your algorithm on the problem
@@ -60,7 +61,7 @@ int main(int argc, char** argv) {
         Visualizer::makeFigure(problem1, path);
     }
     
-   
+    
     //problem 2
     {
         // Call your algorithm on the problem
@@ -89,9 +90,9 @@ int main(int argc, char** argv) {
         // Visualize the path environment, and any collision points with obstacles
         Visualizer::makeFigure(random_prob, path, collision_points);
     }
-    
+    */
     Visualizer::showFigures();
-
+    
     HW2::grade(algo, "nonhuman.biologic@myspace.edu", argc, argv);
     
     /* If you want to reconstruct your bug algorithm object every trial (to reset member variables from scratch or initialize), use this method instead*/

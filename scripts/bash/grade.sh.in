@@ -1,6 +1,6 @@
 #! /bin/bash
 
-export LD_LIBRARY_PATH=@AMP_OS_INSTALL_DIR@:$LD_LIBRARY_PATH
+export @OS_LD_LIBRARY_PATH_VAR@="@AMP_OS_INSTALL_DIR@:$@OS_LD_LIBRARY_PATH_VAR@"
 case "$1" in 
     --hw2)
         echo "Grading hw2"

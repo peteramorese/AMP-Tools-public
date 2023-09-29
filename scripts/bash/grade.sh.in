@@ -1,12 +1,35 @@
 #! /bin/bash
 
 export @OS_LD_LIBRARY_PATH_VAR@="@AMP_OS_INSTALL_DIR@:$@OS_LD_LIBRARY_PATH_VAR@"
-case "$1" in 
+
+# Make sure executable tag is passed
+if [[ $# == 0 ]]; then
+    cd ws
+    options=$(find . -maxdepth 1 -mindepth 1 -type d)
+    echo "Must pass executable tag (bash grade.sh <tag>). Here are the your tag options:"
+    while IFS= read -r dir; do
+        dir_name=$(basename "$dir")
+        echo " - $dir_name"
+    done <<< "$options"
+    exit 1
+fi
+
+case "$2" in 
     --hw2)
-        echo "Grading hw2"
-        cd bin/hw2 && ./grade
+        echo "Grading hw2 using project: $1"
+        cd bin/hw2 && ./grade-hw2 -e $1
+        exit 1
+        ;;
+    --hw4)
+        echo "Grading hw4 using project: $1"
+        cd bin/hw4 && ./grade-hw4 -e $1
+        exit 1
+        ;;
+    --hw5)
+        echo "Grading hw5 using project: $1"
+        cd bin/hw5 && ./grade-hw5 -e $1
         exit 1
         ;;
     *)
-        echo "Unrecognized homework '$1'"
+        echo "Unrecognized homework '$2'"
 esac

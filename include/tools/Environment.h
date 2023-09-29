@@ -27,7 +27,11 @@ struct Environment2D {
 
 /// @brief Environment with initial state and goal state
 struct Problem2D : Environment2D {
+    /// @brief Mobile robot: location of reference point on robot
+    /// Manipulator: end effector location
     Eigen::Vector2d q_init;
+    /// @brief Mobile robot: location of reference point on robot
+    /// Manipulator: end effector location
     Eigen::Vector2d q_goal;
 
     void serialize(Serializer& szr) const;

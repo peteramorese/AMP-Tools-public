@@ -29,12 +29,20 @@ std::unique_ptr<ampprivate::pybridge::PythonObject> ampprivate::pybridge::ListOf
     return list;
 }
 
+std::unique_ptr<ampprivate::pybridge::PythonObject> ampprivate::pybridge::makeBool(bool boolean) {
+    return std::make_unique<ampprivate::pybridge::PythonObject>(PyBool_FromLong(static_cast<long>(boolean)));
+}
+
 std::unique_ptr<ampprivate::pybridge::PythonObject> ampprivate::pybridge::makeLong(uint64_t integer) {
     return std::make_unique<ampprivate::pybridge::PythonObject>(PyLong_FromLong(integer));
 }
 
 std::unique_ptr<ampprivate::pybridge::PythonObject> ampprivate::pybridge::makeScalar(double scalar) {
     return std::make_unique<ampprivate::pybridge::PythonObject>(PyFloat_FromDouble(scalar));
+}
+
+std::unique_ptr<ampprivate::pybridge::PythonObject> ampprivate::pybridge::makeString(const std::string& string) {
+    return std::make_unique<ampprivate::pybridge::PythonObject>(PyUnicode_FromString(string.c_str()));
 }
 
 std::unique_ptr<ampprivate::pybridge::PythonObject> ampprivate::pybridge::makeList(std::vector<std::unique_ptr<PythonObject>>&& list_elements) {

@@ -27,7 +27,6 @@ class Serializer {
             
             // Make sure the parent path exists so that the file is created
             std::filesystem::path fs_fp(m_filepath);
-            LOG("In szr writing to: " << fs_fp);
             if (!std::filesystem::exists(fs_fp.parent_path())) {
                 if (!std::filesystem::create_directories(fs_fp.parent_path())) {
                     ERROR("Could not create directory: " << fs_fp.parent_path());

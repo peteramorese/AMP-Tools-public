@@ -1,5 +1,7 @@
 #include "tools/ArgParser.h"
+#include "tools/ConfigurationSpace.h"
 #include "tools/Environment.h"
+#include "tools/LinkManipulator.h"
 #include "tools/Logging.h"
 #include "tools/Obstacle.h"
 #include "tools/Path.h"

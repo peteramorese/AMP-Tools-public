@@ -1,6 +1,9 @@
 #pragma once
 
-#include "Environment.h"
+#include "tools/Environment.h"
+#include "tools/Obstacle.h"
+#include "tools/LinkManipulator.h"
+#include "tools/ConfigurationSpace.h"
 
 #ifndef AMP_EXCLUDE_VIS
 
@@ -27,6 +30,44 @@ class Visualizer {
         /// @param collision_points Collision points to display
         static void makeFigure(const Problem2D& prob, const Path2D& path, const std::vector<Eigen::Vector2d>& collision_points);
 
+        /// @brief Visualize a set of polygons. Automatically adjusts axis bounds
+        /// @param obstacles Obstacles to display, shown in order
+        static void makeFigure(const std::vector<Polygon>& polygons, bool filled = true);
+
+        /// @brief Visualize a set of polygons. Automatically adjusts axis bounds
+        /// @param obstacles Obstacles to display, shown in order
+        /// @param labels Labels corresponding to each obstacle (must be the same size as `obstacles`)
+        static void makeFigure(const std::vector<Polygon>& polygons, const std::vector<std::string>& labels, bool filled = true);
+
+        /// @brief Visualize a set of polygons in 3D. Automatically adjusts axis bounds
+        /// @param obstacles Obstacles to display, shown in order
+        /// @param heights_3d Z-values (heights) corresponding to each obstacle (must be the same size as `obstacles`)
+        static void makeFigure(const std::vector<Polygon>& polygons, const std::vector<double>& heights_3d);
+
+        /// @brief Visualize a link manipulator.
+        /// NOTE: The manipulator is visualized with a non-zero thickness even though the links have zero thickness (lines)
+        /// @param link_manipulator Manipulator
+        /// @param state State of the manipulator to display
+        static void makeFigure(const LinkManipulator2D& link_manipulator, const ManipulatorState& state);
+
+        /// @brief Visualize a link manipulator.
+        /// NOTE: The manipulator is visualized with a non-zero thickness even though the links have zero thickness (lines)
+        /// @param env Environment to display
+        /// @param link_manipulator Manipulator
+        /// @param state State of the manipulator to display
+        static void makeFigure(const Environment2D& env, const LinkManipulator2D& link_manipulator, const ManipulatorState& state);
+
+        /// @brief Visualize a link manipulator.
+        /// NOTE: The manipulator is visualized with a non-zero thickness even though the links have zero thickness (lines)
+        /// @param prob Problem to display
+        /// @param link_manipulator Manipulator
+        /// @param state State of the manipulator to display
+        static void makeFigure(const Problem2D& prob, const LinkManipulator2D& link_manipulator, const ManipulatorState& state);
+
+        /// @brief Visualize a grid cspace
+        /// @param cspace Dense grid cspace
+        static void makeFigure(const GridCSpace2D& cspace);
+
         /// @brief Show all figures that were created with `makeFigure()`
         static void showFigures();
 
@@ -35,6 +76,11 @@ class Visualizer {
         static void createAxes(const Problem2D& prob);
         static void createAxes(const Problem2D& prob, const Path2D& path);
         static void createAxes(const Problem2D& prob, const Path2D& path, const std::vector<Eigen::Vector2d>& collision_points);
+        static void createAxes(const std::vector<Polygon>& polygons, bool filled);
+        static void createAxes(const std::vector<Polygon>& polygons, const std::vector<std::string>& labels, bool filled);
+        static void createAxes(const std::vector<Polygon>& polygons, const std::vector<double>& heights_3d);
+        static void createAxes(const LinkManipulator2D& link_manipulator, const ManipulatorState& state);
+        static void createAxes(const GridCSpace2D& cspace);
         static void newFigure();
 };
 }
@@ -49,6 +95,13 @@ class Visualizer {
         static void makeFigure(const Problem2D& prob) {}
         static void makeFigure(const Problem2D& prob, const Path2D& path) {}
         static void makeFigure(const Problem2D& prob, const Path2D& path, const std::vector<Eigen::Vector2d>& collision_points) {}
+        static void makeFigure(const std::vector<Polygon>& polygons, bool filled = true) {}
+        static void makeFigure(const std::vector<Polygon>& polygons, const std::vector<std::string>& labels, bool filled = true) {}
+        static void makeFigure(const std::vector<Polygon>& polygons, const std::vector<double>& heights_3d) {}
+        static void makeFigure(const LinkManipulator2D& link_manipulator, const ManipulatorState& state) {}
+        static void makeFigure(const Environment2D& env, const LinkManipulator2D& link_manipulator, const ManipulatorState& state) {}
+        static void makeFigure(const Problem2D& prob, const LinkManipulator2D& link_manipulator, const ManipulatorState& state) {}
+        static void makeFigure(const GridCSpace2D& cspace) {}
         static void showFigures() {}
 };
 }

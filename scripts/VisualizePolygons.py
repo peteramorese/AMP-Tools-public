@@ -33,6 +33,7 @@ def visualize_polygons(polygons : list, filled, labels = None):
     if labels:
         assert len(labels) == len(polygons)
     ax = plt.gca() 
+    ax.set_aspect('equal')
     x_min, x_max, y_min, y_max = None, None, None, None
     for i in range(len(polygons)):
         polygon = polygons[i]

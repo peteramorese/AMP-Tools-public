@@ -36,7 +36,6 @@ Edge findLineEquation(Point point1, Point point2) {
 	double buffer = 0;
 	double a, b, c;
 	if (point1.x == point2.x) {
-		// auto [a, b, c] = tuple{ 1, 0, point1.x };
 		a = 1;
 		b = 0;
 		c = point1.x;
@@ -54,9 +53,6 @@ Edge findLineEquation(Point point1, Point point2) {
 	Limits limits = {
 		{limitX[0] - buffer, limitX[1] + buffer},
 		{limitY[0] - buffer, limitY[1] + buffer} };
-
-	// cout << a << "x + " << b << "y = " << c << "\n";
-	// cout << limits.x[0] << ", " << limits.x[1] << ", " << limits.y[0] << ", " << limits.y[1] << "\n\n";
 	Edge edge = {
 		{a, b, c},
 		limits,
@@ -76,16 +72,13 @@ Point comparePoints(const Point& coord1, const Point& coord2, const Point& targe
 	if (closest) {
 		if (distance1 < distance2) {
 			result = coord1;
-		}
-		else {
+		} else {
 			result =coord2;
 		}
-	}
-	else {
+	} else {
 		if (distance1 > distance2) {
 			result =coord1;
-		}
-		else {
+		} else {
 			result =coord2;
 		}
 	}
@@ -98,17 +91,13 @@ vector<vector<Edge>> findEdges(const amp::Problem2D& problem) {
 		vector<Edge> polyEdges;
 		vector<Eigen::Vector2d> vertices = obstacle.verticesCCW();
 		vertices.push_back(vertices[0]);
-		// cout << "\nPolygon with " << vertices.size() - 1 << " vertices\n";
 		for (int j = 1; j < vertices.size(); ++j) {
-			// cout << vertices[j - 1](0) << " , " << vertices[j - 1](1) << "\n";
-			// cout << vertices[j](0) << " , " << vertices[j](1) << "\n\n";
 			Edge edge = findLineEquation({ vertices[j - 1](0), vertices[j - 1](1) }, { vertices[j](0), vertices[j](1) });
 			edge.edgeInd = j - 1;
 			polyEdges.push_back(edge);
 		}
 		edges.push_back(polyEdges);
 	}
-
 	return edges;
 }
 
@@ -135,6 +124,7 @@ private:
 	int polyInd;
 	int edgeInd;
 	bool hasTurned;
+	bool CW;
 
 public:
 	MyBugAlgorithm(int bugType) :
@@ -179,7 +169,6 @@ public:
 	}
 
 	void init(const amp::Problem2D& problem) {
-
 		cout << "Starting Bug " << bugType << "\n";
 		x = problem.q_init(0);
 		y = problem.q_init(1);
@@ -190,6 +179,8 @@ public:
 		edges = findEdges(problem);
 		mLine = findLineEquation(goal, start);
 		shortestPath = distanceBetweenPoints(start, goal);
+		cout << shortestPath << "\n";
+		CW = true;
 		turnToGoal();
 	}
 
@@ -236,9 +227,17 @@ public:
 
 	void detectNextEdge() {
 		if (mode != "goal") {
-			int ind = edgeInd - 1;
-			if (edgeInd == 0) {
-				ind = edges[polyInd].size() - 1;
+			int ind;
+			if (CW) {
+				ind = edgeInd - 1;
+				if (edgeInd == 0) {
+					ind = edges[polyInd].size() - 1;
+				}
+			} else {
+				ind = edgeInd + 1;
+				if (edgeInd == edges[polyInd].size() - 1) {
+					ind = 0;
+				}
 			}
 			Edge nextEdge = edges[polyInd][ind];
 			if (findCollision(nextEdge,false)) {
@@ -284,11 +283,18 @@ public:
 						closestPoint = comparePoints(closestPoint, point, goal, true);
 					}
 					exitPoint = closestPoint;
-					// cout << "Exiting at point: " << exitPoint.x << ", " << exitPoint.y << "\n";
-					// vector<Point>::iterator it = std::find(pointsOnPoly.begin(), pointsOnPoly.end(), closestPoint);
-					// int index = std::distance(pointsOnPoly.begin(), it);
-					// if (index > pointsOnPoly.size() / 2) {
-					// heading += M_PI;
+					int ind = 0;
+					for (const Point& point : pointsOnPoly) {
+						if (point.x == closestPoint.x && point.y == closestPoint.y) {
+							break;
+						}
+						ind++;
+					}
+					if (ind > pointsOnPoly.size() / 2) {
+						cout << "turning 180\n";
+						heading += M_PI;
+						CW = false;
+					}
 				}
 			}
 			else if (mode == "exiting") {
@@ -297,6 +303,7 @@ public:
 					turnToGoal();
 					mode = "goal";
 					hasTurned = false;
+					CW = true;
 				}
 			}
 		}
@@ -337,7 +344,12 @@ public:
 			targetVertex = goal;
 		}
 		else {
-			targetVertex = edge.points[0];
+			if (CW) {
+				targetVertex = edge.points[0];
+			} else {
+				targetVertex = edge.points[1];
+			}
+			
 		}
 		if (edge.coeff.b == 0.0) {
 			guessHeading = - M_PI / 2;

@@ -25,26 +25,26 @@ int main(int argc, char** argv) {
     Problem2D problem3 = EnvironmentTools::generateRandom(spec, 30); // Random environment
 
     // Declare r algorithm object 
-    // MyBugAlgorithm bug(1);
-    MyBugAlgorithm bug1(1);
-    MyBugAlgorithm bug11(1);
-    MyBugAlgorithm bug111(1);
+    MyBugAlgorithm bug(1);
+    // MyBugAlgorithm bug1(2);
+    // MyBugAlgorithm bug11(1);
+    // MyBugAlgorithm bug111(1);
     // MyBugAlgorithm bug2(2);
 
-    amp::Path2D path1 = bug1.plan(problem1);
-    bool success1 = HW2::check(path1, problem1);
-    Visualizer::makeFigure(problem1, path1);
-    LOG("Found valid solution to workspace 1: " << (success1 ? "Yes!" : "No :("));
+    // amp::Path2D path1 = bug.plan(problem1);
+    // bool success1 = HW2::check(path1, problem1);
+    // Visualizer::makeFigure(problem1, path1);
+    // LOG("Found valid solution to workspace 1: " << (success1 ? "Yes!" : "No :("));
 
-    amp::Path2D path2 = bug11.plan(problem2);
+    amp::Path2D path2 = bug.plan(problem2);
     bool success2 = HW2::check(path2, problem2);
     Visualizer::makeFigure(problem2, path2);
     LOG("Found valid solution to workspace 1: " << (success2 ? "Yes!" : "No :(")); 
 
-    amp::Path2D path3 = bug111.plan(problem3);
-    bool success3 = HW2::check(path3, problem3);
-    Visualizer::makeFigure(problem3, path3);
-    LOG("Found valid solution to workspace 1: " << (success3 ? "Yes!" : "No :(")); 
+    // amp::Path2D path3 = bug111.plan(problem3);
+    // bool success3 = HW2::check(path3, problem3);
+    // Visualizer::makeFigure(problem3, path3);
+    // LOG("Found valid solution to workspace 1: " << (success3 ? "Yes!" : "No :(")); 
 
     // Check your path to make sure that it does not collide with the environment 
     Visualizer::showFigures();
@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
     // HW2::grade(algo, "nonhuman.biologic@myspace.edu", argc, argv);
     
     /* If you want to reconstruct your bug algorithm object every trial (to reset member variables from scratch or initialize), use this method instead*/
-    // HW2::grade<MyBugAlgorithm>("yusif.razzaq@colorado.edu", argc, argv, 2);
+    // HW2::grade<MyBugAlgorithm>("yusif.razzaq@colorado.edu", argc, argv, 1);
     
     // This will reconstruct using the default constructor every trial
     //HW2::grade<MyBugAlgorithm>("nonhuman.biologic@myspace.edu", argc, argv);

@@ -2,5 +2,6 @@
 
 class MyClass {
     public:
-        void findMinkowskiDiff();
+        void findMinkowskiDiff(const amp::Problem2D& obstacle);
+
 };

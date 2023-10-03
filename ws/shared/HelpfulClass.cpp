@@ -15,7 +15,7 @@ void MyClass::findMinkowskiDiff(const amp::Obstacle2D& obstacle) {
     vector<Vector2d> cSpaceObstacle;
     int i = 0;
     int j = 0;
-    while (int k = 0; k < obstacleVertices.size() + robotVertices.size(); ++k) {
+    for (int k = 0; k < obstacleVertices.size() + robotVertices.size(); ++k) {
         cSpaceObstacle.push_back(obstacleVertices[i] + robotVertices[j]);
         if (findAngle(obstacleVertices[i], obstacleVertices[i + 1]) < findAngle(robotVertices[j], robotVertices[j + 1])) {
             i++;

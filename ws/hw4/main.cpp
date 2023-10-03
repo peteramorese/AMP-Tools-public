@@ -14,7 +14,7 @@ int main(int argc, char** argv) {
     amp::RNG::seed(amp::RNG::randiUnbounded());
 
     MyLinkManipulator mani;
-
+    mani.printLinkLengths();
     // Grade method
     //amp::HW4::grade<MyLinkManipulator>(constructor, "nonhuman.biologic@myspace.edu", argc, argv);
     return 0;

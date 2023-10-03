@@ -6,6 +6,7 @@ double findAngle(const Vector2d& point1, const Vector2d& point2) {
     Vector2d vector = point2 - point1;
     double angle = std::atan2(vector.y(), vector.x());
     cout << angle << "\n";
+    return angle;
 }
 
 void MyClass::findMinkowskiDiff(const amp::Obstacle2D& obstacle) {

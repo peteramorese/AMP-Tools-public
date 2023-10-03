@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
 
     // Declare r algorithm object 
     MyBugAlgorithm bug(1);
-    // MyBugAlgorithm bug1(2);
+    MyBugAlgorithm bug2(2);
     // MyBugAlgorithm bug11(1);
     // MyBugAlgorithm bug111(1);
     // MyBugAlgorithm bug2(2);

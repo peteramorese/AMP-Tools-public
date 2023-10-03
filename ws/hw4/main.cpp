@@ -8,11 +8,14 @@
 #include "HelpfulClass.h"
 
 using namespace amp;
+using Eigen::Vector2d;
 
 int main(int argc, char** argv) {
     amp::Obstacle2D problem1 = HW4::getEx1TriangleObstacle();
     MyClass myClass;
-    myClass.findMinkowskiDiff(problem1);
+    std::vector<Vector2d> robotVertices = { Vector2d(0, 0) , Vector2d(1, 2), Vector2d(0, 2) };
+
+    myClass.findMinkowskiDiff(problem1, robotVertices);
     /* Include this line to have different randomized environments every time you run your code (NOTE: this has no affect on grade()) */
     // amp::RNG::seed(amp::RNG::randiUnbounded());
 

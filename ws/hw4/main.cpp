@@ -5,13 +5,15 @@
 #include "hw/HW4.h"
 
 // Include the header of the shared class
-#include "HelpfulClass.h"
+#include "MyLinkManipulator.h"
 
 using namespace amp;
 
 int main(int argc, char** argv) {
     /* Include this line to have different randomized environments every time you run your code (NOTE: this has no affect on grade()) */
     amp::RNG::seed(amp::RNG::randiUnbounded());
+
+    MyLinkManipulator mani;
 
     // Grade method
     //amp::HW4::grade<MyLinkManipulator>(constructor, "nonhuman.biologic@myspace.edu", argc, argv);

@@ -1,5 +1,7 @@
 #include "HelpfulClass.h"
 
-void MyClass::hereIsAMethod() {
-    // Implementation
+using std::vector, std::string, std::cout;
+
+void MyClass::findMinkowskiDiff() {
+    cout << "DING DONG\n";
 }

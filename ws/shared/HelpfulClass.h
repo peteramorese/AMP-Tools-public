@@ -2,5 +2,5 @@
 
 class MyClass {
     public:
-        void hereIsAMethod();
+        void findMinkowskiDiff();
 };

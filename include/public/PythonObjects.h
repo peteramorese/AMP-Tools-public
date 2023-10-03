@@ -40,8 +40,10 @@ struct ListOfQuadrouples {
     std::unique_ptr<PythonObject> toPyList() const;
 };
 
+std::unique_ptr<PythonObject> makeBool(bool boolean);
 std::unique_ptr<PythonObject> makeLong(uint64_t scalar);
 std::unique_ptr<PythonObject> makeScalar(double scalar);
+std::unique_ptr<PythonObject> makeString(const std::string& string);
 std::unique_ptr<PythonObject> makeList(std::vector<std::unique_ptr<PythonObject>>&& list_elements);
 std::unique_ptr<PythonObject> makePair(std::pair<std::unique_ptr<PythonObject>, std::unique_ptr<PythonObject>>&& tuple_elements); // Tuple of size 2
 

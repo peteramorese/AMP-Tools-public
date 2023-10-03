@@ -14,6 +14,8 @@ class BugAlgorithm {
         /// @param problem Motion planning problem
         /// @return Path solution
         virtual amp::Path2D plan(const amp::Problem2D& problem) = 0;
+
+        virtual ~BugAlgorithm() {}
 };
 
 class HW2 {
@@ -81,15 +83,6 @@ class HW2 {
         static int grade(BugAlgorithm& algo, const std::string& email, int argc, char** argv);
 
         /// @brief Tests your algorithm on Workspace1, Workspace2, and benchmars your algorithm against many randomized environments.
-        /// NOTE: Make sure your member variables are correctly reset after each call to plan(). This method does not reconstruct the 
-        /// BugAlgorithm object that you pass in
-        /// @param algo Your implemented bug algorithm
-        /// @param email Your identikey@colorado.edu email
-        /// @param argc Pass the cmd line args from main
-        /// @param argv Pass the cmd line args from main
-        /// @return Result struct that shows the results of the benchmark 
-        
-        /// @brief Tests your algorithm on Workspace1, Workspace2, and benchmars your algorithm against many randomized environments.
         /// NOTE: Reconstructs your algorithm object every trial to make sure your member variables are reset, etc...
         /// @tparam BUG_ALGORITHM_T The type of your bug algorithm object (MUST derive BugAlgorithm)
         /// @tparam ...CTOR_ARGS_T Constructor parameter arg types (automatically deduced)
@@ -97,7 +90,6 @@ class HW2 {
         /// @param argc Pass the cmd line args from main
         /// @param argv Pass the cmd line args from main
         /// @param constructor_arguments Pass the remaining arguments as you would to your constructor
-        /// @return Result struct that shows the results of the benchmark 
         template <class BUG_ALGORITHM_T, class... CTOR_ARGS_T>
         static int grade(const std::string& email, int argc, char** argv, CTOR_ARGS_T&&... constructor_arguments);
 };

@@ -94,9 +94,8 @@ amp::Polygon MyClass::findMinkowskiDiff(const amp::Obstacle2D& obstacle, vector<
             j++;
         }
     }
-    // cSpaceObstacle.pop_back();
     amp::Polygon poly(cSpaceObstacle);
-    return  poly;
+    return poly;
 }
 
 vector<amp::Polygon> MyClass::findCSpaceObstacles(const amp::Obstacle2D& obstacle, vector<Vector2d> robotVertices) {

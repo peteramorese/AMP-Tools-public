@@ -11,29 +11,39 @@
 using namespace amp;
 using Eigen::Vector2d, std::vector, std::cout;
 
-int main(int argc, char** argv) {
+void problem1() {
     Obstacle2D obstacle1 = HW4::getEx1TriangleObstacle();
     vector<Vector2d> robotVertices = { Vector2d(0, 0) , Vector2d(1, 2), Vector2d(0, 2) };
     MyClass myClass;
-    // Polygon poly = myClass.findMinkowskiDiff(obstacle1, robotVertices);
-    // vector<double> angles;
-    // for (int i = 0; i < 12; ++i) {
-    //     angles.push_back(2*M_PI / 12 * i);
-    // }
+    Polygon poly = myClass.findMinkowskiDiff(obstacle1, robotVertices);
+    vector<double> angles;
+    for (int i = 0; i < 12; ++i) {
+        angles.push_back(2*M_PI / 12 * i);
+    }
     vector<Polygon> polygons = myClass.findCSpaceObstacles(obstacle1, robotVertices);
     Visualizer::makeFigure(polygons, angles);
+}
 
-    vector<double> linkLengths = {1.0, 1.0};
-    ManipulatorState state = {0.0, 3.14/2};
+void problem2a() {
+    vector<double> linkLengths = {0.5, 1, 0.5};
+    ManipulatorState state = {M_PI/6, M_PI/3, 7*M_PI/4};
     MyLinkManipulator manipulator(linkLengths);
 
     Visualizer::makeFigure(manipulator, state);
-    Visualizer::showFigures();
+}
 
+void problem2b() {
+    Vector2d endEffector(2, 0)
+}
+
+int main(int argc, char** argv) {
+
+    problem1();
+    problem2a();
+    Visualizer::showFigures();
 
     /* Include this line to have different randomized environments every time you run your code (NOTE: this has no affect on grade()) */
     // amp::RNG::seed(amp::RNG::randiUnbounded());
-
     // Grade method
     //amp::HW4::grade<MyLinkManipulator>(constructor, "nonhuman.biologic@myspace.edu", argc, argv);
     return 0;

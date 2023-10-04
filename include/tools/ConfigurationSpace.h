@@ -10,6 +10,11 @@ namespace amp {
 /// @brief User implemented abstract class that accesses the continuous C-Space (bounded)
 class ConfigurationSpace2D {
     public:
+        /// @brief Constructor
+        /// @param x0_min Lower bound on first configuration dimension
+        /// @param x0_max Upper bound on first configuration dimension
+        /// @param x1_min Lower bound on second configuration dimension
+        /// @param x1_max Upper bound on second configuration dimension
         ConfigurationSpace2D(double x0_min, double x0_max, double x1_min, double x1_max)
             : m_x0_bounds(x0_min, x0_max)
             , m_x1_bounds(x1_min, x1_max)
@@ -49,7 +54,15 @@ class ConfigurationSpace2D {
 template <typename T = bool>
 class DenseArray2D {
     public:
+        /// @brief Constructor that initializes data to T{}
+        /// @param x0_cells Number of cells along the first configuration dimension
+        /// @param x1_cells Number of cells along the second configuration dimension
         DenseArray2D(std::size_t x0_cells, std::size_t x1_cells);
+
+        /// @brief Constructor that initializes data to T{}
+        /// @param x0_cells Number of cells along the first configuration dimension
+        /// @param x1_cells Number of cells along the second configuration dimension
+        /// @param default_element Use custom default element to fill array with
         DenseArray2D(std::size_t x0_cells, std::size_t x1_cells, T default_element);
 
         /// @brief Get the # of cells along x0 and number of cells along x1
@@ -74,6 +87,7 @@ class DenseArray2D {
 
         /// @brief Virtual dtor
         virtual ~DenseArray2D() {}
+
     private:
         inline std::size_t getWrappedIndex(std::size_t i, std::size_t j) const;
 

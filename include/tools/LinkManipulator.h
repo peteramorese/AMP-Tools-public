@@ -60,6 +60,10 @@ class LinkManipulator2D {
         /// @return Const reference to base location
         inline const Eigen::Vector2d& getBaseLocation() const {return m_base_location;}
 
+        /// @brief Edit the base location.
+        /// @return Reference access to base location
+        inline Eigen::Vector2d& getBaseLocation() {return m_base_location;}
+
         /// @brief Get the maximum radial reach of the manipulator 
         /// @return Sum of all of the link lengths
         double reach() const;

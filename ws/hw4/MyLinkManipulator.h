@@ -19,10 +19,12 @@ class MyLinkManipulator: public amp::LinkManipulator2D{
         {
             Eigen::Vector3d  location(getBaseLocation()[0], getBaseLocation()[1], 1);
             if(joint_index > 0){
-                // for joint 1, use length 0 and angle[0]
-                for(int j = 0; j < joint_index; j++){
-                    location = getR3(state[j], getLinkLengths()[j])*location;                    
+                location = getR3(0, getLinkLengths()[joint_index - 1])*location;
+                for(int j = joint_index - 1; j > 0; j--){
+                    location = getR3(state[j], getLinkLengths()[j-1])*location;   
                 }
+                // for joint 1, use length 0 and angle[0]
+                location = getR3(state[0], 0)*location;
             }
             return location.head<2>();
         };
@@ -31,8 +33,38 @@ class MyLinkManipulator: public amp::LinkManipulator2D{
         /// @return Joint angle state (radians) in increasing joint index order. Must have size() ==nLinks()
         virtual ManipulatorState getConfigurationFromIK(const Eigen::Vector2d& end_effector_location) const override
         {
-            ManipulatorState calm;
-            return calm;
+            ManipulatorState state;
+            Eigen::Vector2d diffVec = (end_effector_location - getBaseLocation());
+            switch(nLinks()){
+                case 1:
+                    //check that end effector is on circle of radius linklength from base location
+                    if(diffVec.norm() == getLinkLengths()[0]){
+                        state.push_back(atan2(diffVec[1],diffVec[0]));
+                    }
+                    else{
+                        std::cout << "1-link arm cannot reach position " << end_effector_location << std::endl;
+                    }
+                    break;
+                case 2:
+                    //check that end effector is within reachable band of 2-link arm
+                    if(diffVec.norm() >= abs(getLinkLengths()[1] - getLinkLengths()[0])){
+                        double theta2 = acos((std::pow(end_effector_location.norm(),2) - (std::pow(getLinkLengths()[0],2) + std::pow(getLinkLengths()[1],2)))
+                         /(2*getLinkLengths()[0]*getLinkLengths()[1]));
+                        double theta1 = acos((end_effector_location[0]*(getLinkLengths()[0] + getLinkLengths()[1]*cos(theta2))
+                         + end_effector_location[1]*getLinkLengths()[1]*sin(theta2))/std::pow(end_effector_location.norm(),2));
+                        state.push_back(theta1);
+                        state.push_back(theta2);
+                    }
+                    else{
+                        std::cout << "2-link arm cannot reach position " << end_effector_location << std::endl;
+                    }
+                    break;
+                case 3:
+
+                default:
+                    std::cout << "Too many links for inverse kinematics :) " << std::endl;
+            }
+            return state;
         };
 
         void printLinkLengths(){

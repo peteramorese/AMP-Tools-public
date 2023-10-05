@@ -16,9 +16,18 @@ int main(int argc, char** argv) {
     MyLinkManipulator mani;
     mani.printLinkLengths();
     std::vector<double> state;
-    state.push_back(0.0);
-    state.push_back(M_PI/4);
-    std::cout << "base location: " << mani.getJointLocation(state,2) << std::endl;
+    state.push_back(M_PI/2);
+    state.push_back(-M_PI/4);
+    for(int j = 0; j < state.size(); j++){
+        std::cout << "state[" << j << "] = " << state[j] << std::endl;
+    }
+    std::cout << "base location: " << mani.getJointLocation(state,0) << std::endl;
+    std::cout << "joint1: " << mani.getJointLocation(state,1) << std::endl;
+    std::cout << "joint2: " << mani.getJointLocation(state,2) << std::endl;
+    std::vector<double> reverseState = mani.getConfigurationFromIK(mani.getJointLocation(state,2));
+    for(int j = 0; j < reverseState.size(); j++){
+        std::cout << "reverseState[" << j << "] = " << reverseState[j] << std::endl;
+    }
     // Grade method
     //amp::HW4::grade<MyLinkManipulator>(constructor, "nonhuman.biologic@myspace.edu", argc, argv);
     return 0;

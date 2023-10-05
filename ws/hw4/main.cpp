@@ -21,9 +21,9 @@ int main(int argc, char** argv) {
     // state.push_back(-M_PI/4);
     // state.push_back(M_PI/4);
     // state.push_back(-M_PI/4);
-    state.push_back(M_PI/2);
-    state.push_back(M_PI/4);
-    state.push_back(-M_PI/4);
+    state.push_back(M_PI/3);
+    state.push_back(M_PI/6);
+    state.push_back(M_PI/37);
     for(int j = 0; j < state.size(); j++){
         std::cout << "state[" << j << "] = " << state[j] << std::endl;
     }

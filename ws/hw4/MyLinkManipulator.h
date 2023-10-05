@@ -99,22 +99,22 @@ class MyLinkManipulator: public amp::LinkManipulator2D{
                             circlePoint[0] = (a*c1 + b*rad)/(std::pow(a,2) + std::pow(b,2));
                             circlePoint[1] = (b*c1 - a*rad)/(std::pow(a,2) + std::pow(b,2));
                         }
-                        std::cout << "circlePoint " << circlePoint << std::endl;
+                        //std::cout << "circlePoint " << circlePoint << std::endl;
                         theta3 = atan2(end_effector_location[1] - circlePoint[1],end_effector_location[0] - circlePoint[0]);
-                        std::cout << "input to acos: " << (std::pow(circlePoint.norm(),2) - (std::pow(getLinkLengths()[0],2) + std::pow(getLinkLengths()[1],2)))
-                            /(2*getLinkLengths()[0]*getLinkLengths()[1]) << std::endl;
-                        double input = (std::pow(circlePoint.norm(),2) - (std::pow(getLinkLengths()[0],2) + std::pow(getLinkLengths()[1],2)))
+                        double inputC = (std::pow(circlePoint.norm(),2) - (std::pow(getLinkLengths()[0],2) + std::pow(getLinkLengths()[1],2)))
                             /(2*getLinkLengths()[0]*getLinkLengths()[1]);
-                        double theta2;
-                        if(input >= 1){
-                            theta2 = 0;
-                        }else if(input <= -1){
-                            theta2 = M_PI;
-                        }else{
-                            theta2 = acos(input);
+                        
+                        double check = 1-std::pow(inputC,2);
+                        if(check < 1e-10){
+                            check = 0;
                         }
-                        double theta1 = acos((circlePoint[0]*(getLinkLengths()[0] + getLinkLengths()[1]*cos(theta2))
-                            + circlePoint[1]*getLinkLengths()[1]*sin(theta2))/std::pow(circlePoint.norm(),2));
+                        double inputS = sqrt(check);
+                        double theta2 = atan2(inputS,inputC);
+                        inputC = (circlePoint[0]*(getLinkLengths()[0] + getLinkLengths()[1]*cos(theta2))
+                            + circlePoint[1]*getLinkLengths()[1]*sin(theta2))/std::pow(circlePoint.norm(),2);
+                        inputS = (circlePoint[1]*(getLinkLengths()[0] + getLinkLengths()[1]*cos(theta2))
+                            - circlePoint[0]*getLinkLengths()[1]*sin(theta2))/std::pow(circlePoint.norm(),2);
+                        double theta1 = atan2(inputS,inputC);
                         state.push_back(theta1);
                         state.push_back(theta2);
                         state.push_back(theta3-theta2-theta1);

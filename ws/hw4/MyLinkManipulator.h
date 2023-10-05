@@ -101,9 +101,18 @@ class MyLinkManipulator: public amp::LinkManipulator2D{
                         }
                         std::cout << "circlePoint " << circlePoint << std::endl;
                         theta3 = atan2(end_effector_location[1] - circlePoint[1],end_effector_location[0] - circlePoint[0]);
-
-                        double theta2 = acos((std::pow(circlePoint.norm(),2) - (std::pow(getLinkLengths()[0],2) + std::pow(getLinkLengths()[1],2)))
-                            /(2*getLinkLengths()[0]*getLinkLengths()[1]));
+                        std::cout << "input to acos: " << (std::pow(circlePoint.norm(),2) - (std::pow(getLinkLengths()[0],2) + std::pow(getLinkLengths()[1],2)))
+                            /(2*getLinkLengths()[0]*getLinkLengths()[1]) << std::endl;
+                        double input = (std::pow(circlePoint.norm(),2) - (std::pow(getLinkLengths()[0],2) + std::pow(getLinkLengths()[1],2)))
+                            /(2*getLinkLengths()[0]*getLinkLengths()[1]);
+                        double theta2;
+                        if(input >= 1){
+                            theta2 = 0;
+                        }else if(input <= -1){
+                            theta2 = -M_PI;
+                        }else{
+                            theta2 = acos(input);
+                        }
                         double theta1 = acos((circlePoint[0]*(getLinkLengths()[0] + getLinkLengths()[1]*cos(theta2))
                             + circlePoint[1]*getLinkLengths()[1]*sin(theta2))/std::pow(circlePoint.norm(),2));
                         state.push_back(theta1);

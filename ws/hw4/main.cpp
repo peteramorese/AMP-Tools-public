@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
     std::vector<double> state;
     state.push_back(M_PI/4);
     state.push_back(M_PI/4);
-    state.push_back(M_PI/3);
+    state.push_back(0);
     for(int j = 0; j < state.size(); j++){
         std::cout << "state[" << j << "] = " << state[j] << std::endl;
     }

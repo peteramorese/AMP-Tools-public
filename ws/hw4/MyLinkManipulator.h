@@ -84,22 +84,21 @@ class MyLinkManipulator: public amp::LinkManipulator2D{
                         double c2 = std::pow(getLinkLengths()[0] - getLinkLengths()[1],2) - std::pow(getBaseLocation()[0],2)
                         - std::pow(getBaseLocation()[1],2) - std::pow(getLinkLengths()[2],2) + std::pow(end_effector_location[0],2)
                         + std::pow(end_effector_location[1],2);
-
-                        double discriminant1 = std::pow(getLinkLengths()[2],2)*(std::pow(a,2) + std::pow(b,2)) - std::pow(c1,2);
-                        double discriminant2 = std::pow(getLinkLengths()[2],2)*(std::pow(a,2) + std::pow(b,2)) - std::pow(c2,2);
+                        double discriminant1 = std::pow(getLinkLengths()[0] + getLinkLengths()[1],2)*(std::pow(a,2) + std::pow(b,2)) - std::pow(c1,2);
+                        double discriminant2 = std::pow(getLinkLengths()[0] - getLinkLengths()[1],2)*(std::pow(a,2) + std::pow(b,2)) - std::pow(c2,2);
                         if(discriminant1 >= 0){
-                            std::cout << "disc1" << std::endl;
+                            // std::cout << "disc1" << std::endl;
                             double rad = sqrt(discriminant1);
                             circlePoint[0] = (a*c1 + b*rad)/(std::pow(a,2) + std::pow(b,2));
                             circlePoint[1] = (b*c1 - a*rad)/(std::pow(a,2) + std::pow(b,2));
                         }
                         else if(discriminant2 >= 0){
-                            std::cout << "disc2" << std::endl;
+                            // std::cout << "disc2" << std::endl;
                             double rad = sqrt(discriminant2);
-                            circlePoint[0] = (a*c1 + b*rad)/(std::pow(a,2) + std::pow(b,2));
-                            circlePoint[1] = (b*c1 - a*rad)/(std::pow(a,2) + std::pow(b,2));
+                            circlePoint[0] = (a*c2 + b*rad)/(std::pow(a,2) + std::pow(b,2));
+                            circlePoint[1] = (b*c2 - a*rad)/(std::pow(a,2) + std::pow(b,2));
                         }
-                        //std::cout << "circlePoint " << circlePoint << std::endl;
+                        // std::cout << "circlePoint " << circlePoint << std::endl;
                         theta3 = atan2(end_effector_location[1] - circlePoint[1],end_effector_location[0] - circlePoint[0]);
                         double inputC = (std::pow(circlePoint.norm(),2) - (std::pow(getLinkLengths()[0],2) + std::pow(getLinkLengths()[1],2)))
                             /(2*getLinkLengths()[0]*getLinkLengths()[1]);

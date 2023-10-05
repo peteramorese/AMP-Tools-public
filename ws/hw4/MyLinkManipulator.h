@@ -109,7 +109,7 @@ class MyLinkManipulator: public amp::LinkManipulator2D{
                         if(input >= 1){
                             theta2 = 0;
                         }else if(input <= -1){
-                            theta2 = -M_PI;
+                            theta2 = M_PI;
                         }else{
                             theta2 = acos(input);
                         }

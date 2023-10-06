@@ -15,32 +15,24 @@ int main(int argc, char** argv) {
     amp::RNG::seed(amp::RNG::randiUnbounded());
 
     std::vector<amp::Polygon> prob1;
-    // MyConfigurationSpace space1(-5.0, 5.0, -5.0, 5.0);
     MyConfigEnvironment space1;
     amp::Polygon tempRobot;
-    for(int j = 0; j < 2; j++){
+    std::vector<double> height;
+    for(int j = 0; j < 13; j++){
         tempRobot = HW4::getEx1TriangleObstacle();
-        space1.rotateRobot(verticesCCW(),M_PI*(j/6.0));
-        for(int j = 0; j < verticesCCW().size(); j++){
-            std::cout << "verticesCCW()[" << j << "] = " << verticesCCW()[j] << std::endl;
-        }
+        space1.rotateRobot(tempRobot.verticesCCW(),M_PI*(j/6.0));
+        // for(int j = 0; j < tempRobot.verticesCCW().size(); j++){
+        //     std::cout << "tempRobot.verticesCCW()[" << j << "] = " << tempRobot.verticesCCW()[j] << std::endl;
+        // }
         prob1.push_back(space1.getCspaceObs(tempRobot,HW4::getEx1TriangleObstacle()));
+        if(j == 0){
+            for(int j = 0; j < prob1[0].verticesCCW().size(); j++){
+                std::cout << "Obstacle Vertex[" << j << "] = " << prob1[0].verticesCCW()[j] << std::endl;
+            }
+        }
+        height.push_back(M_PI*(j/6.0));
     }
-    Visualizer::makeFigure(prob1);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    Visualizer::makeFigure(prob1,height);
 
     std::vector<double> lens{0.5,1,0.5};
     Eigen::Vector2d base(0,0);

@@ -14,6 +14,26 @@ int main(int argc, char** argv) {
     /* Include this line to have different randomized environments every time you run your code (NOTE: this has no affect on grade()) */
     amp::RNG::seed(amp::RNG::randiUnbounded());
 
+    std::vector<amp::Polygon> prob1;
+    // MyConfigurationSpace space1(-5.0, 5.0, -5.0, 5.0);
+    MyConfigEnvironment space1;
+    prob1.push_back(space1.getCspaceObs(HW4::getEx1TriangleObstacle(),HW4::getEx1TriangleObstacle()));
+    Visualizer::makeFigure(prob1);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     std::vector<double> lens{0.5,1,0.5};
     Eigen::Vector2d base(0,0);
     MyLinkManipulator mani(base, lens);
@@ -33,16 +53,18 @@ int main(int argc, char** argv) {
     Eigen::Vector2d end(2,0);
     std::vector<double> reverseState = mani2.getConfigurationFromIK(end);
 
-     for(int j = 0; j < reverseState.size(); j++){
-        std::cout << "reverseState[" << j << "] = " << reverseState[j] << std::endl;
-    }
-    std::cout << "reverse base location: " << mani2.getJointLocation(reverseState,0) << std::endl;
-    std::cout << "reverse joint1: " << mani2.getJointLocation(reverseState,1) << std::endl;
-    std::cout << "reverse joint2: " << mani2.getJointLocation(reverseState,2) << std::endl;
-    std::cout << "reverse joint3: " << mani2.getJointLocation(reverseState,3) << std::endl;
+    //  for(int j = 0; j < reverseState.size(); j++){
+    //     std::cout << "reverseState[" << j << "] = " << reverseState[j] << std::endl;
+    // }
+    // std::cout << "reverse base location: " << mani2.getJointLocation(reverseState,0) << std::endl;
+    // std::cout << "reverse joint1: " << mani2.getJointLocation(reverseState,1) << std::endl;
+    // std::cout << "reverse joint2: " << mani2.getJointLocation(reverseState,2) << std::endl;
+    // std::cout << "reverse joint3: " << mani2.getJointLocation(reverseState,3) << std::endl;
 
-    Visualizer::makeFigure(mani2, reverseState);
+    // Visualizer::makeFigure(mani2, reverseState);
     Visualizer::showFigures();
+
+    // HW4::checkFK(mani2.getJointLocation(reverseState,2),2,mani2,reverseState,true);
     // Grade method
     //amp::HW4::grade<MyLinkManipulator>(constructor, "collin.hudson@colorado.edu", argc, argv);
     return 0;

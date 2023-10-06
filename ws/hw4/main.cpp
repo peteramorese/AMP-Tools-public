@@ -17,7 +17,15 @@ int main(int argc, char** argv) {
     std::vector<amp::Polygon> prob1;
     // MyConfigurationSpace space1(-5.0, 5.0, -5.0, 5.0);
     MyConfigEnvironment space1;
-    prob1.push_back(space1.getCspaceObs(HW4::getEx1TriangleObstacle(),HW4::getEx1TriangleObstacle()));
+    amp::Polygon tempRobot;
+    for(int j = 0; j < 2; j++){
+        tempRobot = HW4::getEx1TriangleObstacle();
+        space1.rotateRobot(verticesCCW(),M_PI*(j/6.0));
+        for(int j = 0; j < verticesCCW().size(); j++){
+            std::cout << "verticesCCW()[" << j << "] = " << verticesCCW()[j] << std::endl;
+        }
+        prob1.push_back(space1.getCspaceObs(tempRobot,HW4::getEx1TriangleObstacle()));
+    }
     Visualizer::makeFigure(prob1);
 
 

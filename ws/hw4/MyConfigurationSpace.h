@@ -60,12 +60,12 @@ class MyConfigEnvironment{
                 }while(i < rSize || j < oSize);
                 amp::Polygon obsC(obsCVerts);
                 // amp::Polygon obsC(robotCVerts);
-                for(int j = 0; j < robotCVerts.size(); j++){
-                    std::cout << "robotCVerts[" << j << "] = " << robotCVerts[j] << std::endl;
-                }
-                for(int j = 0; j < tempObs.size(); j++){
-                    std::cout << "tempObs[" << j << "] = " << tempObs[j] << std::endl;
-                }
+                // for(int j = 0; j < robotCVerts.size(); j++){
+                //     std::cout << "robotCVerts[" << j << "] = " << robotCVerts[j] << std::endl;
+                // }
+                // for(int j = 0; j < tempObs.size(); j++){
+                //     std::cout << "tempObs[" << j << "] = " << tempObs[j] << std::endl;
+                // }
                 return obsC;
         }
         double getAngle(Eigen::Vector2d fin, Eigen::Vector2d init){
@@ -74,5 +74,12 @@ class MyConfigEnvironment{
                 return ang + 2*M_PI;
             }
             return ang;
+        }
+        void rotateRobot(std::vector<Eigen::Vector2d>& verts, double theta){
+            for(int j = 0; j < verts.size(); j++){
+                verts[j][0] = verts[j][0]*cos(theta);
+                verts[j][1] = verts[j][1]*cos(theta);
+            }
+
         }
 };

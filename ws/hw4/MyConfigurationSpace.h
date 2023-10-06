@@ -62,13 +62,14 @@ class MyGridCSpace2D: public amp::GridCSpace2D{
         void makeCSpace(MyLinkManipulator& mani, const amp::Environment2D& obs){
             const std::size_t x0Size = 20;
             const std::size_t x1Size = 20;
-            amp::DenseArray2D<bool> dArr(x0Size, x1Size);
+            std::pair<std::size_t, std::size_t> siz = dArr.size();
+            // amp::DenseArray2D<bool> dArr(x0Size, x1Size);
             std::vector<double> state;
-            for(int i = 0; i < x0Size; i++){
-                for(int j = 0; j < int(x1Size); j++){
+            for(int i = 0; i < siz.first; i++){
+                for(int j = 0; j < siz.second; j++){
                     state.clear();
-                    state.push_back(i*(x0Bounds().second - x0Bounds().first)/x0Size);
-                    state.push_back(j*(x1Bounds().second - x1Bounds().first)/x1Size);
+                    state.push_back(i*(x0Bounds().second - x0Bounds().first)/siz.first);
+                    state.push_back(j*(x1Bounds().second - x1Bounds().first)/siz.second);
                     Eigen::Vector2d a0 = mani.getBaseLocation();
                     Eigen::Vector2d a1 =  mani.getJointLocation(state,1);
                     Eigen::Vector2d a2 = mani.getJointLocation(state,2);
@@ -86,10 +87,10 @@ class MyGridCSpace2D: public amp::GridCSpace2D{
                     dArr(i,j) =  hit;
                 }
             }
-            getdArr() = dArr;
+            // getdArr() = dArr;
         }
         virtual bool inCollision(double x0, double x1) const{
-            amp::DenseArray2D<bool> dArr  = getdArr();
+            // amp::DenseArray2D<bool> dArr  = getdArr();
             std::pair<std::size_t, std::size_t> siz =  dArr.size();
             int i = ((x0Bounds().second - x0)/(x0Bounds().second - x0Bounds().first))*siz.first; // (xspace0max - x0)/(xspace0max - xspace0min)* siz[0]
             int j = ((x1Bounds().second - x1)/(x1Bounds().second - x1Bounds().first))*siz.second; // (xspace1max - x1)/(xspace1max - xspace1min)* siz[1]
@@ -97,6 +98,7 @@ class MyGridCSpace2D: public amp::GridCSpace2D{
         }
         amp::DenseArray2D<bool>& getdArr(){return dArr;};
         inline const amp::DenseArray2D<bool>& getdArr() const {return dArr;};
+        
     private:
     amp::DenseArray2D<bool> dArr;
     //amp::Environment2D obs;

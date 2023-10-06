@@ -34,24 +34,31 @@ int main(int argc, char** argv) {
     }
     Visualizer::makeFigure(prob1,height);
 
-    std::vector<double> lens{0.5,1,0.5};
-    Eigen::Vector2d base(0,0);
-    MyLinkManipulator mani(base, lens);
-    // mani.printLinkLengths();
-    std::vector<double> state;
-    state.push_back(M_PI/6);
-    state.push_back(M_PI/3);
-    state.push_back(7*M_PI/4);
+    MyLinkManipulator mani3;
+    amp::Environment2D env3;
+    env3.obstacles.push_back(HW4::getEx1TriangleObstacle());
+    // MyGridCSpace2DConstructor(mani3,env3);
+
+
+
+    // std::vector<double> lens{0.5,1,0.5};
+    // Eigen::Vector2d base(0,0);
+    // MyLinkManipulator mani(base, lens);
+    // // mani.printLinkLengths();
+    // std::vector<double> state;
+    // state.push_back(M_PI/6);
+    // state.push_back(M_PI/3);
+    // state.push_back(7*M_PI/4);
     
-    // Visualizer::makeFigure(mani, state);
-    lens.clear();
-    lens.push_back(1);
-    lens.push_back(0.5);
-    lens.push_back(1);
-    MyLinkManipulator mani2(base,lens);
-    // mani2.printLinkLengths();
-    Eigen::Vector2d end(2,0);
-    std::vector<double> reverseState = mani2.getConfigurationFromIK(end);
+    // // Visualizer::makeFigure(mani, state);
+    // lens.clear();
+    // lens.push_back(1);
+    // lens.push_back(0.5);
+    // lens.push_back(1);
+    // MyLinkManipulator mani2(base,lens);
+    // // mani2.printLinkLengths();
+    // Eigen::Vector2d end(2,0);
+    // std::vector<double> reverseState = mani2.getConfigurationFromIK(end);
 
     //  for(int j = 0; j < reverseState.size(); j++){
     //     std::cout << "reverseState[" << j << "] = " << reverseState[j] << std::endl;

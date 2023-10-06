@@ -11,6 +11,11 @@ using ManipulatorTrajectory = std::list<ManipulatorState>;
 
 class MyLinkManipulator: public amp::LinkManipulator2D{
     public:
+        MyLinkManipulator(){
+            std::vector<double> links(3, 1);
+            getBaseLocation() = Eigen::Vector2d(0.0, 0.0);
+            getLinkLengths() = links;
+        }
         MyLinkManipulator(const Eigen::Vector2d& base_location, const std::vector<double>& link_lengths){
             getBaseLocation() = base_location;
             getLinkLengths() = link_lengths;

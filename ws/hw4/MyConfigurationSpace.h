@@ -4,16 +4,114 @@
 #include "hw/HW4.h"
 #include <Eigen/LU>
 
-class MyConfigurationSpace: public amp::ConfigurationSpace2D{
+class MyGridCSpace2D: public amp::GridCSpace2D{
     public:
-       virtual bool inCollision(double x0, double x1) const{
-            
-            // getJointLocation(const ManipulatorState& state, uint32_t joint_index)
-            return true;
-       }
-    private:
+        MyGridCSpace2D(std::size_t x0_cells, std::size_t x1_cells, double x0_min, double x0_max, double x1_min, double x1_max)
+        :GridCSpace2D(x0_cells, x1_cells, x0_min, x0_max, x1_min, x1_max),dArr(x0_cells,x1_cells){
 
+        }
+        double getT(Eigen::Vector2d bugXY, Eigen::Vector2d bugNext, Eigen::Vector2d v1, Eigen::Vector2d v2) const {
+            Eigen::Matrix2d Tmat1;
+            Eigen::Matrix2d Tmat2;
+            Tmat1.col(0) = bugXY-v1;
+            Tmat1.col(1) = v1-v2;
+            Tmat2.col(0) = bugXY-bugNext;
+            Tmat2.col(1) = v1-v2;
+            return Tmat1.determinant()/Tmat2.determinant();
+        }
+        double getU(Eigen::Vector2d bugXY, Eigen::Vector2d bugNext, Eigen::Vector2d v1, Eigen::Vector2d v2) const {
+            Eigen::Matrix2d Tmat1;
+            Eigen::Matrix2d Tmat2;
+            Tmat1.col(0) = bugXY-v1;
+            Tmat1.col(1) = bugXY-bugNext;
+            Tmat2.col(0) = bugXY-bugNext;
+            Tmat2.col(1) = v1-v2;
+            return Tmat1.determinant()/Tmat2.determinant();
+        }
+        bool evalTU( double t, double u) const {
+            return t >= 0 && t <= 1 && u >= 0 && u <= 1;
+        }
+        bool stepCheck(Eigen::Vector2d position, Eigen::Vector2d next, const amp::Environment2D& problem) const {
+            bool hit = false;
+            for(auto Ob : problem.obstacles){
+                if(!hit){
+                    for(int j = 0; j < Ob.verticesCCW().size(); j++){
+                        if(!hit){
+                            hit = checkHit(position,next,Ob,j); //hitPoint set in checkHit function
+                        }
+                    }
+                }
+            }
+            return hit;
+        }
+        bool checkHit(Eigen::Vector2d position, Eigen::Vector2d next,amp::Polygon Ob, int startVert) const{
+            int endVert;
+            std::vector<Eigen::Vector2d> vertCW = Ob.verticesCW();
+            int numV = vertCW.size() - 1;
+            (startVert == 0) ? (endVert = numV) : endVert = startVert - 1;
+            double t = getT(position,next,vertCW[startVert],vertCW[endVert]);
+            double u = getU(position,next,vertCW[startVert],vertCW[endVert]);
+            if((next - vertCW[startVert]).norm() < 0.005){
+                return true;
+            }
+            else if(evalTU(t,u)){
+                return true;
+            }
+            return false;
+        }
+        void makeCSpace(MyLinkManipulator& mani, const amp::Environment2D& obs){
+            const std::size_t x0Size = 20;
+            const std::size_t x1Size = 20;
+            amp::DenseArray2D<bool> dArr(x0Size, x1Size);
+            std::vector<double> state;
+            for(int i = 0; i < x0Size; i++){
+                for(int j = 0; j < int(x1Size); j++){
+                    state.clear();
+                    state.push_back(i*(x0Bounds().second - x0Bounds().first)/x0Size);
+                    state.push_back(j*(x1Bounds().second - x1Bounds().first)/x1Size);
+                    Eigen::Vector2d a0 = mani.getBaseLocation();
+                    Eigen::Vector2d a1 =  mani.getJointLocation(state,1);
+                    Eigen::Vector2d a2 = mani.getJointLocation(state,2);
+                    bool hit = false;
+                    for(auto Ob : obs.obstacles){
+                        if(!hit){
+                            for(int j = 0; j < Ob.verticesCCW().size(); j++){
+                                if(!hit){
+                                    hit = checkHit(a0,a1,Ob,j);
+                                    hit = checkHit(a1,a2,Ob,j);
+                                }
+                            }
+                        }
+                    }
+                    dArr(i,j) =  hit;
+                }
+            }
+            getdArr() = dArr;
+        }
+        virtual bool inCollision(double x0, double x1) const{
+            amp::DenseArray2D<bool> dArr  = getdArr();
+            std::pair<std::size_t, std::size_t> siz =  dArr.size();
+            int i = ((x0Bounds().second - x0)/(x0Bounds().second - x0Bounds().first))*siz.first; // (xspace0max - x0)/(xspace0max - xspace0min)* siz[0]
+            int j = ((x1Bounds().second - x1)/(x1Bounds().second - x1Bounds().first))*siz.second; // (xspace1max - x1)/(xspace1max - xspace1min)* siz[1]
+            return dArr(i,j);
+        }
+        amp::DenseArray2D<bool>& getdArr(){return dArr;};
+        inline const amp::DenseArray2D<bool>& getdArr() const {return dArr;};
+    private:
+    amp::DenseArray2D<bool> dArr;
+    //amp::Environment2D obs;
 };
+
+class MyGridCSpace2DConstructor: public amp::GridCSpace2DConstructor{
+    public:
+        virtual std::unique_ptr<amp::GridCSpace2D> construct(const amp::LinkManipulator2D& manipulator, const amp::Environment2D& env) override{
+            std::unique_ptr<MyGridCSpace2D> ptr(new MyGridCSpace2D(20,20,0,2*M_PI,0,2*M_PI));
+            MyLinkManipulator mani(manipulator.getBaseLocation(),manipulator.getLinkLengths());
+            ptr->makeCSpace(mani, env);
+            return ptr;
+        }
+};
+
 
 class MyConfigEnvironment{
     public:

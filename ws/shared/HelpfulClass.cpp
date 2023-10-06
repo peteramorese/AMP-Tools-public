@@ -36,11 +36,9 @@ vector<Vector2d> rearrangeVector(vector<Vector2d>& vertices,int startingIndex) {
 
 
 double findAngle(const Vector2d& point1, const Vector2d& point2) {
-    Vector2d vector = point2 - point1;
-    double angle = std::atan2(vector.y(), vector.x());
+    Vector2d vector_ = point2 - point1;
+    double angle = std::atan2(vector_(1), vector_(0));
     if (angle < 0) angle += 2 * M_PI;
-    // cout << vector(0) << ", " << vector(1) << "\n";
-    // cout << angle*180/M_PI << "\n\n";
     return angle;
 }
 

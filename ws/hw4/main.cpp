@@ -6,6 +6,7 @@
 
 // Include the header of the shared class
 #include "MyLinkManipulator.h"
+#include "MyConfigurationSpace.h"
 
 using namespace amp;
 

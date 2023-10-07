@@ -44,7 +44,7 @@ int main(int argc, char** argv) {
     MyGridCSpace2DConstructor GridBldr;
     const std::unique_ptr<amp::GridCSpace2D> ptr = GridBldr.construct(mani3,env3);
     HW4::checkCSpace(*ptr, mani3, env3);
-    Visualizer::makeFigure(*ptr);
+    // Visualizer::makeFigure(*ptr);
 
     // MyGridCSpace2DConstructor(mani3,env3);
 
@@ -82,6 +82,6 @@ int main(int argc, char** argv) {
 
     // HW4::checkFK(mani2.getJointLocation(reverseState,2),2,mani2,reverseState,true);
     // Grade method
-    //amp::HW4::grade<MyLinkManipulator>(constructor, "collin.hudson@colorado.edu", argc, argv);
+    amp::HW4::grade<MyLinkManipulator>(GridBldr, "collin.hudson@colorado.edu", argc, argv);
     return 0;
 }

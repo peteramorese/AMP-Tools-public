@@ -35,8 +35,17 @@ int main(int argc, char** argv) {
     Visualizer::makeFigure(prob1,height);
 
     MyLinkManipulator mani3;
-    amp::Environment2D env3;
-    env3.obstacles.push_back(HW4::getEx1TriangleObstacle());
+    std::vector<double> state(2,0.0);
+    // amp::Environment2D env3;
+    // env3.obstacles.push_back(HW4::getEx1TriangleObstacle());
+
+    amp::Environment2D env3 = HW4::getEx3Workspace1();
+    Visualizer::makeFigure(env3,mani3,state);
+    MyGridCSpace2DConstructor GridBldr;
+    const std::unique_ptr<amp::GridCSpace2D> ptr = GridBldr.construct(mani3,env3);
+    HW4::checkCSpace(*ptr, mani3, env3);
+    Visualizer::makeFigure(*ptr);
+
     // MyGridCSpace2DConstructor(mani3,env3);
 
 

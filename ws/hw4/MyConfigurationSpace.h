@@ -8,7 +8,7 @@ class MyGridCSpace2D: public amp::GridCSpace2D{
     public:
         MyGridCSpace2D(std::size_t x0_cells, std::size_t x1_cells, double x0_min, double x0_max, double x1_min, double x1_max)
         :GridCSpace2D(x0_cells, x1_cells, x0_min, x0_max, x1_min, x1_max),dArr(x0_cells,x1_cells){
-
+            std::cout<< x0_min << " " << x0_max << " " << x1_min << " " << x1_max << std::endl;
         }
         double getT(Eigen::Vector2d bugXY, Eigen::Vector2d bugNext, Eigen::Vector2d v1, Eigen::Vector2d v2) const {
             Eigen::Matrix2d Tmat1;
@@ -60,10 +60,8 @@ class MyGridCSpace2D: public amp::GridCSpace2D{
             return false;
         }
         void makeCSpace(MyLinkManipulator& mani, const amp::Environment2D& obs){
-            const std::size_t x0Size = 20;
-            const std::size_t x1Size = 20;
+            //fills DenseArray2D by posing manipulator and checking for collision
             std::pair<std::size_t, std::size_t> siz = dArr.size();
-            // amp::DenseArray2D<bool> dArr(x0Size, x1Size);
             std::vector<double> state;
             for(int i = 0; i < siz.first; i++){
                 for(int j = 0; j < siz.second; j++){
@@ -78,22 +76,25 @@ class MyGridCSpace2D: public amp::GridCSpace2D{
                         if(!hit){
                             for(int j = 0; j < Ob.verticesCCW().size(); j++){
                                 if(!hit){
-                                    hit = checkHit(a0,a1,Ob,j);
-                                    hit = checkHit(a1,a2,Ob,j);
+                                    hit = checkHit(a0,a1,Ob,j) || checkHit(a1,a2,Ob,j);
+                                }
+                                else{
                                 }
                             }
                         }
                     }
+                    
                     dArr(i,j) =  hit;
                 }
+                if(i%100 == 0){
+                    std::cout << i << std::endl;
+                }
             }
-            // getdArr() = dArr;
         }
         virtual bool inCollision(double x0, double x1) const{
-            // amp::DenseArray2D<bool> dArr  = getdArr();
             std::pair<std::size_t, std::size_t> siz =  dArr.size();
-            int i = ((x0Bounds().second - x0)/(x0Bounds().second - x0Bounds().first))*siz.first; // (xspace0max - x0)/(xspace0max - xspace0min)* siz[0]
-            int j = ((x1Bounds().second - x1)/(x1Bounds().second - x1Bounds().first))*siz.second; // (xspace1max - x1)/(xspace1max - xspace1min)* siz[1]
+            int i = ((x0 - x0Bounds().first)/(x0Bounds().second - x0Bounds().first))*siz.first; // (xspace0max - x0)/(xspace0max - xspace0min)* siz[0]
+            int j = ((x1 - x1Bounds().first)/(x1Bounds().second - x1Bounds().first))*siz.second; // (xspace1max - x1)/(xspace1max - xspace1min)* siz[1]
             return dArr(i,j);
         }
         amp::DenseArray2D<bool>& getdArr(){return dArr;};
@@ -101,13 +102,12 @@ class MyGridCSpace2D: public amp::GridCSpace2D{
         
     private:
     amp::DenseArray2D<bool> dArr;
-    //amp::Environment2D obs;
 };
 
 class MyGridCSpace2DConstructor: public amp::GridCSpace2DConstructor{
     public:
         virtual std::unique_ptr<amp::GridCSpace2D> construct(const amp::LinkManipulator2D& manipulator, const amp::Environment2D& env) override{
-            std::unique_ptr<MyGridCSpace2D> ptr(new MyGridCSpace2D(20,20,0,2*M_PI,0,2*M_PI));
+            std::unique_ptr<MyGridCSpace2D> ptr(new MyGridCSpace2D(1000,1000,0,2*M_PI,0,2*M_PI));
             MyLinkManipulator mani(manipulator.getBaseLocation(),manipulator.getLinkLengths());
             ptr->makeCSpace(mani, env);
             return ptr;

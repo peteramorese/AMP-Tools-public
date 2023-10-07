@@ -58,8 +58,9 @@ class MyGridCSpace2D: public amp::GridCSpace2D{
             }
             return false;
         }
-        void makeCSpace(MyLinkManipulator& mani, const amp::Environment2D& obs){
+        MyGridCSpace2D makeCSpace(MyLinkManipulator& mani, const amp::Environment2D& obs){
             //fills DenseArray2D by posing manipulator and checking for collision
+            MyGridCSpace2D tempGrid(250,250,0,2*M_PI,0,2*M_PI);
             std::pair<std::size_t, std::size_t> siz = dArr.size();
             std::vector<double> state;
             for(int i = 0; i < siz.first; i++){
@@ -86,14 +87,11 @@ class MyGridCSpace2D: public amp::GridCSpace2D{
                     }
                     
                     dArr(i,j) =  hit;
+                    tempGrid(i,j) = hit;
                 }
-                // if(i%100 == 0){
-                //     std::cout << i << std::endl;
-                // }
             }
-            // for(int j = 0; j < dArr.data().size(); j ++){
-            //     std::cout << "dArr[" << j << "]: " << dArr.data()[j] << std::endl; 
-            // }
+            return tempGrid;
+            
         }
         virtual bool inCollision(double x0, double x1) const{
             std::pair<std::size_t, std::size_t> siz =  dArr.size();
@@ -115,9 +113,6 @@ class MyGridCSpace2DConstructor: public amp::GridCSpace2DConstructor{
             std::unique_ptr<MyGridCSpace2D> ptr(new MyGridCSpace2D(250,250,0,2*M_PI,0,2*M_PI));
             MyLinkManipulator mani(manipulator.getBaseLocation(),manipulator.getLinkLengths());
             ptr->makeCSpace(mani, env);
-            // for(int j = 0; j < ptr->getdArr().data().size(); j ++){
-            //     std::cout << "dArr[" << j << "]: " << ptr->getdArr().data()[j] << std::endl; 
-            // }
             return ptr;
         }
 };
@@ -129,14 +124,34 @@ class MyConfigEnvironment{
                 std::vector<Eigen::Vector2d> robotCVerts;
                 std::vector<Eigen::Vector2d> obsCVerts;
                 std::vector<Eigen::Vector2d> tempObs;
-                //First point on robot is reference point
+                //lowest left point on robot is reference point
+                // int smallYIdx = 0;
+                // for(int j = 1; j < robot.verticesCCW().size(); j++){
+                //     if(robot.verticesCCW()[j][1] < robot.verticesCCW()[smallYIdx][1]){
+                //         smallYIdx = j;
+                //     }else if(robot.verticesCCW()[j][1] == robot.verticesCCW()[smallYIdx][1]){
+                //         if(robot.verticesCCW()[j][0] < robot.verticesCCW()[smallYIdx][0]){
+                //             smallYIdx = j;
+                //         }
+                //     }
+                // }
+                //Diff loop
                 for(int j = 0; j < robot.verticesCCW().size(); j++){
-                    robotCVerts.push_back(robot.verticesCCW()[0] - robot.verticesCCW()[j]);
+                    robotCVerts.push_back(-robot.verticesCCW()[j]);
+                }
 
-                    // robotCVerts.push_back()
+                int smallYIdx = 0;
+                for(int j = 1; j < robotCVerts.size(); j++){
+                    if(robotCVerts[j][1] < robotCVerts[smallYIdx][1]){
+                        smallYIdx = j;
+                    }else if(robotCVerts[j][1] == robotCVerts[smallYIdx][1]){
+                        if(robotCVerts[j][0] < robotCVerts[smallYIdx][0]){
+                            smallYIdx = j;
+                        }
+                    }
                 }
                 //align new lower-left vertex as first 
-                std::rotate(robotCVerts.begin(), robotCVerts.begin() + 1, robotCVerts.end());
+                std::rotate(robotCVerts.begin(), robotCVerts.begin() + smallYIdx, robotCVerts.end());
                 // for(int j = 0; j < robotCVerts.size(); j++){
                 //     std::cout << "robotCVerts[" << j << "] = " << robotCVerts[j] << std::endl;
                 // }
@@ -150,9 +165,9 @@ class MyConfigEnvironment{
                 do{
                     obsCVerts.push_back(robotCVerts[i%rSize] + tempObs[j%oSize]);
                     //TODO: angle wrapping?
-                    rAng = getAngle(robotCVerts[(i + 1)%rSize],robotCVerts[i%rSize]);
-                    oAng = getAngle(tempObs[(j + 1)%rSize],tempObs[j%rSize]);
-
+                    rAng = getAngle(robotCVerts[(i + 1)%rSize],robotCVerts[i%rSize]) + i == rSize ? 2*M_PI : 0;
+                    oAng = getAngle(tempObs[(j + 1)%rSize],tempObs[j%rSize]) + j == rSize ? 2*M_PI : 0;
+        
                     i == rSize? rAng = getAngle(robotCVerts[(i + 1)%rSize],robotCVerts[i%rSize]) + 2*M_PI : 
                     rAng = getAngle(robotCVerts[(i + 1)%rSize],robotCVerts[i%rSize]);
 

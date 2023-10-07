@@ -18,9 +18,7 @@ void problem1() {
     MyClass myClass;
     Polygon poly = myClass.findMinkowskiDiff(obstacle1, robotVertices);
     vector<double> angles;
-    for (int i = 0; i < 12; ++i) {
-        angles.push_back(2*M_PI / 12 * i);
-    }
+    for (int i = 0; i < 12; ++i) {angles.push_back(2*M_PI / 12 * i);}
     vector<Polygon> polygons = myClass.findCSpaceObstacles(obstacle1, robotVertices);
     Visualizer::makeFigure({polygons[0]});
     Visualizer::makeFigure(polygons, angles);
@@ -43,11 +41,6 @@ void problem2b() {
 
 void problem3a() {
     Environment2D workspace = HW4::getEx3Workspace1();
-    for (const amp::Obstacle2D& obstacle : workspace.obstacles) {
-        for (const Vector2d& vertex : obstacle.verticesCCW()) {
-            cout << "Vertex (" << vertex(0) << ", " << vertex(1) << ")\n";
-        }
-    }
     vector<double> linkLengths = {1, 1};
     CSpaceConstructor cSpace(360, 360, -10, 10, -10, 10);
     cSpace.populateGrid(linkLengths, workspace.obstacles);
@@ -57,11 +50,6 @@ void problem3a() {
 
 void problem3b() {
     Environment2D workspace = HW4::getEx3Workspace2();
-        for (const amp::Obstacle2D& obstacle : workspace.obstacles) {
-        for (const Vector2d& vertex : obstacle.verticesCCW()) {
-            cout << "Vertex (" << vertex(0) << ", " << vertex(1) << ")\n";
-        }
-    }
     vector<double> linkLengths = {1, 1};
     CSpaceConstructor cSpace(360, 360, -10, 10, -10, 10);
     cSpace.populateGrid(linkLengths, workspace.obstacles);
@@ -71,11 +59,11 @@ void problem3b() {
 
 void problem3c() {
     Environment2D workspace = HW4::getEx3Workspace3();
-    for (const amp::Obstacle2D& obstacle : workspace.obstacles) {
-        for (const Vector2d& vertex : obstacle.verticesCCW()) {
-            cout << "Vertex (" << vertex(0) << ", " << vertex(1) << ")\n";
-        }
-    }
+    // for (const amp::Obstacle2D& obstacle : workspace.obstacles) {
+    //     for (const Vector2d& vertex : obstacle.verticesCW()) {
+    //         cout << "Vertex (" << vertex(0) << ", " << vertex(1) << ")\n";
+    //     }
+    // }
     vector<double> linkLengths = {1, 1};
     CSpaceConstructor cSpace(360, 360, -10, 10, -10, 10);
     cSpace.populateGrid(linkLengths, workspace.obstacles);
@@ -84,16 +72,19 @@ void problem3c() {
 }
 
 int main(int argc, char** argv) {
-    // problem1();
-    // problem2a();
-    // problem2b();
+    problem1();
+    problem2a();
+    problem2b();
     problem3a();
-    // problem3b();
-    // problem3c();
+    problem3b();
+    problem3c();
     Visualizer::showFigures();
     /* Include this line to have different randomized environments every time you run your code (NOTE: this has no affect on grade()) */
     // amp::RNG::seed(amp::RNG::randiUnbounded());
     // Grade method
-    // amp::HW4::grade<MyLinkManipulator>(manipulator, "yusif.razzaq@colorado.edu", argc, argv);
+    // vector<double> linkLengths = {1, 0.5, 1};
+    // MyLinkManipulator manipulator(linkLengths);
+    // CSpaceConstructor cSpace(360, 360, -10, 10, -10, 10);
+    // amp::HW4::grade<MyLinkManipulator>(cSpace, "yusif.razzaq@colorado.edu", argc, argv);
     return 0;
 }

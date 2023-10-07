@@ -59,15 +59,17 @@ int main(int argc, char** argv) {
     MyLinkManipulator mani3;
     std::vector<double> state2(2,0.0);
     amp::Environment2D env3 = HW4::getEx3Workspace1();
-    Visualizer::makeFigure(env3,mani3,state2);
     MyGridCSpace2DConstructor GridBldr;
 
     const std::unique_ptr<amp::GridCSpace2D> ptr = GridBldr.construct(mani3,env3);
     HW4::checkCSpace(*ptr, mani3, env3);
     MyGridCSpace2D plotEnv3(250,250,0,2*M_PI,0,2*M_PI);
     Visualizer::makeFigure(plotEnv3.makeCSpace(mani3,env3));
+    Visualizer::makeFigure(env3,mani3,state2);
     Visualizer::makeFigure(plotEnv3.makeCSpace(mani3,HW4::getEx3Workspace2()));
+    Visualizer::makeFigure(HW4::getEx3Workspace2(),mani3,state2);
     Visualizer::makeFigure(plotEnv3.makeCSpace(mani3,HW4::getEx3Workspace3()));
+    Visualizer::makeFigure(HW4::getEx3Workspace3(),mani3,state2);
 
     // MyGridCSpace2DConstructor(mani3,env3);
 

@@ -45,7 +45,7 @@ Vector2d MyLinkManipulator::getJointLocation(const ManipulatorState& state, uint
         }
         jointLocation = {location.coeff(0, 0), location.coeff(1, 0)};
     }
-    // cout << "Joint " << joint_index << " at: ("<< jointLocation(0) << ", " << jointLocation(1) << ")\n";
+    cout << "Joint " << joint_index << " at: ("<< jointLocation(0) << ", " << jointLocation(1) << ")\n";
     return jointLocation;
 };
 
@@ -61,7 +61,8 @@ ManipulatorState MyLinkManipulator::getConfigurationFromIK(const Eigen::Vector2d
         double cosTheta1 = (x*(links[0] + links[1]*cosTheta2)+y*links[1]*sqrt(1-pow(cosTheta2, 2)))/(pow(x, 2) + pow(y, 2));
         state = {acos(cosTheta1), acos(cosTheta2), theta3 - acos(cosTheta2) - acos(cosTheta1) - M_PI};
         bool pass = true;
-        for (auto element : state) {            
+        for (auto element : state) {  
+            cout << element << "\n";          
             if (std::isnan(element)) pass = false;
         }
         if (pass) break;

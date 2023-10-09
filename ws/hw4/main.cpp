@@ -43,7 +43,7 @@ void problem3a() {
     Environment2D workspace = HW4::getEx3Workspace1();
     vector<double> linkLengths = {1, 1};
     CSpaceConstructor cSpace(360, 360, -10, 10, -10, 10);
-    cSpace.populateGrid(linkLengths, workspace.obstacles);
+    // cSpace.populateGrid(linkLengths, workspace.obstacles);
     Visualizer::makeFigure(cSpace);
     Visualizer::makeFigure(workspace.obstacles);
 }
@@ -52,7 +52,7 @@ void problem3b() {
     Environment2D workspace = HW4::getEx3Workspace2();
     vector<double> linkLengths = {1, 1};
     CSpaceConstructor cSpace(360, 360, -10, 10, -10, 10);
-    cSpace.populateGrid(linkLengths, workspace.obstacles);
+    // cSpace.populateGrid(linkLengths, workspace.obstacles);
     Visualizer::makeFigure(cSpace);
     Visualizer::makeFigure(workspace.obstacles);
 }
@@ -66,18 +66,18 @@ void problem3c() {
     // }
     vector<double> linkLengths = {1, 1};
     CSpaceConstructor cSpace(360, 360, -10, 10, -10, 10);
-    cSpace.populateGrid(linkLengths, workspace.obstacles);
+    // cSpace.populateGrid(linkLengths, workspace.obstacles);
     Visualizer::makeFigure(cSpace);
     Visualizer::makeFigure(workspace.obstacles);
 }
 
 int main(int argc, char** argv) {
-    problem1();
-    problem2a();
+    // problem1();
+    // problem2a();
     problem2b();
-    problem3a();
-    problem3b();
-    problem3c();
+    // problem3a();
+    // problem3b();
+    // problem3c();
     Visualizer::showFigures();
     /* Include this line to have different randomized environments every time you run your code (NOTE: this has no affect on grade()) */
     // amp::RNG::seed(amp::RNG::randiUnbounded());

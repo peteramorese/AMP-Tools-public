@@ -39,6 +39,5 @@ class Polygon {
 };
 
 using Obstacle2D = Polygon;
-using Agent2D = Polygon;
 
 }

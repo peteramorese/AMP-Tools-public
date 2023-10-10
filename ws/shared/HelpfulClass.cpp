@@ -111,3 +111,21 @@ vector<amp::Polygon> MyClass::findCSpaceObstacles(const amp::Obstacle2D& obstacl
     }
     return polygons;
 }
+
+bool isPointInsidePolygon(const Vector2d& point, const vector<Vector2d>& polygon) {
+    int numVertices = polygon.size();
+    bool inside = false;
+    for (int i = 0, j = numVertices - 1; i < numVertices; j = i++) {
+        const Vector2d& vertex1 = polygon[i];
+        const Vector2d& vertex2 = polygon[j];
+        if ((vertex1.y() > point.y()) != (vertex2.y() > point.y()) &&
+            point.x() < (vertex2.x() - vertex1.x()) * (point.y() - vertex1.y()) / (vertex2.y() - vertex1.y()) + vertex1.x()) {
+            inside = !inside;
+        }
+    }
+    return inside;
+}
+
+double distanceBetweenPoints(const Vector2d& point1, const Vector2d& point2) {
+	return (point2 - point1).norm();
+}

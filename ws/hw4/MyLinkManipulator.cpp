@@ -45,7 +45,7 @@ Vector2d MyLinkManipulator::getJointLocation(const ManipulatorState& state, uint
         }
         jointLocation = {location.coeff(0, 0), location.coeff(1, 0)};
     }
-    cout << "Joint " << joint_index << " at: ("<< jointLocation(0) << ", " << jointLocation(1) << ")\n";
+    // cout << "Joint " << joint_index << " at: ("<< jointLocation(0) << ", " << jointLocation(1) << ")\n";
     return jointLocation;
 };
 

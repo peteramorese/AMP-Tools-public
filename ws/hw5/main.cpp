@@ -35,18 +35,18 @@ int main(int argc, char** argv) {
     }
 
     // Let's get crazy and generate a random environment and test your algorithm
-    {
-        amp::Path2D path; // Make empty path, problem, and collision points, as they will be created by generateAndCheck()
-        amp::Problem2D random_prob; 
-        std::vector<Eigen::Vector2d> collision_points;
-        bool random_trial_success = HW5::generateAndCheck(algo, path, random_prob, collision_points);
-        LOG("Found valid solution in random environment: " << (random_trial_success ? "Yes!" : "No :("));
+    // {
+    //     amp::Path2D path; // Make empty path, problem, and collision points, as they will be created by generateAndCheck()
+    //     amp::Problem2D random_prob; 
+    //     std::vector<Eigen::Vector2d> collision_points;
+    //     bool random_trial_success = HW5::generateAndCheck(algo, path, random_prob, collision_points);
+    //     LOG("Found valid solution in random environment: " << (random_trial_success ? "Yes!" : "No :("));
 
-        LOG("path length: " << path.length());
+    //     LOG("path length: " << path.length());
 
-        // Visualize the path environment, and any collision points with obstacles
-        Visualizer::makeFigure(random_prob, path, collision_points);
-    }
+    //     // Visualize the path environment, and any collision points with obstacles
+    //     Visualizer::makeFigure(random_prob, path, collision_points);
+    // }
 
     Visualizer::showFigures();
 

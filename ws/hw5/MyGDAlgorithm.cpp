@@ -19,8 +19,10 @@ amp::Path2D MyGDAlgorithm::plan(const amp::Problem2D& problem) {
         path.waypoints.push_back(currentXY);
         steps++;
         // std::cout << "now " << currentXY << std::endl;
-    }while((grad).norm() > epsilon && steps < 10000);
-
+    }while((grad).norm() > epsilon && steps < 100000);
+    if(steps >= 100000){
+        std::cout << "STOOPID FIELD GOT STUCK YA IDIOT" << std::endl;
+    }
 
     path.waypoints.push_back(problem.q_goal);
 

@@ -46,24 +46,26 @@ class MyGDAlgorithm : public amp::GDAlgorithm {
                 j == vCCW.size() - 1 ? CCWIdx = 0 : CCWIdx = j + 1;
                 // std::cout << "vCCW[j] " << vCCW[j] << " vCCW[CWIdx] " << vCCW[CWIdx] << " vCCW[CCWIdx] " << vCCW[CCWIdx] << std::endl;
                 //get angle between corner and cw vertex
-                CWAng = atan2(vCCW[j](1) - vCCW[CWIdx](1), vCCW[j](0) - vCCW[CWIdx](0));
+                // CWAng = atan2(vCCW[j](1) - vCCW[CWIdx](1), vCCW[j](0) - vCCW[CWIdx](0));
+                CWAng = atan2(vCCW[CWIdx](1) - vCCW[j](1), vCCW[CWIdx](0) - vCCW[j](0)) + M_PI/2;
                 if(CWAng < 0){CWAng = CWAng + 2*M_PI;}
                 //get angle between corner and ccw vertex
-                CCWAng = atan2(vCCW[j](1) - vCCW[CCWIdx](1), vCCW[j](0) - vCCW[CCWIdx](0));
+                // CCWAng = atan2(vCCW[j](1) - vCCW[CCWIdx](1), vCCW[j](0) - vCCW[CCWIdx](0));
+                CCWAng = atan2(vCCW[CCWIdx](1) - vCCW[j](1), vCCW[CCWIdx](0) - vCCW[j](0)) - M_PI/2;
                 if(CCWAng < 0){CCWAng = CCWAng + 2*M_PI;}
                 //get angle between corner and current xy
                 XYAng = atan2(qXY(1) -  vCCW[j](1), qXY(0) -  vCCW[j](0));
                 if(XYAng < 0){XYAng = XYAng + 2*M_PI;}
                 // std::cout << "CWAng " << CWAng << " CCWAng " << CCWAng << " XYAng " << XYAng << std::endl;
                 CWAng == 0 ? CWAng = 2*M_PI : CWAng = CWAng;
-                if(CCWAng <= XYAng && XYAng <= CWAng){
+                if(XYAng >= CWAng && XYAng <= CCWAng){
                     // std::cout << "Here1 " << " xy " << qXY << std::endl;
                     tempC = vCCW[j];
                     if((tempC - qXY).norm() < (c - qXY).norm() || c == qXY){
                         c = tempC;
                     }
                 }
-                else if(XYAng > CCWAng && XYAng < 2*M_PI){
+                else if(XYAng > CCWAng){
                     //Get normal from corner to CCW
                     CCWAng = atan2(vCCW[CCWIdx](1) - vCCW[j](1), vCCW[CCWIdx](0) - vCCW[j](0));
                     t = cos(2*M_PI - XYAng + CCWAng)*(vCCW[j] - qXY).norm()/(vCCW[j] - vCCW[CCWIdx]).norm();
@@ -76,7 +78,7 @@ class MyGDAlgorithm : public amp::GDAlgorithm {
                         }
                     }
                 }
-                else if(XYAng < CCWAng && XYAng > 0){
+                else if(XYAng < CWAng){
                     //Get normal from corner to CW
                     CWAng = atan2(vCCW[CWIdx](1) - vCCW[j](1), vCCW[CWIdx](0) - vCCW[j](0));
                     t = cos(XYAng - CWAng)*(vCCW[j] - qXY).norm()/(vCCW[j] - vCCW[CWIdx]).norm();
@@ -88,9 +90,14 @@ class MyGDAlgorithm : public amp::GDAlgorithm {
                         }
                     }
                 }
+                else{
+                    std::cout << " SAD: vCCW[j] " << vCCW[j] << " vCCW[CWIdx] " << vCCW[CWIdx] << " vCCW[CCWIdx] " << vCCW[CCWIdx] << std::endl;
+                    std::cout << "CWAng " << CWAng << " CCWAng " << CCWAng << " XYAng " << XYAng << std::endl;
+                }
             }
             if(c == qXY){
-                std::cout << "FAIL :((" << std::endl;
+                // std::cout << "FAIL :((" << std::endl;
+                // std::cout << "vCCW[0] " << vCCW[0] << " xy " << qXY << std::endl;
                 c = qXY*10000;
             }
             return c - qXY;
@@ -119,14 +126,14 @@ class MyGDAlgorithm : public amp::GDAlgorithm {
                     // std::cout << "URepG " << URepG << " xy " << qXY << std::endl;
                 }
             }
-            std::cout << "URepG Final " << URepG << " grad " << UAttG + URepG << std::endl;
+            // std::cout << "URepG Final " << URepG << " grad " << UAttG + URepG <<  " xy " << qXY << std::endl;
             return UAttG + URepG;
         }
         
     private:
         const double dStarGoal = 2;
-        const double QStar = 0.25;
+        const double QStar = 0.75;
         const double xi = 0.5;
-        const double eta = 0.5;
+        const double eta = 5;
         
 };

@@ -2,12 +2,19 @@
 
 #include "AMPCore.h"
 #include "hw/HW5.h"
+#include "HelpfulClass.h"
 
 using std::vector, std::string, Eigen::Vector2d, std::cout;
 
 class MyGDAlgorithm : public amp::GDAlgorithm {
 	public:
-		// MyGDAlgorithm();
+		MyGDAlgorithm(double zetta, double dStar, double eta,double qStar, double E) :
+			zetta(zetta),
+			dStar(dStar),
+			eta(eta),
+			qStar(qStar),
+			E(E),
+			step(0) {}
 		void init(const amp::Problem2D& problem);
 		void takeStep();
 		Vector2d getGradient();
@@ -20,9 +27,11 @@ class MyGDAlgorithm : public amp::GDAlgorithm {
 		Vector2d start;
 		Vector2d goal;
 		double stepSize;
-    	amp::Path2D path;
-		vector<amp::Obstacle2D> obstacles;
 		bool goalReached;
+		int step;    	
+		amp::Path2D path;
+		vector<amp::Obstacle2D> obstacles;
+		vector<vector<vector<Edges>>> regions;
 
 		double zetta;
 		double dStar;

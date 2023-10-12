@@ -29,40 +29,71 @@ class MyGDAlgorithm : public amp::GDAlgorithm {
 
         Eigen::Vector2d vecToObs(Eigen::Vector2d qXY, amp::Polygon Ob){
             //Get vector from qXY to closest point on an obstacle
-            Eigen::Vector2d obVec(20,20);
+            Eigen::Vector2d c = qXY;
+            Eigen::Vector2d tempC;
             //TODO: determine closest point from XY to obstacle
             double CWAng;
             double CCWAng;
             double XYAng;
             int CWIdx;
             int CCWIdx;
+            double t;
+            bool corner;
             std::vector<Eigen::Vector2d> vCCW = Ob.verticesCCW();
             for(int j = 0; j < vCCW.size(); j++){
 
                 j == 0 ? CWIdx = vCCW.size() - 1 : CWIdx = j - 1;
                 j == vCCW.size() - 1 ? CCWIdx = 0 : CCWIdx = j + 1;
-
+                // std::cout << "vCCW[j] " << vCCW[j] << " vCCW[CWIdx] " << vCCW[CWIdx] << " vCCW[CCWIdx] " << vCCW[CCWIdx] << std::endl;
                 //get angle between corner and cw vertex
                 CWAng = atan2(vCCW[j](1) - vCCW[CWIdx](1), vCCW[j](0) - vCCW[CWIdx](0));
+                if(CWAng < 0){CWAng = CWAng + 2*M_PI;}
                 //get angle between corner and ccw vertex
                 CCWAng = atan2(vCCW[j](1) - vCCW[CCWIdx](1), vCCW[j](0) - vCCW[CCWIdx](0));
+                if(CCWAng < 0){CCWAng = CCWAng + 2*M_PI;}
                 //get angle between corner and current xy
                 XYAng = atan2(qXY(1) -  vCCW[j](1), qXY(0) -  vCCW[j](0));
-
-                if((CWAng <= XYAng && XYAng <= CCWAng) || (CWAng >= XYAng && XYAng >= CCWAng)){
-                    obVec = vCCW[0] - qXY;
-                    return obVec;
+                if(XYAng < 0){XYAng = XYAng + 2*M_PI;}
+                // std::cout << "CWAng " << CWAng << " CCWAng " << CCWAng << " XYAng " << XYAng << std::endl;
+                CWAng == 0 ? CWAng = 2*M_PI : CWAng = CWAng;
+                if(CCWAng <= XYAng && XYAng <= CWAng){
+                    // std::cout << "Here1 " << " xy " << qXY << std::endl;
+                    tempC = vCCW[j];
+                    if((tempC - qXY).norm() < (c - qXY).norm() || c == qXY){
+                        c = tempC;
+                    }
                 }
-                else if(XYAng < CCWAng){
+                else if(XYAng > CCWAng && XYAng < 2*M_PI){
                     //Get normal from corner to CCW
-                    return (vCCW[0] + vCCW[CCWIdx]*cos(XYAng - CCWAng - M_PI)*(vCCW[0] - qXY).norm()/(vCCW[0] - vCCW[CCWIdx]).norm()) - qXY;
+                    CCWAng = atan2(vCCW[CCWIdx](1) - vCCW[j](1), vCCW[CCWIdx](0) - vCCW[j](0));
+                    t = cos(2*M_PI - XYAng + CCWAng)*(vCCW[j] - qXY).norm()/(vCCW[j] - vCCW[CCWIdx]).norm();
+                    // std::cout << "cos(2*M_PI - XYAng + CCWAng) " << cos(2*M_PI - XYAng + CCWAng) << " (vCCW[j] - qXY).norm() " << (vCCW[j] - qXY).norm() << " (vCCW[j] - vCCW[CCWIdx]).norm() " << (vCCW[j] - vCCW[CCWIdx]).norm() << " t " << t << std::endl;
+                    if(t >= 0 && t <= 1 ){
+                        // std::cout << "Here2 " << " t " << t << " xy " << qXY << std::endl;
+                        tempC = (t*vCCW[j] + (1 - t)*vCCW[CCWIdx]);
+                        if((tempC - qXY).norm() < (c - qXY).norm() || c == qXY){
+                            c = tempC;
+                        }
+                    }
                 }
-                else{
+                else if(XYAng < CCWAng && XYAng > 0){
                     //Get normal from corner to CW
-                    return (vCCW[0] + vCCW[CWIdx]*cos(XYAng - CWAng - M_PI)*(vCCW[0] - qXY).norm()/(vCCW[0] - vCCW[CWIdx]).norm()) - qXY;
+                    CWAng = atan2(vCCW[CWIdx](1) - vCCW[j](1), vCCW[CWIdx](0) - vCCW[j](0));
+                    t = cos(XYAng - CWAng)*(vCCW[j] - qXY).norm()/(vCCW[j] - vCCW[CWIdx]).norm();
+                    if(t >= 0 && t <= 1 ){
+                        // std::cout << "Here3 " << " t " << t << " xy " << qXY << std::endl;
+                        tempC = (t*vCCW[j] + (1 - t)*vCCW[CWIdx]);
+                        if((tempC - qXY).norm() < (c - qXY).norm() || c == qXY){
+                            c = tempC;
+                        }
+                    }
                 }
             }
-            return obVec;
+            if(c == qXY){
+                std::cout << "FAIL :((" << std::endl;
+                c = qXY*10000;
+            }
+            return c - qXY;
         }
         Eigen::Vector2d getGradient(Eigen::Vector2d qXY, const amp::Problem2D& problem){
             //Get the current gradient vector
@@ -80,20 +111,22 @@ class MyGDAlgorithm : public amp::GDAlgorithm {
             // std::cout << "UAttG " << UAttG << std::endl;
             //Get URep
             Eigen::Vector2d obVec; //vector from qXY to closest point on obstacle
-            for(auto ob : problem.obstacles){
-                obVec = vecToObs(qXY,ob);
+            for(int j = 0; j < problem.obstacles.size(); j++){
+                obVec = vecToObs(qXY,problem.obstacles[j]);
+                // std::cout << "obVec " << obVec << " xy " << qXY << std::endl;
                 if(obVec.norm() <= QStar){
                     URepG += (eta*(1/QStar - 1/obVec.norm())/pow(obVec.norm(),2))*-obVec/obVec.norm();
+                    // std::cout << "URepG " << URepG << " xy " << qXY << std::endl;
                 }
             }
-            // std::cout << "URepG " << URepG << std::endl;
+            std::cout << "URepG Final " << URepG << " grad " << UAttG + URepG << std::endl;
             return UAttG + URepG;
         }
         
     private:
         const double dStarGoal = 2;
-        const double QStar = 0.75;
-        const double xi = 0.25;
-        const double eta = 0.25;
+        const double QStar = 0.25;
+        const double xi = 0.5;
+        const double eta = 0.5;
         
 };

@@ -9,17 +9,17 @@ amp::Path2D MyGDAlgorithm::plan(const amp::Problem2D& problem) {
     path.waypoints.push_back(problem.q_init);
     const double epsilon = 0.25;
     const double alpha = 0.1;
-    Eigen::Vector2d grad = getGradient(currentXY, problem);
+    Eigen::Vector2d grad;
     int steps = 0;
-    std::cout << "grad " << grad << " gradnorm " << grad.norm() << std::endl;
-    while((grad).norm() > epsilon && steps < 10000){
-        std::cout << "here " << currentXY << std::endl;
+    // std::cout << "grad " << grad << " gradnorm " << grad.norm() << std::endl;
+    do{
+        // std::cout << "here " << currentXY << std::endl;
         grad = getGradient(currentXY, problem);
         currentXY = currentXY - alpha*grad;
         path.waypoints.push_back(currentXY);
         steps++;
-        std::cout << "now " << currentXY << std::endl;
-    }
+        // std::cout << "now " << currentXY << std::endl;
+    }while((grad).norm() > epsilon && steps < 10000);
 
 
     path.waypoints.push_back(problem.q_goal);

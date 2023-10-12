@@ -112,6 +112,11 @@ void amp::Visualizer::makeFigure(const GridCSpace2D& cspace) {
     createAxes(cspace);
 }
 
+void amp::Visualizer::makeFigure(const PotentialFunction2D& potential_function, double x0_min, double x0_max, double x1_min, double x1_max, std::size_t n_grid, double u_min, double u_max) {
+    newFigure();
+    createAxes(potential_function, x0_min, x0_max, x1_min, x1_max, n_grid, u_min, u_max);
+}
+
 void amp::Visualizer::showFigures() {
     ampprivate::pybridge::ScriptCaller::call("FigureHandler", "show_figure", std::make_tuple());
 }
@@ -221,6 +226,35 @@ void amp::Visualizer::createAxes(const GridCSpace2D& cspace) {
     std::unique_ptr<ampprivate::pybridge::PythonObject> data_arg = ampprivate::pybridge::makeList(std::move(data_python_object_ptrs));
 
     ampprivate::pybridge::ScriptCaller::call("VisualizeCSpace", "visualize_grid_cspace_2d", std::make_tuple(x0_cells_arg->get(), x1_cells_arg->get(), bounds_arg->get(), data_arg->get()));
+}
+
+void amp::Visualizer::createAxes(const PotentialFunction2D& potential_function, double x0_min, double x0_max, double x1_min, double x1_max, std::size_t n_grid, double u_min, double u_max) {
+    // Bounds
+    std::unique_ptr<ampprivate::pybridge::PythonObject> bounds_arg = workspaceBoundsToPythonObject(x0_min, x0_max, x1_min, x1_max); 
+
+    // Grid cells
+    std::unique_ptr<ampprivate::pybridge::PythonObject> n_grid_arg = ampprivate::pybridge::makeLong(n_grid);
+
+    // U values
+    Eigen::Vector2d lower_left(x0_min, x1_min);
+    Eigen::Vector2d upper_right(x0_max, x1_max);
+
+    Eigen::Vector2d disc_diag = 1.0 / static_cast<double>(n_grid) * (upper_right - lower_left);
+
+    std::vector<std::unique_ptr<ampprivate::pybridge::PythonObject>> u_values;
+    u_values.reserve(n_grid * n_grid);
+    for (std::size_t i = 0; i < n_grid; ++i) {
+        for (std::size_t j = 0; j < n_grid; ++j) {
+            Eigen::Vector2d coord = lower_left + Eigen::Vector2d(static_cast<double>(i) * disc_diag[0], static_cast<double>(j) * disc_diag[1]);
+            double u = potential_function(coord);
+            u = std::min(u, u_max); // Clamp below u_max
+            u = std::max(u, u_min); // Clamp above u_min
+            u_values.push_back(ampprivate::pybridge::makeScalar(u));
+        }
+    }
+    std::unique_ptr<ampprivate::pybridge::PythonObject> u_values_arg = ampprivate::pybridge::makeList(std::move(u_values));
+
+    ampprivate::pybridge::ScriptCaller::call("VisualizePotentialFunction", "visualize_potential_function", std::make_tuple(bounds_arg->get(), n_grid_arg->get(), u_values_arg->get()));
 }
 
 #endif

@@ -17,11 +17,11 @@ amp::Path2D MyGDAlgorithm::plan(const amp::Problem2D& problem) {
     do{
         grad = getGradient(currentXY, problem);
         if((grad).norm() <= epsilon && (currentXY - problem.q_goal).norm() > 0.5 ){
-            while((grad).norm() <= epsilon && steps < 20000){
+            // while((grad).norm() <= epsilon && steps < 20000){
                 grad(0) = distribution(generator);
                 grad(1) = distribution(generator);
                 steps++;
-            }
+            // }
             // std::cout << "wiggling, new grad " << grad << std::endl;
         }
         currentXY = currentXY - alpha*grad;

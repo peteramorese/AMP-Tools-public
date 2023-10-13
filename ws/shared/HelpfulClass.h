@@ -28,10 +28,12 @@ bool isPointInsidePolygon(const Vector2d& point, const vector<Vector2d>& polygon
 
 double distanceBetweenPoints(const Vector2d& point1, const Vector2d& point2);
 
+Edge findLineEquation(const Vector2d& point1,const Vector2d& point2);
+
 vector<vector<Edge>> findEdges(const amp::Problem2D& problem);
 
-bool checkLine(const Vector2d& point, const Edge& egde, bool left=true);
+bool checkLine(const Vector2d& point, const Edge& edge, bool left);
 
-double distanceToLine(const Vector2d& point, const Edge& egde);
+double distanceToLine(const Vector2d& point, const Edge& edge);
 
-Vector2d closestPointOnLine(const Vector2d& point, const Edge& egde);
+Vector2d closestPointOnLine(const Vector2d& point, const Edge& edge);

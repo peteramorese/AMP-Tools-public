@@ -131,9 +131,10 @@ double distanceBetweenPoints(const Vector2d& point1, const Vector2d& point2) {
 
 Edge findLineEquation(const Vector2d& point1,const Vector2d& point2) {
 	double a, b, c;
-	a = point1.y() - point2.y();
-	b = point2.x() - point1.x();
-	c = point1.x() * point2.y() - point1.y() * point2.x();
+	a = point2.y() - point1.y();
+	b = point1.x() - point2.x();
+	c = point2.x() * point1.y() - point2.y() * point1.x();
+    // cout << "Line Equation: " << a << "x + " << b << "y + " << c << " < 0\n";
 	Edge edge = {
         {a, b, c},
 		{point1, point2}};
@@ -145,6 +146,10 @@ vector<vector<Edge>> findEdges(const amp::Problem2D& problem) {
 	for (const amp::Obstacle2D& obstacle : problem.obstacles) {
 		vector<Edge> polyEdges;
 		vector<Vector2d> vertices = obstacle.verticesCCW();
+		cout << "\n\nObstacle with verticies: ";
+        for (const Vector2d vertex : vertices) {
+            cout << "(" << vertex.x() << ", " << vertex.y() << ")  ";
+        }
 		vertices.push_back(vertices[0]);
 		for (int j = 1; j < vertices.size(); ++j) {
 			Edge edge = findLineEquation(vertices[j - 1],vertices[j]);
@@ -155,20 +160,20 @@ vector<vector<Edge>> findEdges(const amp::Problem2D& problem) {
 	return edges;
 }
 
-bool checkLine(const Vector2d& point, const Edge& egde, bool left=true) {
-    bool isLeft = edge.coeff.a * point.x() +  edge.coeff.b * point.y() +  edge.coeff.c < 0;
+bool checkLine(const Vector2d& point, const Edge& edge, bool left) {
+    bool isLeft = edge.coeff.a * point.x() + edge.coeff.b * point.y() + edge.coeff.c < 0;
     if (!left) isLeft = !isLeft;
     return isLeft;
 }
 
-double distanceToLine(const Vector2d& point, const Edge& egde) {
-    double distance = std::abs(egde.coeff.a * point.x() + edge.coeff.b * point.y() + edge.coeff.c) / std::sqrt(pow(egde.coeff.a, 2) + pow(egde.coeff.b, 2));
+double distanceToLine(const Vector2d& point, const Edge& edge) {
+    double distance = std::abs(edge.coeff.a * point.x() + edge.coeff.b * point.y() + edge.coeff.c) / std::sqrt(pow(edge.coeff.a, 2) + pow(edge.coeff.b, 2));
     return distance;
 }
 
-Vector2d closestPointOnLine(const Vector2d& point, const Edge& egde) {
-    double denominator = std::sqrt(pow(egde.coeff.a, 2) + pow(egde.coeff.b, 2))
-    double xPos = (egde.coeff.b * (egde.coeff.b * x - egde.coeff.a * y) - egde.coeff.a * egde.coeff.c) / denominator;
-    double yPos = (egde.coeff.a * (-egde.coeff.b * x + egde.coeff.a * y) - egde.coeff.b * egde.coeff.c) / denominator;
+Vector2d closestPointOnLine(const Vector2d& point, const Edge& edge) {
+    double denominator = pow(edge.coeff.a, 2) + pow(edge.coeff.b, 2);
+    double xPos = (edge.coeff.b * (edge.coeff.b * point.x() - edge.coeff.a * point.y()) - edge.coeff.a * edge.coeff.c) / denominator;
+    double yPos = (edge.coeff.a * (-edge.coeff.b * point.x() + edge.coeff.a * point.y()) - edge.coeff.b * edge.coeff.c) / denominator;
     return {xPos, yPos};
 }

@@ -29,7 +29,7 @@ class MyGDAlgorithm : public amp::GDAlgorithm {
 
         Eigen::Vector2d vecToObs(Eigen::Vector2d qXY, amp::Polygon Ob){
             //Get vector from qXY to closest point on an obstacle
-            Eigen::Vector2d c = qXY;
+            Eigen::Vector2d c(100,100);
             Eigen::Vector2d tempC;
             //TODO: determine closest point from XY to obstacle
             double CWAng;
@@ -44,62 +44,78 @@ class MyGDAlgorithm : public amp::GDAlgorithm {
 
                 j == 0 ? CWIdx = vCCW.size() - 1 : CWIdx = j - 1;
                 j == vCCW.size() - 1 ? CCWIdx = 0 : CCWIdx = j + 1;
-                // std::cout << "vCCW[j] " << vCCW[j] << " vCCW[CWIdx] " << vCCW[CWIdx] << " vCCW[CCWIdx] " << vCCW[CCWIdx] << std::endl;
+                // std::cout << "vCCW[j] " << vCCW[j] << " vCCW[CWIdx] " << vCCW[CWIdx] << " vCCW[CCWIdx] " << vCCW[CCWIdx] << " xy " << qXY << std::endl;
                 //get angle between corner and cw vertex
-                // CWAng = atan2(vCCW[j](1) - vCCW[CWIdx](1), vCCW[j](0) - vCCW[CWIdx](0));
                 CWAng = atan2(vCCW[CWIdx](1) - vCCW[j](1), vCCW[CWIdx](0) - vCCW[j](0)) + M_PI/2;
                 if(CWAng < 0){CWAng = CWAng + 2*M_PI;}
                 //get angle between corner and ccw vertex
-                // CCWAng = atan2(vCCW[j](1) - vCCW[CCWIdx](1), vCCW[j](0) - vCCW[CCWIdx](0));
                 CCWAng = atan2(vCCW[CCWIdx](1) - vCCW[j](1), vCCW[CCWIdx](0) - vCCW[j](0)) - M_PI/2;
-                if(CCWAng < 0){CCWAng = CCWAng + 2*M_PI;}
+                if(CCWAng <= 0){CCWAng = CCWAng + 2*M_PI;}
                 //get angle between corner and current xy
                 XYAng = atan2(qXY(1) -  vCCW[j](1), qXY(0) -  vCCW[j](0));
                 if(XYAng < 0){XYAng = XYAng + 2*M_PI;}
-                // std::cout << "CWAng " << CWAng << " CCWAng " << CCWAng << " XYAng " << XYAng << std::endl;
-                CWAng == 0 ? CWAng = 2*M_PI : CWAng = CWAng;
-                if(XYAng >= CWAng && XYAng <= CCWAng){
-                    // std::cout << "Here1 " << " xy " << qXY << std::endl;
+                // std::cout << "vCCW[j] " << vCCW[j] << " CWAng " << CWAng << " CCWAng " << CCWAng << " XYAng " << XYAng << " xy " << qXY << std::endl;
+                // std::cout << " XYAng >= CWAng " << (XYAng >= CWAng) << " XYAng <= CCWAng " << (XYAng <= CCWAng) << " (XYAng >= CWAng && XYAng <= CCWAng) " << (XYAng >= CWAng && XYAng <= CCWAng) << std::endl;
+                // CWAng == 0 ? CWAng = 2*M_PI : CWAng = CWAng;
+                // if((XYAng >= CWAng && XYAng <= CCWAng) || std::abs(XYAng - CCWAng) < 0.001 || std::abs(XYAng - CWAng) < 0.001){
+                if((XYAng >= CWAng && XYAng <= CCWAng)){
+                    // std::cout << "here1 vCCW[j] " << vCCW[j] << " CWAng " << CWAng << " CCWAng " << CCWAng << " XYAng " << XYAng << " xy " << qXY << std::endl;
+                    // std::cout << "here1" << std::endl;
                     tempC = vCCW[j];
                     if((tempC - qXY).norm() < (c - qXY).norm() || c == qXY){
+                        // std::cout<< "here1 " << "vCCW[j] " << vCCW[j] << " vCCW[CWIdx] " << vCCW[CWIdx] << " vCCW[CCWIdx] " << vCCW[CCWIdx] << " c " << tempC << std::endl;
                         c = tempC;
                     }
+                    // else{
+                    //     std::cout << " SAD1: vCCW[j] " << vCCW[j] << " vCCW[CWIdx] " << vCCW[CWIdx] << " vCCW[CCWIdx] " << vCCW[CCWIdx] << std::endl;
+                    //     std::cout << "CWAng " << CWAng << " CCWAng " << CCWAng << " XYAng " << XYAng << std::endl;
+                    // }
                 }
-                else if(XYAng > CCWAng){
+                else if(XYAng >= CCWAng){
                     //Get normal from corner to CCW
                     CCWAng = atan2(vCCW[CCWIdx](1) - vCCW[j](1), vCCW[CCWIdx](0) - vCCW[j](0));
                     t = cos(2*M_PI - XYAng + CCWAng)*(vCCW[j] - qXY).norm()/(vCCW[j] - vCCW[CCWIdx]).norm();
                     // std::cout << "cos(2*M_PI - XYAng + CCWAng) " << cos(2*M_PI - XYAng + CCWAng) << " (vCCW[j] - qXY).norm() " << (vCCW[j] - qXY).norm() << " (vCCW[j] - vCCW[CCWIdx]).norm() " << (vCCW[j] - vCCW[CCWIdx]).norm() << " t " << t << std::endl;
                     if(t >= 0 && t <= 1 ){
                         // std::cout << "Here2 " << " t " << t << " xy " << qXY << std::endl;
-                        tempC = (t*vCCW[j] + (1 - t)*vCCW[CCWIdx]);
+                        tempC = ((1 - t)*vCCW[j] + t*vCCW[CCWIdx]);
                         if((tempC - qXY).norm() < (c - qXY).norm() || c == qXY){
+                            // std::cout<< "here2, t " << t << " vCCW[j] " << vCCW[j] << " vCCW[CWIdx] " << vCCW[CWIdx] << " vCCW[CCWIdx] " << vCCW[CCWIdx] << " c " << tempC << std::endl;
                             c = tempC;
                         }
+                        // else{
+                        //     std::cout << " SAD2: vCCW[j] " << vCCW[j] << " vCCW[CWIdx] " << vCCW[CWIdx] << " vCCW[CCWIdx] " << vCCW[CCWIdx] << std::endl;
+                        //     std::cout << "CWAng " << CWAng << " CCWAng " << CCWAng << " XYAng " << XYAng << std::endl;
+                        // }
                     }
                 }
-                else if(XYAng < CWAng){
+                else if(XYAng <= CWAng){
                     //Get normal from corner to CW
                     CWAng = atan2(vCCW[CWIdx](1) - vCCW[j](1), vCCW[CWIdx](0) - vCCW[j](0));
                     t = cos(XYAng - CWAng)*(vCCW[j] - qXY).norm()/(vCCW[j] - vCCW[CWIdx]).norm();
                     if(t >= 0 && t <= 1 ){
                         // std::cout << "Here3 " << " t " << t << " xy " << qXY << std::endl;
-                        tempC = (t*vCCW[j] + (1 - t)*vCCW[CWIdx]);
+                        tempC = ((1 - t)*vCCW[j] + t*vCCW[CWIdx]);
                         if((tempC - qXY).norm() < (c - qXY).norm() || c == qXY){
+                            // std::cout<< "here3, t " << t << " vCCW[j] " << vCCW[j] << " vCCW[CWIdx] " << vCCW[CWIdx] << " vCCW[CCWIdx] " << vCCW[CCWIdx] << " c " << tempC << std::endl;
                             c = tempC;
                         }
+                        // else{
+                        //     std::cout << " SAD3: vCCW[j] " << vCCW[j] << " vCCW[CWIdx] " << vCCW[CWIdx] << " vCCW[CCWIdx] " << vCCW[CCWIdx] << " xy " << qXY << std::endl;
+                        //     std::cout << "CWAng " << CWAng << " CCWAng " << CCWAng << " XYAng " << XYAng << std::endl;
+                        // }
                     }
                 }
                 else{
-                    std::cout << " SAD: vCCW[j] " << vCCW[j] << " vCCW[CWIdx] " << vCCW[CWIdx] << " vCCW[CCWIdx] " << vCCW[CCWIdx] << std::endl;
+                    std::cout << " SAD: vCCW[j] " << vCCW[j] << " vCCW[CWIdx] " << vCCW[CWIdx] << " vCCW[CCWIdx] " << vCCW[CCWIdx] << " xy " << qXY << std::endl;
                     std::cout << "CWAng " << CWAng << " CCWAng " << CCWAng << " XYAng " << XYAng << std::endl;
                 }
             }
-            if(c == qXY){
-                // std::cout << "FAIL :((" << std::endl;
-                // std::cout << "vCCW[0] " << vCCW[0] << " xy " << qXY << std::endl;
-                c = qXY*10000;
+            if(c == qXY*10000){
+                std::cout << "FAIL :((" << std::endl;
+                std::cout << "vCCW[0] " << vCCW[0] << " xy " << qXY << std::endl;
             }
+            // std::cout << "vCCW[0] " << vCCW[0] << " xy " << qXY << " c " << c << std::endl;
             return c - qXY;
         }
         Eigen::Vector2d getGradient(Eigen::Vector2d qXY, const amp::Problem2D& problem){
@@ -132,8 +148,8 @@ class MyGDAlgorithm : public amp::GDAlgorithm {
         
     private:
         const double dStarGoal = 2;
-        const double QStar = 0.75;
-        const double xi = 0.5;
-        const double eta = 5;
+        const double QStar = 0.25;
+        const double xi = 1.5;
+        const double eta = 1;
         
 };

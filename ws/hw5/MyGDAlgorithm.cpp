@@ -1,5 +1,6 @@
 #include "MyGDAlgorithm.h"
 #include<iostream>
+
 // Implement your methods in the `.cpp` file, for example:
 amp::Path2D MyGDAlgorithm::plan(const amp::Problem2D& problem) {
 
@@ -8,17 +9,22 @@ amp::Path2D MyGDAlgorithm::plan(const amp::Problem2D& problem) {
     currentXY = problem.q_init;
     path.waypoints.push_back(problem.q_init);
     const double epsilon = 0.25;
-    const double alpha = 0.1;
+    const double alpha = 0.01;
     Eigen::Vector2d grad;
     int steps = 0;
-    // std::cout << "grad " << grad << " gradnorm " << grad.norm() << std::endl;
+    std::default_random_engine generator;
+    std::uniform_real_distribution<double> distribution(-1.0,1.0);
     do{
-        // std::cout << "here " << currentXY << std::endl;
         grad = getGradient(currentXY, problem);
+        if((grad).norm() <= epsilon && (currentXY - problem.q_goal).norm() > 0.5 ){
+            grad(0) = distribution(generator);
+            grad(1) = distribution(generator);
+            std::cout << "wiggling, new grad " << grad << std::endl;
+        }
         currentXY = currentXY - alpha*grad;
         path.waypoints.push_back(currentXY);
         steps++;
-        // std::cout << "now " << currentXY << std::endl;
+        
     }while((grad).norm() > epsilon && steps < 100000);
     if(steps >= 100000){
         std::cout << "STOOPID FIELD GOT STUCK YA IDIOT" << std::endl;

@@ -79,13 +79,8 @@ int main(int argc, char** argv) {
 
     Visualizer::showFigures();
 
-    // HW5::grade(algo, "nonhuman.biologic@myspace.edu", argc, argv);
+    HW5::grade(algo, "collin.hudson@colorado.edu", argc, argv);
     
-    /* If you want to reconstruct your bug algorithm object every trial (to reset member variables from scratch or initialize), use this method instead*/
-    //HW2::grade<MyBugAlgorithm>("nonhuman.biologic@myspace.edu", argc, argv, constructor_parameter_1, constructor_parameter_2, etc...);
-    
-    // This will reconstruct using the default constructor every trial
-    //HW2::grade<MyBugAlgorithm>("nonhuman.biologic@myspace.edu", argc, argv);
 
     return 0;
 }

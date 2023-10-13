@@ -17,17 +17,19 @@ amp::Path2D MyGDAlgorithm::plan(const amp::Problem2D& problem) {
     do{
         grad = getGradient(currentXY, problem);
         if((grad).norm() <= epsilon && (currentXY - problem.q_goal).norm() > 0.5 ){
-            grad(0) = distribution(generator);
-            grad(1) = distribution(generator);
-            std::cout << "wiggling, new grad " << grad << std::endl;
+            // while((grad).norm() <= epsilon){
+                grad(0) = distribution(generator);
+                grad(1) = distribution(generator);
+            // }
+            // std::cout << "wiggling, new grad " << grad << std::endl;
         }
         currentXY = currentXY - alpha*grad;
         path.waypoints.push_back(currentXY);
         steps++;
         
-    }while((grad).norm() > epsilon && steps < 100000);
-    if(steps >= 100000){
-        std::cout << "STOOPID FIELD GOT STUCK YA IDIOT" << std::endl;
+    }while((grad).norm() > epsilon && steps < 20000);
+    if(steps >= 20000){
+        std::cout << "Took too long, bro is lost XD" << std::endl;
     }
 
     path.waypoints.push_back(problem.q_goal);

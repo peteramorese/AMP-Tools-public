@@ -31,6 +31,7 @@ int main(int argc, char** argv) {
         bool success = HW5::check(path, problem);
 
         LOG("Found valid solution to workspace 1: " << (success ? "Yes!" : "No :("));
+        LOG("path length: " << path.length());
 
         // Visualize the path and environment
         Visualizer::makeFigure(problem, path);
@@ -45,23 +46,24 @@ int main(int argc, char** argv) {
         bool success = HW5::check(path, problem);
 
         LOG("Found valid solution to workspace 1: " << (success ? "Yes!" : "No :("));
+        LOG("path length: " << path.length());
 
         // Visualize the path and environment
         Visualizer::makeFigure(problem, path);
     }
-    // {
-    //     // Call your algorithm on the problem
-    //     problem = HW2::getWorkspace2();
-    //     amp::Path2D path = algo.plan(problem);
+    {
+        // Call your algorithm on the problem
+        problem = HW2::getWorkspace2();
+        amp::Path2D path = algo.plan(problem);
 
-    //     // Check your path to make sure that it does not collide with the environment 
-    //     bool success = HW5::check(path, problem);
+        // Check your path to make sure that it does not collide with the environment 
+        bool success = HW5::check(path, problem);
 
-    //     LOG("Found valid solution to workspace 1: " << (success ? "Yes!" : "No :("));
+        LOG("Found valid solution to workspace 1: " << (success ? "Yes!" : "No :("));
 
-    //     // Visualize the path and environment
-    //     Visualizer::makeFigure(problem, path);
-    // }
+        // Visualize the path and environment
+        Visualizer::makeFigure(problem, path);
+    }
 
     // Let's get crazy and generate a random environment and test your algorithm
     {
@@ -79,7 +81,7 @@ int main(int argc, char** argv) {
 
     Visualizer::showFigures();
 
-    HW5::grade(algo, "collin.hudson@colorado.edu", argc, argv);
+    // HW5::grade(algo, "collin.hudson@colorado.edu", argc, argv);
     
 
     return 0;

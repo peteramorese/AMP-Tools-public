@@ -32,10 +32,3 @@ def visualize_grid_cspace_2d(x0_cells : int, x1_cells : int, bounds : list, dens
     ax = plt.gca()
     ax.imshow(data.transpose(), cmap=color_map, interpolation='none', origin='upper')
     ax.invert_yaxis()
-
-    #ax.set_xticks(np.arange(data.shape[0] + 1) - 0.5)
-    #ax.set_yticks(np.arange(data.shape[1] + 1) - 0.5)
-    #max_ticks = 10
-    #ax.set_xticklabels(np.linspace(bounds[0], bounds[1], min(max_ticks, x0_cells + 1)))
-    #ax.set_yticklabels(np.linspace(bounds[2], bounds[3], min(max_ticks, x1_cells + 1)))
-    #ax.grid()

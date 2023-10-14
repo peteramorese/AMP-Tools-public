@@ -40,8 +40,10 @@ int main(int argc, char** argv) {
     // problem1();
     // problem2();
     // problem3();
-
+    // MyGDAlgorithm robot(0.1, 3, 0.05, 1, 0.5);
     // Visualizer::showFigures();
-    HW2::grade<MyBugAlgorithm>("yusif.razzaq@colorado.edu", argc, argv, 1);
+    // HW5::grade(robot, "yusif.razzaq@colorado.edu", argc, argv);
+
+    HW5::grade<MyGDAlgorithm>("yusif.razzaq@colorado.edu", argc, argv, 0.1, 3, 0.05, 2, 0.5);
     return 0;
 }

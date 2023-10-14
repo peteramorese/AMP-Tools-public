@@ -49,10 +49,9 @@ int main(int argc, char** argv) {
     // Check your path to make sure that it does not collide with the environment 
     Visualizer::showFigures();
 
-    // HW2::grade(algo, "nonhuman.biologic@myspace.edu", argc, argv);
     
     /* If you want to reconstruct your bug algorithm object every trial (to reset member variables from scratch or initialize), use this method instead*/
-    // HW2::grade<MyBugAlgorithm>("yusif.razzaq@colorado.edu", argc, argv, 1);
+    HW2::grade<MyBugAlgorithm>("yusif.razzaq@colorado.edu", argc, argv, 1);
     
     // This will reconstruct using the default constructor every trial
     //HW2::grade<MyBugAlgorithm>("nonhuman.biologic@myspace.edu", argc, argv);

@@ -2,7 +2,6 @@
 #include "HelpfulClass.h"
 
 using std::vector, std::string, Eigen::Vector2d, std::cout;
-int maxSteps = 2000;
 
 vector<vector<vector<Edge>>> findRegions(const vector<vector<Edge>>& allEdges) {
     vector<vector<vector<Edge>>> regions;
@@ -31,24 +30,24 @@ vector<vector<vector<Edge>>> findRegions(const vector<vector<Edge>>& allEdges) {
 }
 // Implement your methods in the `.cpp` file, for example:
 amp::Path2D MyGDAlgorithm::plan(const amp::Problem2D& problem) {
+    int maxSteps = 2000;
+    step = 0;
     init(problem);
     while (!goalReached) {
         takeStep();
-        if (step == maxSteps) break;
+        if (step > maxSteps) break;
     }
     cout << "Goal reached in " << step << " steps\n";
-    cout << "Path length: " << path.length() << " units\n";
-    if (step != maxSteps) path.waypoints.push_back(goal);
+    path.waypoints.push_back(goal);
     return path;
 }
 
 void MyGDAlgorithm::init(const amp::Problem2D& problem) {
-    int step = 1;
     start = problem.q_init;
     goal = problem.q_goal;
     obstacles = problem.obstacles;
     position = start;
-    path.waypoints.push_back(start);
+    path.waypoints = {start};
     stepSize = (goal - start).norm() / 100;
     goalReached = false;
     regions = findRegions(findEdges(problem));

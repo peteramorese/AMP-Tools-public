@@ -146,10 +146,6 @@ vector<vector<Edge>> findEdges(const amp::Problem2D& problem) {
 	for (const amp::Obstacle2D& obstacle : problem.obstacles) {
 		vector<Edge> polyEdges;
 		vector<Vector2d> vertices = obstacle.verticesCCW();
-		cout << "\n\nObstacle with verticies: ";
-        for (const Vector2d vertex : vertices) {
-            cout << "(" << vertex.x() << ", " << vertex.y() << ")  ";
-        }
 		vertices.push_back(vertices[0]);
 		for (int j = 1; j < vertices.size(); ++j) {
 			Edge edge = findLineEquation(vertices[j - 1],vertices[j]);

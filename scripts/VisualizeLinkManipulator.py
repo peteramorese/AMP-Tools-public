@@ -2,6 +2,7 @@ import os
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, FancyBboxPatch, Polygon
+from matplotlib.colors import Normalize, LinearSegmentedColormap
 import numpy as np
 import yaml
 import argparse
@@ -23,7 +24,7 @@ visualize_config = {
     "collision_point_marker": "*",
     "collision_point_color": "red",
     "link_width": 0.03,
-    "link_color": "gray",
+    "link_color": "indianred",
     "link_pad": 0.10,
     "joint_size": 10,
     "joint_color": "black",
@@ -43,14 +44,22 @@ class LinkManipulator2DVisualizer:
             length += np.linalg.norm(dst_vertex - src_vertex)
         return length
 
-    def sketch_manipulator(self, joint_vertices : list, ax = None):
+    def sketch_manipulator(self, joint_vertices : list, cmap_scale = None, ax = None):
         if not ax:
             ax = plt.gca()
-        for i in range(1, len(joint_vertices)):
-            self.__sketch_link(np.array(joint_vertices[i - 1]), np.array(joint_vertices[i]), ax)
-        self.__sketch_end_effector(joint_vertices[-1], ax)
 
-    def __sketch_link(self, src_vertex : np.ndarray, dst_vertex : np.ndarray, ax):
+        if cmap_scale is None:
+            color = visualize_config["link_color"]
+        else:
+            color_map = LinearSegmentedColormap.from_list('custom', ['indianred', 'seagreen'], N=256)
+            scalar_map = mpl.cm.ScalarMappable(norm=Normalize(vmin=0, vmax=1), cmap=color_map)
+            color = scalar_map.to_rgba(cmap_scale)
+
+        for i in range(1, len(joint_vertices)):
+            self.__sketch_link(np.array(joint_vertices[i - 1]), np.array(joint_vertices[i]), color, ax)
+        self.__sketch_end_effector(joint_vertices[-1], color, ax)
+
+    def __sketch_link(self, src_vertex : np.ndarray, dst_vertex : np.ndarray, color, ax):
         pad = visualize_config["link_pad"]
         width_vec = dst_vertex - src_vertex
         angle = np.arctan2(width_vec[1], width_vec[0])
@@ -60,7 +69,7 @@ class LinkManipulator2DVisualizer:
             (pad / 2.0, -height / 2.0), 
             width, 
             height, 
-            color=visualize_config["link_color"], 
+            color=color, 
             boxstyle=f"Round, pad={pad}", 
             ec=visualize_config["joint_color"])
         patch.set_mutation_aspect(0.4)
@@ -70,9 +79,9 @@ class LinkManipulator2DVisualizer:
         ax.add_patch(patch)
         ax.scatter(src_vertex[0], src_vertex[1], visualize_config["joint_size"], color=visualize_config["joint_color"], marker="p")
 
-    def __sketch_end_effector(self, vertex : np.ndarray, ax):
+    def __sketch_end_effector(self, vertex : np.ndarray, color, ax):
         ax.scatter(vertex[0], vertex[1], visualize_config["eef_size"], color=visualize_config["joint_color"], marker=visualize_config["eef_marker"])
-        ax.scatter(vertex[0], vertex[1], visualize_config["joint_size"], color="cyan", marker="p")
+        ax.scatter(vertex[0], vertex[1], visualize_config["joint_size"], color=color, marker="p")
     
     def auto_bound_axes(self, joint_vertices : list, bloat_scale = 1.2, ax = None):
         if not ax:
@@ -84,11 +93,12 @@ class LinkManipulator2DVisualizer:
 
 
 
-def visualize_manipulator(joint_vertices : list, auto_bound_axes = True):
+def visualize_manipulator(joint_vertices : list, cmap_scale = None, auto_bound_axes = True):
     visualizer = LinkManipulator2DVisualizer()
 
     ax = plt.gca() 
+    ax.set_aspect('equal')
     ax.grid(zorder=0, alpha=0.5)
-    visualizer.sketch_manipulator(joint_vertices, ax)
+    visualizer.sketch_manipulator(joint_vertices, cmap_scale, ax)
     if auto_bound_axes:
         visualizer.auto_bound_axes(joint_vertices)

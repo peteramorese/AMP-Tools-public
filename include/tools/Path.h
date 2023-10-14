@@ -7,6 +7,7 @@
 
 namespace amp {
 
+/// @brief 2-dimensional path
 struct Path2D {
     Path2D() = default;
     std::vector<Eigen::Vector2d> waypoints;
@@ -22,5 +23,16 @@ struct Path2D {
     /// @param heading Log what type of object is being printed
     void print(const std::string& heading = "Path2D") const;
 };
+
+/// @brief N-dimensional path
+struct Path {
+    Path() = default;
+    std::vector<std::vector<double>> waypoints;
+
+    /// @brief Print the object
+    /// @param heading Log what type of object is being printed
+    void print(const std::string& heading = "Path") const;
+};
+
 
 }

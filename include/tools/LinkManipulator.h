@@ -3,6 +3,7 @@
 #include <vector>
 #include <Eigen/Core>
 
+#include "tools/Path.h"
 #include "tools/Serializer.h"
 
 namespace amp {
@@ -10,9 +11,14 @@ namespace amp {
 /// @brief Vector of angles (radians) for each joint. The size of the vector should match the 
 /// number of links (and hence joints) of the manipulator
 using ManipulatorState = std::vector<double>;
+/// @brief For the specific 2-link case, use Eigen::Vector2d to make it consistent with other 2D planning problems
+using ManipulatorState2Link = Eigen::Vector2d;
 
 /// @brief List of manipulator states in chronological order
-using ManipulatorTrajectory = std::list<ManipulatorState>;
+using ManipulatorTrajectory = Path;
+/// @brief For the specific 2-link case, use Path2D to make it consistent with other 2D planning problems
+using ManipulatorTrajectory2Link = Path2D;
+
 
 class LinkManipulator2D {
     public:
@@ -75,5 +81,7 @@ class LinkManipulator2D {
         std::vector<double> m_link_lengths;
 };
 
+ManipulatorState2Link convert(const ManipulatorState& state_2_link);
+ManipulatorState convert(const ManipulatorState2Link& state_2_link);
 
 }

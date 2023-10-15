@@ -6,6 +6,7 @@
 #include "tools/Path.h" 
 #include "tools/Obstacle.h" 
 #include "tools/LinkManipulator.h" 
+#include "tools/Graph.h" 
 
 namespace amp { 
 
@@ -48,4 +49,15 @@ class LinkManipulatorMotionPlanner2D {
 
         virtual ~LinkManipulatorMotionPlanner2D() {}
 };
+
+class AStar {
+    public:
+        struct GraphSearchResult {
+            std::vector<amp::Node> node_path;
+            double path_cost;
+        };
+    public:
+        virtual GraphSearchResult search(const amp::ShortestPathProblem& problem) = 0;
+};
+
 }

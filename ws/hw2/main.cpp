@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
     spec.n_obstacles = 10;
     spec.path_clearance = 0.01;
     spec.d_sep = 0.01;
-    Problem2D problem3 = EnvironmentTools::generateRandom(spec, 30); // Random environment
+    // Problem2D problem3 = EnvironmentTools::generateRandom(spec, 30); // Random environment
 
     // Declare r algorithm object 
     MyBugAlgorithm bug(1);

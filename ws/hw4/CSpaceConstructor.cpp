@@ -88,3 +88,8 @@ bool CSpaceConstructor::checkCollision(const Vector2d& prevJoint, const Vector2d
 bool CSpaceConstructor::inCollision(double x0, double x1) const {
     return false;
 };
+
+std::pair<std::size_t, std::size_t> CSpaceConstructor::getCellFromPoint(double x0, double x1) const {
+    
+};
+

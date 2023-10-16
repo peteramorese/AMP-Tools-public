@@ -75,9 +75,9 @@ int main(int argc, char** argv) {
     // problem1();
     // problem2a();
     // problem2b();
-    // problem3a();
+    problem3a();
     // problem3b();
-    problem3c();
+    // problem3c();
     Visualizer::showFigures();
     /* Include this line to have different randomized environments every time you run your code (NOTE: this has no affect on grade()) */
     // amp::RNG::seed(amp::RNG::randiUnbounded());

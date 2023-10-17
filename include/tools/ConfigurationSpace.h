@@ -22,9 +22,11 @@ class ConfigurationSpace2D {
 
         /******* User Implemented Methods ********/
 
-        /// @brief Access the C-space with continuous variables (interpolation between cells)
-        /// @param x0 Value of the first configuration variable
-        /// @param x1 Value of the second configuration variable
+        /// @brief Check if a point in C-space is colliding.
+        /// NOTE: For grid-discretization of C-space, this method should simply find the cell that (x0, x1) is within, then return the collision value of that cell (see below).
+        /// For other implementations, you can simply implement a collision checker here.
+        /// @param x0 Value of the first configuration space variable
+        /// @param x1 Value of the second configuration space variable
         /// @return `true` if the the point is in collision, `false` if it is not
         virtual bool inCollision(double x0, double x1) const = 0;
 
@@ -97,12 +99,34 @@ class DenseArray2D {
 };
 
 /// @brief Abstract type that can be used with the Visualizer
+/// NOTE: This class is still abstract becase the `inCollision` method has not been overridden. You will need to override `inCollision` to return the boolean collision
+/// value in the correct DenseArray2D<bool> cell.
 class GridCSpace2D : public ConfigurationSpace2D, public DenseArray2D<bool> {
     public:
         GridCSpace2D(std::size_t x0_cells, std::size_t x1_cells, double x0_min, double x0_max, double x1_min, double x1_max)
             : ConfigurationSpace2D(x0_min, x0_max, x1_min, x1_max)
             , DenseArray2D<bool>(x0_cells, x1_cells)
             {}
+
+        /******* User Implemented Methods ********/
+        
+        /// @brief Given a point in continuous space that is between the bounds, determine what cell (i, j) that the point is in
+        /// @param x0 Value of the first configuration space variable
+        /// @param x1 Value of the second configuration space variable
+        /// @return A pair (i, j) of indices that correspond to the cell that (x0, x1) is in
+        virtual std::pair<std::size_t, std::size_t> getCellFromPoint(double x0, double x1) const = 0;
+
+        /*****************************************/
+
+        /// @brief I have overridded this method for you. This method uses the `getCellFromPoint` to determine which cell (x0, x1) is in,
+        /// then return the boolean value inside that cell
+        /// @param x0 Value of the first configuration space variable
+        /// @param x1 Value of the second configuration space variable
+        /// @return A pair (i, j) of indices that correspond to the cell that (x0, x1) is in
+        virtual bool inCollision(double x0, double x1) const override {
+            auto[i, j] = getCellFromPoint(x0, x1);
+            return operator()(i, j);
+        }
 
         /// @brief Virtual dtor
         virtual ~GridCSpace2D() {}

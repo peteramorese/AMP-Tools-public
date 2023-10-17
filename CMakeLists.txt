@@ -110,10 +110,16 @@ if (AMP_BUILD_LIB)
     install(TARGETS yaml-cpp ARCHIVE DESTINATION lib)
     set(BUILD_SHARED_LIBS OFF) # Toggle off for everything else
 
+    # Use Grapefruit as header-only
+    list(APPEND AMP_DEPENDENCY_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/grapefruit/grapefruit)
+    message("======== DEPENDENCY INCLUDE DIRS: ${AMP_DEPENDENCY_INCLUDE_DIRS}")
+
     # Native
     add_subdirectory(include/private)
     add_subdirectory(src/private)
     add_subdirectory(executables)
+else()
+
 endif()
 
 add_subdirectory(scripts)

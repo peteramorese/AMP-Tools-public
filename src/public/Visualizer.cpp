@@ -107,6 +107,26 @@ void amp::Visualizer::makeFigure(const Problem2D& prob, const LinkManipulator2D&
     createAxes(link_manipulator, state);
 }
 
+void amp::Visualizer::makeFigure(const Problem2D& prob, const LinkManipulator2D& link_manipulator, const ManipulatorTrajectory& trajectory) {
+    newFigure();
+    createAxes(prob);
+    double scale = 0.0;
+    for (const ManipulatorState& state : trajectory.waypoints) {
+        createAxes(link_manipulator, state, &scale);
+        scale += 1.0 / static_cast<double>(trajectory.waypoints.size());
+    }
+}
+
+void amp::Visualizer::makeFigure(const Problem2D& prob, const LinkManipulator2D& link_manipulator, const ManipulatorTrajectory2Link& trajectory) {
+    newFigure();
+    createAxes(prob);
+    double scale = 0.0;
+    for (const ManipulatorState2Link& state : trajectory.waypoints) {
+        createAxes(link_manipulator, convert(state), &scale);
+        scale += 1.0 / static_cast<double>(trajectory.waypoints.size());
+    }
+}
+
 void amp::Visualizer::makeFigure(const GridCSpace2D& cspace) {
     newFigure();
     createAxes(cspace);
@@ -195,7 +215,7 @@ void amp::Visualizer::createAxes(const std::vector<Polygon>& polygons, const std
     ampprivate::pybridge::ScriptCaller::call("VisualizePolygons", "visualize_polygons_3d", std::make_tuple(polygons_arg->get(), heights_3d_arg->get()));
 }
 
-void amp::Visualizer::createAxes(const LinkManipulator2D& link_manipulator, const ManipulatorState& state) {
+void amp::Visualizer::createAxes(const LinkManipulator2D& link_manipulator, const ManipulatorState& state, double* cmap_scale) {
     // Get the coordinate for every joint
     std::vector<Eigen::Vector2d> vertices(link_manipulator.nLinks() + 1);
     for (uint32_t joint_index = 0; joint_index < link_manipulator.nLinks() + 1; ++joint_index) {
@@ -203,7 +223,13 @@ void amp::Visualizer::createAxes(const LinkManipulator2D& link_manipulator, cons
     }
 
     std::unique_ptr<ampprivate::pybridge::PythonObject> vertices_arg = listOfPointsToPythonObject(vertices);
-    ampprivate::pybridge::ScriptCaller::call("VisualizeLinkManipulator", "visualize_manipulator", std::make_tuple(vertices_arg->get()));
+
+    if (cmap_scale) {
+        std::unique_ptr<ampprivate::pybridge::PythonObject> alpha_arg = ampprivate::pybridge::makeScalar(*cmap_scale);
+        ampprivate::pybridge::ScriptCaller::call("VisualizeLinkManipulator", "visualize_manipulator", std::make_tuple(vertices_arg->get(), alpha_arg->get()));
+    } else {
+        ampprivate::pybridge::ScriptCaller::call("VisualizeLinkManipulator", "visualize_manipulator", std::make_tuple(vertices_arg->get()));
+    }
 }
 
 void amp::Visualizer::createAxes(const GridCSpace2D& cspace) {

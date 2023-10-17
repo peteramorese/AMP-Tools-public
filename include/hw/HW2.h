@@ -9,7 +9,7 @@
 namespace amp {
 
 /// @brief Derive this class and implement your algorithm in the `plan` method. This class derives the MotionPlanner2D class with a "point" agent type
-class BugAlgorithm : public MotionPlanner2D<Eigen::Vector2d> {
+class BugAlgorithm : public PointMotionPlanner2D {
     public:
         /// @brief Solve a motion planning problem using a bug algorithm. Create a derived class and override this method
         //virtual amp::Path2D plan(const amp::Problem2D& problem) = 0;
@@ -78,19 +78,18 @@ class HW2 {
         /// @param email Your identikey@colorado.edu email
         /// @param argc Pass the cmd line args from main
         /// @param argv Pass the cmd line args from main
-        /// @return Result struct that shows the results of the benchmark (with score calculation)
         static int grade(BugAlgorithm& algo, const std::string& email, int argc, char** argv);
 
         /// @brief Tests your algorithm on Workspace1, Workspace2, and benchmarks your algorithm against many randomized environments.
         /// NOTE: Reconstructs your algorithm object every trial to make sure your member variables are reset, etc...
         /// @tparam BUG_ALGORITHM_T The type of your bug algorithm object (MUST derive BugAlgorithm)
-        /// @tparam ...CTOR_ARGS_T Constructor parameter arg types (automatically deduced)
+        /// @tparam ..._CTOR_ARGS_T [automatically deduced] Constructor parameter arg types 
         /// @param email Your identikey@colorado.edu email
         /// @param argc Pass the cmd line args from main
         /// @param argv Pass the cmd line args from main
         /// @param constructor_arguments Pass the remaining arguments as you would to your constructor
-        template <class BUG_ALGORITHM_T, class... CTOR_ARGS_T>
-        static int grade(const std::string& email, int argc, char** argv, CTOR_ARGS_T&&... constructor_arguments);
+        template <class BUG_ALGORITHM_T, class... _CTOR_ARGS_T>
+        static int grade(const std::string& email, int argc, char** argv, _CTOR_ARGS_T&&... constructor_arguments);
 };
 
 #define AMP_HW2_ALIAS "hw2"

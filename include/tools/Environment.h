@@ -5,6 +5,7 @@
 #include "tools/Obstacle.h" 
 #include "tools/Path.h" 
 #include "tools/Serializer.h"
+#include "tools/LinkManipulator.h"
 
 namespace amp { 
 
@@ -77,13 +78,38 @@ struct Random2DEnvironmentSpecification {
     void deserialize(const Deserializer& dszr);
 };
 
+struct Random2DManipulatorEnvironmentSpecification {
+    /// @brief Number of (possibly-overlapping) convex obstacles
+    uint32_t n_obstacles = 20; 
+
+    /// @brief Max number of vertices in an obstalce before convex hull. Increase for more circular obstacles
+    uint32_t max_obstacle_vertices = 7;
+    /// @brief Largest obstacle region. Increase for larger convex obstacles
+    double max_obstacle_region_radius = 2.0;
+    /// @brief Smallest obstacle region. Decrease for smaller obstacles and more narrow paths
+    double min_obstacle_region_radius = 0.3;
+    /// @brief Size of guaranteed path clearance. Calculation is exact
+    double path_clearance = 0.5;
+    /// @brief Number of random waypoints along goal path. Increasing this will open up larger paths to goal
+    uint32_t n_waypoints = 2;
+    /// @brief Decrease to get more narrow paths at the expense of computation
+    double d_sep = 0.05;
+};
+
 class EnvironmentTools {
     public:
-        /// @brief Generate a random environment according the the specification
+        /// @brief Generate a random environment for a point agent according the the specification
         /// @param spec Specification that dictates how the environment is generated
         /// @param seed Seed the generator to produce the same environment for a given seed (seed = 0 does not reseed the generator)
         /// @return Problem struct with the same init/goal states in spec
-        static Problem2D generateRandom(const Random2DEnvironmentSpecification& spec, uint32_t seed = 0u);
+        static Problem2D generateRandomPointAgentProblem(const Random2DEnvironmentSpecification& spec, uint32_t seed = 0u);
+
+        /// @brief Generate a random environment for a manipulator agent according the the specification
+        /// @param spec Specification that dictates how the environment is generated
+        /// @param manipulator The manipulator to generate the problem around
+        /// @param seed Seed the generator to produce the same environment for a given seed (seed = 0 does not reseed the generator)
+        /// @return Problem struct with the same init/goal states in spec
+        static Problem2D generateRandomManipulatorProblem(const Random2DManipulatorEnvironmentSpecification& spec, const LinkManipulator2D& manipulator, uint32_t seed = 0u);
 };
 
 }

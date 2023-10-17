@@ -94,13 +94,12 @@ class MyGridCSpace: public amp::GridCSpace2D{
             return tempGrid;
             
         }
-        // virtual bool inCollision(double x0, double x1) const{
-        //     std::pair<std::size_t, std::size_t> siz =  dArr.size();
-        //     int i = ((x0 - x0Bounds().first)/(x0Bounds().second - x0Bounds().first))*siz.first; // (xspace0max - x0)/(xspace0max - xspace0min)* siz[0]
-        //     int j = ((x1 - x1Bounds().first)/(x1Bounds().second - x1Bounds().first))*siz.second; // (xspace1max - x1)/(xspace1max - xspace1min)* siz[1]
-        //     return dArr(i,j);
-        // }
-        virtual std::pair<std::size_t, std::size_t> getCellFromPoint(double x0, double x1) const{
+        virtual bool inCollision(double x0, double x1) const override{
+            std::pair<std::size_t, std::size_t> siz =  dArr.size();
+            std::pair<std::size_t, std::size_t> cell = getCellFromPoint(x0,x1);
+            return dArr(cell.first,cell.second);
+        }
+        virtual std::pair<std::size_t, std::size_t> getCellFromPoint(double x0, double x1) const override{
             std::pair<std::size_t, std::size_t> siz =  dArr.size();
             int i = ((x0 - x0Bounds().first)/(x0Bounds().second - x0Bounds().first))*siz.first; // (xspace0max - x0)/(xspace0max - xspace0min)* siz[0]
             int j = ((x1 - x1Bounds().first)/(x1Bounds().second - x1Bounds().first))*siz.second; // (xspace1max - x1)/(xspace1max - xspace1min)* siz[1]

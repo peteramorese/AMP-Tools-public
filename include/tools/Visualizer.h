@@ -77,6 +77,11 @@ class Visualizer {
         /// @param cspace Dense grid cspace
         static void makeFigure(const GridCSpace2D& cspace);
 
+        /// @brief Visualize a grid cspace
+        /// @param cspace Dense grid cspace
+        /// @param path Path inside cspace (ManipulatorTrajectory2Link is also accepted alias of Path2D)
+        static void makeFigure(const GridCSpace2D& cspace, const Path2D& path);
+
         /// @brief Visualize a 2D potential function using a 3D height map
         /// @param potential_function Your potential function to visualize
         /// @param x0_min Lower bound for the first dimension
@@ -95,8 +100,8 @@ class Visualizer {
     private:
         static void createAxes(const Environment2D& env);
         static void createAxes(const Problem2D& prob);
-        static void createAxes(const Problem2D& prob, const Path2D& path);
-        static void createAxes(const Problem2D& prob, const Path2D& path, const std::vector<Eigen::Vector2d>& collision_points);
+        static void createAxes(const Path2D& path);
+        static void createAxes(const Path2D& path, const std::vector<Eigen::Vector2d>& collision_points);
         static void createAxes(const std::vector<Polygon>& polygons, bool filled);
         static void createAxes(const std::vector<Polygon>& polygons, const std::vector<std::string>& labels, bool filled);
         static void createAxes(const std::vector<Polygon>& polygons, const std::vector<double>& heights_3d);
@@ -124,6 +129,7 @@ class Visualizer {
         static void makeFigure(const Environment2D& env, const LinkManipulator2D& link_manipulator, const ManipulatorState& state) {}
         static void makeFigure(const Problem2D& prob, const LinkManipulator2D& link_manipulator, const ManipulatorState& state) {}
         static void makeFigure(const GridCSpace2D& cspace) {}
+        static void makeFigure(const GridCSpace2D& cspace, const Path2D& path) {}
         static void makeFigure(const PotentialFunction2D& potential_function, double x0_min, double x0_max, double x1_min, double x1_max, double u_min = 0.0, double u_max = 100.0) {}
         static void showFigures() {}
 };

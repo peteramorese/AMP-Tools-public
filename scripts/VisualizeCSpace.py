@@ -30,5 +30,7 @@ def visualize_grid_cspace_2d(x0_cells : int, x1_cells : int, bounds : list, dens
     
     color_map = LinearSegmentedColormap.from_list('custom', ['darkcyan', 'indianred'], N=256)
     ax = plt.gca()
-    ax.imshow(data.transpose(), cmap=color_map, interpolation='none', origin='upper')
+    extent = [bounds[0], bounds[1], bounds[3], bounds[2]]
+    ax.imshow(data.transpose(), cmap=color_map, interpolation='none', origin='upper', extent=extent)
+    #ax.imshow(data.transpose(), cmap=color_map, interpolation='none', origin='upper')
     ax.invert_yaxis()

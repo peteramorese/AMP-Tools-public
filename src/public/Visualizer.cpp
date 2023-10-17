@@ -67,12 +67,14 @@ void amp::Visualizer::makeFigure(const Problem2D& prob) {
 
 void amp::Visualizer::makeFigure(const Problem2D& prob, const Path2D& path) {
     newFigure();
-    createAxes(prob, path);
+    createAxes(prob);
+    createAxes(path);
 }
 
 void amp::Visualizer::makeFigure(const Problem2D& prob, const Path2D& path, const std::vector<Eigen::Vector2d>& collision_points) {
     newFigure();
-    createAxes(prob, path, collision_points);
+    createAxes(prob);
+    createAxes(path, collision_points);
 }
 
 void amp::Visualizer::makeFigure(const std::vector<Polygon>& polygons, bool filled) {
@@ -132,6 +134,12 @@ void amp::Visualizer::makeFigure(const GridCSpace2D& cspace) {
     createAxes(cspace);
 }
 
+void amp::Visualizer::makeFigure(const GridCSpace2D& cspace, const Path2D& path) {
+    newFigure();
+    createAxes(cspace);
+    createAxes(path);
+}
+
 void amp::Visualizer::makeFigure(const PotentialFunction2D& potential_function, double x0_min, double x0_max, double x1_min, double x1_max, std::size_t n_grid, double u_min, double u_max) {
     newFigure();
     createAxes(potential_function, x0_min, x0_max, x1_min, x1_max, n_grid, u_min, u_max);
@@ -159,14 +167,12 @@ void amp::Visualizer::createAxes(const Problem2D& prob) {
 
 }
 
-void amp::Visualizer::createAxes(const Problem2D& prob, const Path2D& path) {
-    createAxes(prob);
+void amp::Visualizer::createAxes(const Path2D& path) {
     std::unique_ptr<ampprivate::pybridge::PythonObject> path_arg = listOfPointsToPythonObject(path.waypoints);
     ampprivate::pybridge::ScriptCaller::call("VisualizeEnvironment", "visualize_path", std::make_tuple(path_arg->get()));
 }
 
-void amp::Visualizer::createAxes(const Problem2D& prob, const Path2D& path, const std::vector<Eigen::Vector2d>& collision_points) {
-    createAxes(prob);
+void amp::Visualizer::createAxes(const Path2D& path, const std::vector<Eigen::Vector2d>& collision_points) {
     std::unique_ptr<ampprivate::pybridge::PythonObject> path_arg = listOfPointsToPythonObject(path.waypoints);
     std::unique_ptr<ampprivate::pybridge::PythonObject> collison_points_arg = listOfPointsToPythonObject(collision_points);
     ampprivate::pybridge::ScriptCaller::call("VisualizeEnvironment", "visualize_path", std::make_tuple(path_arg->get(), collison_points_arg->get()));

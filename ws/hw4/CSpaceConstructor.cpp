@@ -32,6 +32,24 @@ CSpaceConstructor::CSpaceConstructor(std::size_t x0_cells, std::size_t x1_cells,
             // , DenseArray2D<bool>(x0_cells, x1_cells)
             // {}
 
+void CSpaceConstructor::populateGrid(const vector<amp::Obstacle2D>& obstacles)  {
+    std::pair<int, int> gridSize = size();
+    int cells0 = gridSize.first;
+    int cells1 = gridSize.second;
+    for (int i = 0; i < cells0; ++i){
+        for (int j = 0; j < cells1; ++j){
+            bool collision = false;
+            for (const amp::Obstacle2D& obstacle : obstacles) {
+                collision = isPointInsidePolygon({i, j}, obstacle.verticesCCW());
+                if (collision) {
+                    operator()(i, j) = 1;
+                    break;
+                }
+            }
+        }
+    }
+}
+
 
 void CSpaceConstructor::populateGrid(const vector<double>& linkLengths, const vector<amp::Obstacle2D>& obstacles)  {
     MyLinkManipulator manipulator(linkLengths);
@@ -85,11 +103,16 @@ bool CSpaceConstructor::checkCollision(const Vector2d& prevJoint, const Vector2d
     return isInside;
 };
 
-bool CSpaceConstructor::inCollision(double x0, double x1) const {
-    return false;
-};
-
 std::pair<std::size_t, std::size_t> CSpaceConstructor::getCellFromPoint(double x0, double x1) const {
-    
+    std::pair<double, double> x0lim = x0Bounds();
+    std::pair<double, double> x1lim = x1Bounds();
+    std::pair<int, int> gridSize = size();
+    int cells0 = gridSize.first;
+    int cells1 = gridSize.second;
+    double cellWidth0 = (x0lim.second - x0lim.first)/x0;
+    double cellWidth1 = (x1lim.second - x1lim.first)/x1;
+    int i = static_cast<int>(std::floor((x0 - x0lim.first) / cellWidth0));
+    int j = static_cast<int>(std::floor((x1 - x1lim.first) / cellWidth1));
+    return std::pair<std::size_t, std::size_t>(i, j);
 };
 

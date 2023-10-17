@@ -42,7 +42,7 @@ void problem2b() {
 void problem3a() {
     Environment2D workspace = HW4::getEx3Workspace1();
     vector<double> linkLengths = {1, 1};
-    CSpaceConstructor cSpace(360, 360, -10, 10, -10, 10);
+    CSpaceConstructor cSpace(50, 50, -10, 10, -10, 10);
     cSpace.populateGrid(linkLengths, workspace.obstacles);
     Visualizer::makeFigure(cSpace);
     Visualizer::makeFigure(workspace.obstacles);
@@ -51,7 +51,7 @@ void problem3a() {
 void problem3b() {
     Environment2D workspace = HW4::getEx3Workspace2();
     vector<double> linkLengths = {1, 1};
-    CSpaceConstructor cSpace(360, 360, -10, 10, -10, 10);
+    CSpaceConstructor cSpace(50, 50, -10, 10, -10, 10);
     cSpace.populateGrid(linkLengths, workspace.obstacles);
     Visualizer::makeFigure(cSpace);
     Visualizer::makeFigure(workspace.obstacles);
@@ -65,7 +65,7 @@ void problem3c() {
     //     }
     // }
     vector<double> linkLengths = {1, 1};
-    CSpaceConstructor cSpace(360, 360, -10, 10, -10, 10);
+    CSpaceConstructor cSpace(50, 50, -10, 10, -10, 10);
     cSpace.populateGrid(linkLengths, workspace.obstacles);
     Visualizer::makeFigure(cSpace);
     Visualizer::makeFigure(workspace.obstacles);

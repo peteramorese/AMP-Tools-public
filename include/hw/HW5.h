@@ -79,19 +79,18 @@ class HW5 {
         /// @param email Your identikey@colorado.edu email
         /// @param argc Pass the cmd line args from main
         /// @param argv Pass the cmd line args from main
-        /// @return Result struct that shows the results of the benchmark (with score calculation)
         static int grade(GDAlgorithm& algo, const std::string& email, int argc, char** argv);
 
         /// @brief Tests your algorithm on HW5 Workspace1, HW2 Workspace1, and HW2 Workspace2.
         /// NOTE: Reconstructs your algorithm object every trial to make sure your member variables are reset, etc...
         /// @tparam GD_ALGORITHM_T The type of your gradient descent algorithm object (MUST derive GDAlgorithm)
-        /// @tparam ...CTOR_ARGS_T Constructor parameter arg types (automatically deduced)
+        /// @tparam ..._CTOR_ARGS_T [automatically deduced] Constructor parameter arg types 
         /// @param email Your identikey@colorado.edu email
         /// @param argc Pass the cmd line args from main
         /// @param argv Pass the cmd line args from main
         /// @param constructor_arguments Pass the remaining arguments as you would to your constructor
-        template <class GD_ALGORITHM_T, class... CTOR_ARGS_T>
-        static int grade(const std::string& email, int argc, char** argv, CTOR_ARGS_T&&... constructor_arguments);
+        template <class GD_ALGORITHM_T, class... _CTOR_ARGS_T>
+        static int grade(const std::string& email, int argc, char** argv, _CTOR_ARGS_T&&... constructor_arguments);
 };
 
 #define AMP_HW5_ALIAS "hw5"

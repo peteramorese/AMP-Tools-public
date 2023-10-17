@@ -10,6 +10,7 @@
 
 namespace amp {
 
+/// @brief Alias for the default node type for readability
 using Node = uint32_t;
 
 /// @brief Directed graph class that stores edge connections between nodes (integer type)
@@ -91,6 +92,15 @@ class Graph {
 		ampprivate::RandomAccessList<ampprivate::BidirectionalConnectionList<EDGE_T, NATIVE_NODE_T>> m_graph;
 };
 
+/// @brief Search heuristic for A* graph search problems
+struct SearchHeuristic {
+	/// @brief Default heuristic that just returns 0. Override this to use a more informative heuristic. Make sure that the 
+	/// heuristic is admissible.
+	/// @param node Node to get the heuristic value h(node) for. 
+	/// @return Heuristic value
+	virtual double operator()(amp::Node node) const {return 0.0;}
+};
+
 /// @brief Object containing a graph and two nodes to find the shortest path between
 struct ShortestPathProblem {
 	/// @brief Graph object
@@ -106,20 +116,22 @@ struct ShortestPathProblem {
 class GraphTools {
 	public:
 		/// @brief Generate a random graph with `double` type edge weights
-		/// @param n_connections Number of connections in the graph (dictates the size of the graph)
+		/// @param n_nodes Number of nodes in the graph
 		/// @param min_edge_weight Minimum edge weight
 		/// @param max_edge_weight Maximum edge weight
-		/// @param max_edges_per_node Maximum spanning factor per iteration (decrease to have more depth, increase for more breadth)
+		/// @param max_outgoing_edges_per_node Maximum spanning factor for outgoing edges. Increase for more edges in graph
+		/// @param connectedness Number in [0, 1] that dictates how connected the graph is (0 produces a DAG, 1 has high connectivity)
 		/// @return Shared point to a graph object
-		static std::shared_ptr<Graph<double>> generateRandomGraphDouble(uint32_t n_connections, double min_edge_weight = 0.0, double max_edge_weight = 10.0, uint32_t max_edges_per_node = 5);
+		static std::shared_ptr<Graph<double>> generateRandomGraphDouble(uint32_t n_nodes, double min_edge_weight = 0.0, double max_edge_weight = 10.0, uint32_t max_outgoing_edges_per_node = 5, double connectedness = 0.5, uint32_t seed = 0u);
 
 		/// @brief Generate a random Shortest Path Problem
-		/// @param n_connections Number of connections in the graph (dictates the size of the graph)
+		/// @param n_nodes Number of nodes in the graph
 		/// @param min_edge_weight Minimum edge weight
 		/// @param max_edge_weight Maximum edge weight
-		/// @param max_edges_per_node Maximum spanning factor per iteration (decrease to have more depth, increase for more breadth)
+		/// @param max_outgoing_edges_per_node Maximum spanning factor for outgoing edges. Increase for more edges in graph
+		/// @param connectedness Number in [0, 1] that dictates how connected the graph is (0 produces a DAG, 1 has high connectivity)
 		/// @return Shortest Path Problem
-		static ShortestPathProblem generateRandomSPP(uint32_t n_connections, double min_edge_weight = 0.0, double max_edge_weight = 10.0, uint32_t max_edges_per_node = 5);
+		static ShortestPathProblem generateRandomSPP(uint32_t n_nodes, double min_edge_weight = 0.0, double max_edge_weight = 10.0, uint32_t max_outgoing_edges_per_node = 5, double connectedness = 0.5, uint32_t seed = 0u);
 };
 }
 

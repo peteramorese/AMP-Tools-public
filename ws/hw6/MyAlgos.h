@@ -34,25 +34,61 @@ class MyWaveFrontAlgorithm: public amp::WaveFrontAlgorithm {
                     //  b) check (i+1,j),(i-1,j),(i,j+1),(i,j-1)
                     //      i)  if idx collides, set value in dense array to 1
                     //      ii) else if value in dense array is zero, set value to denseArray(i,j) + 1 and add to back of queue
-                    std::size_t tempNbrs[] = {cell.first - 1, cell.second, cell.first + 1, cell.second, cell.first, cell.second - 1, cell.first, cell.second + 1};
-                    for(int n = 0; n < 7; n++){
-                        std::size_t i = tempNbrs[n];
-                        std::size_t j = tempNbrs[n + 1];
-                        if((i >= 0 && j >= 0 && i <= grid_cspace.size().first && j <= grid_cspace.size().second) && WVArr(i,j) == 0){
-                            //check if (i,j) collides
-                            if(grid_cspace(i,j)){
-                                WVArr(i,j) = 1;
-                            }
-                            else{
-                                WVArr(i,j) =  WVArr(cell.first,cell.second) + 1;
-                                std::pair<std::size_t, std::size_t> nbr(i,j);
-                                Queue.push(nbr);
+                    for(int m = -1; m < 2; m++){
+                        for(int n = -1; n < 2; n++){
+                            if(m != n){
+                                std::size_t i = cell.first + m;
+                                std::size_t j = cell.second + n;
+                                if((i >= 0 && j >= 0 && i <= grid_cspace.size().first && j <= grid_cspace.size().second) && WVArr(i,j) == 0){
+                                    //check if (i,j) collides
+                                    if(grid_cspace(i,j)){
+                                        WVArr(i,j) = 1;
+                                    }
+                                    else{
+                                        WVArr(i,j) =  WVArr(cell.first,cell.second) + 1;
+                                        std::pair<std::size_t, std::size_t> nbr(i,j);
+                                        Queue.push(nbr);
+                                    }
+                                }
                             }
                         }
                     }
                 }
-            return amp::Path2D();
-        }     
+            //3. Make plan based on filled wavefront thing
+            amp::Path2D path;
+            Eigen::Vector2d pt(0,0);
+            cell = grid_cspace.getCellFromPoint(q_init(0),q_init(1));
+            path.waypoints.push_back(q_init);
+            //Push initial point cell centerpoint
+            pt(0) = ((grid_cspace.x0Bounds().second - grid_cspace.x0Bounds().first)/siz.first)*(double(cell.first) - 0.5) + grid_cspace.x0Bounds().first;
+            pt(1) = ((grid_cspace.x1Bounds().second - grid_cspace.x1Bounds().first)/siz.second)*(double(cell.second) - 0.5) + grid_cspace.x1Bounds().first;
+            path.waypoints.push_back(pt);
+
+            std::pair<std::size_t, std::size_t> next = cell;
+            while(WVArr(cell.first,cell.second) != 2){
+                for(int m = -1; m < 2; m++){
+                    for(int n = -1; n < 2; n++){
+                        if(m != n){
+                            std::size_t i = cell.first + m;
+                            std::size_t j = cell.second + n;
+                            if(WVArr(cell.first + m,cell.second + n) < WVArr(next.first,next.second)){
+                                next.first = cell.first + m;
+                                next.second = cell.second + n;
+                            }
+                        }
+                    }
+                }
+                // push centerpoint of next cell and move cell to next
+                cell = next;
+                pt(0) = ((grid_cspace.x0Bounds().second - grid_cspace.x0Bounds().first)/siz.first)*(double(cell.first) - 0.5) + grid_cspace.x0Bounds().first;
+                pt(1) = ((grid_cspace.x1Bounds().second - grid_cspace.x1Bounds().first)/siz.second)*(double(cell.second) - 0.5) + grid_cspace.x1Bounds().first;
+                path.waypoints.push_back(pt);
+
+            }
+            // move from centerpoint of goal cell to goal :)
+            path.waypoints.push_back(q_goal);
+            return path;
+        }
 
         /*****************************************/
     };

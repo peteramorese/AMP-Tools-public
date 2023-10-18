@@ -101,10 +101,18 @@ class MyGridCSpace: public amp::GridCSpace2D{
         }
         virtual std::pair<std::size_t, std::size_t> getCellFromPoint(double x0, double x1) const override{
             std::pair<std::size_t, std::size_t> siz =  dArr.size();
-            int i = ((x0 - x0Bounds().first)/(x0Bounds().second - x0Bounds().first))*siz.first; // (xspace0max - x0)/(xspace0max - xspace0min)* siz[0]
-            int j = ((x1 - x1Bounds().first)/(x1Bounds().second - x1Bounds().first))*siz.second; // (xspace1max - x1)/(xspace1max - xspace1min)* siz[1]
+            int i = ((x0 - x0Bounds().first)/(x0Bounds().second - x0Bounds().first))*siz.first; // (x0 - xspace0min)/(xspace0max - xspace0min)* siz[0]
+            int j = ((x1 - x1Bounds().first)/(x1Bounds().second - x1Bounds().first))*siz.second; // (x1 - xspace1min)/(xspace1max - xspace1min)* siz[1]
             std::pair<std::size_t, std::size_t> cell(i,j);
             return cell;
+        }
+        Eigen::Vector2d getPointFromCell(std::pair<std::size_t, std::size_t> cell) const{
+            //Return midpoint of cell
+            Eigen::Vector2d pt(0,0);
+            std::pair<std::size_t, std::size_t> siz =  dArr.size();
+            pt(0) = ((x0Bounds().second - x0Bounds().first)/siz.first)*(double(cell.first) - 0.5) + x0Bounds().first;
+            pt(1) = ((x1Bounds().second - x1Bounds().first)/siz.second)*(double(cell.second) - 0.5) + x1Bounds().first;
+            return pt;
         }
         amp::DenseArray2D<bool>& getdArr(){return dArr;};
         inline const amp::DenseArray2D<bool>& getdArr() const {return dArr;};

@@ -79,7 +79,6 @@ class ManipulatorWaveFrontAlgorithm : public WaveFrontAlgorithm, public LinkMani
 
             // Get the goal state from IK
             amp::ManipulatorState goal_state = link_manipulator_agent.getConfigurationFromIK(problem.q_goal);
-
             // Construct the grid cspace
             std::unique_ptr<amp::GridCSpace2D> grid_cspace = m_c_space_constructor->construct(link_manipulator_agent, problem);
 

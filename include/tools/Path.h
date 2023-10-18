@@ -27,7 +27,7 @@ struct Path2D {
 /// @brief N-dimensional path
 struct Path {
     Path() = default;
-    std::vector<std::vector<double>> waypoints;
+    std::vector<Eigen::VectorXd> waypoints;
 
     /// @brief Print the object
     /// @param heading Log what type of object is being printed

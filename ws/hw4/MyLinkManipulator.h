@@ -5,9 +5,20 @@
 #include <Eigen/LU>
 #include <cassert>
 
-using ManipulatorState = std::vector<double>;
+// using ManipulatorState = std::vector<double>;
 
-using ManipulatorTrajectory = std::list<ManipulatorState>;
+// using ManipulatorTrajectory = std::list<ManipulatorState>;
+
+/// @brief Vector of angles (radians) for each joint. The size of the vector should match the 
+/// number of links (and hence joints) of the manipulator
+using ManipulatorState = Eigen::VectorXd;
+/// @brief For the specific 2-link case, use Eigen::Vector2d to make it consistent with other 2D planning problems
+using ManipulatorState2Link = Eigen::Vector2d;
+
+/// @brief List of manipulator states in chronological order
+using ManipulatorTrajectory = amp::Path;
+/// @brief For the specific 2-link case, use Path2D to make it consistent with other 2D planning problems
+using ManipulatorTrajectory2Link = amp::Path2D;
 
 class MyLinkManipulator: public amp::LinkManipulator2D{
     public:
@@ -25,8 +36,11 @@ class MyLinkManipulator: public amp::LinkManipulator2D{
         /// @param joint_index Joint index in order of base to end effector 
         /// (joint_index = 0 should return the base location, joint_index = nLinks() should return the end effector location)
         /// @return Joint coordinate
-        virtual Eigen::Vector2d getJointLocation(const ManipulatorState& state, uint32_t joint_index) const override
+        virtual Eigen::Vector2d getJointLocation(const ManipulatorState& stateE, uint32_t joint_index) const override
         {
+            std::vector<double> state(stateE.data(), stateE.data() + stateE.size());
+            // std::vector<double> state(stateE.data(), stateE.size());
+            // std::cout << "size " << state.size() << std::endl;
             assert(state.size() == nLinks());
             Eigen::Vector3d  location(getBaseLocation()[0], getBaseLocation()[1], 1);
             if(joint_index > 0){
@@ -44,7 +58,7 @@ class MyLinkManipulator: public amp::LinkManipulator2D{
         /// @return Joint angle state (radians) in increasing joint index order. Must have size() ==nLinks()
         virtual ManipulatorState getConfigurationFromIK(const Eigen::Vector2d& end_effector_location) const override
         {
-            ManipulatorState state;
+            std::vector<double> state;
             Eigen::Vector2d diffVec = (end_effector_location - getBaseLocation());
             switch(nLinks()){
                 case 1:
@@ -127,7 +141,9 @@ class MyLinkManipulator: public amp::LinkManipulator2D{
                 default:
                     std::cout << "Too many links for inverse kinematics :) " << std::endl;
             }
-            return state;
+            double* ptr = &state[0];
+            Eigen::Map<Eigen::VectorXd> stateE(ptr, state.size());
+            return stateE;
         };
 
         void printLinkLengths(){

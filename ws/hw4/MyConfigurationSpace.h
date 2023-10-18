@@ -68,9 +68,11 @@ class MyGridCSpace2D: public amp::GridCSpace2D{
                     state.clear();
                     state.push_back(i*(x0Bounds().second - x0Bounds().first)/siz.first);
                     state.push_back(j*(x1Bounds().second - x1Bounds().first)/siz.second);
+                    double* ptr = &state[0];
+                    Eigen::Map<Eigen::VectorXd> stateE(ptr, state.size());
                     Eigen::Vector2d a0 = mani.getBaseLocation();
-                    Eigen::Vector2d a1 =  mani.getJointLocation(state,1);
-                    Eigen::Vector2d a2 = mani.getJointLocation(state,2);
+                    Eigen::Vector2d a1 =  mani.getJointLocation(stateE,1);
+                    Eigen::Vector2d a2 = mani.getJointLocation(stateE,2);
                     bool hit = false;
                     for(auto Ob : obs.obstacles){
                         if(!hit){

@@ -9,7 +9,7 @@
 #include "MyConfigurationSpace.h"
 
 using namespace amp;
-
+using ManipulatorState = Eigen::VectorXd;
 int main(int argc, char** argv) {
     /* Include this line to have different randomized environments every time you run your code (NOTE: this has no affect on grade()) */
     amp::RNG::seed(amp::RNG::randiUnbounded());
@@ -48,16 +48,17 @@ int main(int argc, char** argv) {
     MyLinkManipulator mani2(base,lens);
     // mani2.printLinkLengths();
     Eigen::Vector2d end(2,0);
-    std::vector<double> reverseState = mani2.getConfigurationFromIK(end);
-
-     for(int j = 0; j < reverseState.size(); j++){
+    ManipulatorState reverseStateE = mani2.getConfigurationFromIK(end);
+    // std::cout << "reverseStateE " << reverseStateE << std::endl;
+    std::vector<double> reverseState(reverseStateE.data(), reverseStateE.data() + reverseStateE.size());
+    for(int j = 0; j < reverseState.size(); j++){
         std::cout << "reverseState[" << j << "] = " << reverseState[j] << std::endl;
     }
-    Visualizer::makeFigure(mani2, reverseState);
+    Visualizer::makeFigure(mani2, reverseStateE);
 
     // Problem 3
     MyLinkManipulator mani3;
-    std::vector<double> state2(2,0.0);
+    // std::vector<double> state2(2,0.0);
     amp::Environment2D env3 = HW4::getEx3Workspace1();
     MyGridCSpace2DConstructor GridBldr;
 
@@ -65,15 +66,15 @@ int main(int argc, char** argv) {
     HW4::checkCSpace(*ptr, mani3, env3);
     MyGridCSpace2D plotEnv3(250,250,0,2*M_PI,0,2*M_PI);
     Visualizer::makeFigure(plotEnv3.makeCSpace(mani3,env3));
-    Visualizer::makeFigure(env3,mani3,state2);
+    // Visualizer::makeFigure(env3,mani3,state2);
     Visualizer::makeFigure(plotEnv3.makeCSpace(mani3,HW4::getEx3Workspace2()));
-    Visualizer::makeFigure(HW4::getEx3Workspace2(),mani3,state2);
+    // Visualizer::makeFigure(HW4::getEx3Workspace2(),mani3,state2);
     Visualizer::makeFigure(plotEnv3.makeCSpace(mani3,HW4::getEx3Workspace3()));
-    Visualizer::makeFigure(HW4::getEx3Workspace3(),mani3,state2);
+    // Visualizer::makeFigure(HW4::getEx3Workspace3(),mani3,state2);
 
     // MyGridCSpace2DConstructor(mani3,env3);
 
-    Visualizer::makeFigure(mani2, reverseState);
+    // Visualizer::makeFigure(mani2, reverseState);
     Visualizer::showFigures();
 
     // HW4::checkFK(mani2.getJointLocation(reverseState,2),2,mani2,reverseState,true);

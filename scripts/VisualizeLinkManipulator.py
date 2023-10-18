@@ -24,7 +24,8 @@ visualize_config = {
     "collision_point_marker": "*",
     "collision_point_color": "red",
     "link_width": 0.03,
-    "link_color": "indianred",
+    "link_color": "dimgrey",
+    "colliding_link_color": "red",
     "link_pad": 0.10,
     "joint_size": 10,
     "joint_color": "black",
@@ -44,44 +45,47 @@ class LinkManipulator2DVisualizer:
             length += np.linalg.norm(dst_vertex - src_vertex)
         return length
 
-    def sketch_manipulator(self, joint_vertices : list, cmap_scale = None, ax = None):
+    def sketch_manipulator(self, joint_vertices : list, colliding : bool, cmap_scale = None, ax = None):
         if not ax:
             ax = plt.gca()
 
         if cmap_scale is None:
-            color = visualize_config["link_color"]
+            color = visualize_config["link_color"] if not colliding else visualize_config["colliding_link_color"]
         else:
             color_map = LinearSegmentedColormap.from_list('custom', ['indianred', 'seagreen'], N=256)
             scalar_map = mpl.cm.ScalarMappable(norm=Normalize(vmin=0, vmax=1), cmap=color_map)
             color = scalar_map.to_rgba(cmap_scale)
 
         for i in range(1, len(joint_vertices)):
-            self.__sketch_link(np.array(joint_vertices[i - 1]), np.array(joint_vertices[i]), color, ax)
-        self.__sketch_end_effector(joint_vertices[-1], color, ax)
+            self.__sketch_link(np.array(joint_vertices[i - 1]), np.array(joint_vertices[i]), colliding, color, ax)
+        self.__sketch_end_effector(joint_vertices[-1], colliding, color, ax)
 
-    def __sketch_link(self, src_vertex : np.ndarray, dst_vertex : np.ndarray, color, ax):
+    def __sketch_link(self, src_vertex : np.ndarray, dst_vertex : np.ndarray, colliding : bool, color, ax):
         pad = visualize_config["link_pad"]
         width_vec = dst_vertex - src_vertex
         angle = np.arctan2(width_vec[1], width_vec[0])
         height = visualize_config["link_width"]
         width = np.linalg.norm(width_vec) - pad
+        alpha = 0.3 if colliding else 1.0
         patch = FancyBboxPatch(
             (pad / 2.0, -height / 2.0), 
             width, 
             height, 
             color=color, 
             boxstyle=f"Round, pad={pad}", 
-            ec=visualize_config["joint_color"])
+            ec=visualize_config["joint_color"],
+            alpha=alpha)
         patch.set_mutation_aspect(0.4)
         
         transform = mpl.transforms.Affine2D().rotate(angle) + mpl.transforms.Affine2D().translate(src_vertex[0], src_vertex[1]) + ax.transData
         patch.set_transform(transform)
         ax.add_patch(patch)
-        ax.scatter(src_vertex[0], src_vertex[1], visualize_config["joint_size"], color=visualize_config["joint_color"], marker="p")
+        ax.scatter(src_vertex[0], src_vertex[1], visualize_config["joint_size"], color=visualize_config["joint_color"], marker="p", alpha=alpha)
 
-    def __sketch_end_effector(self, vertex : np.ndarray, color, ax):
-        ax.scatter(vertex[0], vertex[1], visualize_config["eef_size"], color=visualize_config["joint_color"], marker=visualize_config["eef_marker"])
-        ax.scatter(vertex[0], vertex[1], visualize_config["joint_size"], color=color, marker="p")
+    def __sketch_end_effector(self, vertex : np.ndarray, colliding : bool, color, ax):
+        alpha = 0.3 if colliding else 1.0
+        ax.scatter(vertex[0], vertex[1], visualize_config["eef_size"], color=visualize_config["joint_color"], marker=visualize_config["eef_marker"], alpha=alpha)
+        ax.scatter(vertex[0], vertex[1], visualize_config["joint_size"], color=color, marker="p", alpha=alpha)
     
     def auto_bound_axes(self, joint_vertices : list, bloat_scale = 1.2, ax = None):
         if not ax:
@@ -93,12 +97,12 @@ class LinkManipulator2DVisualizer:
 
 
 
-def visualize_manipulator(joint_vertices : list, cmap_scale = None, auto_bound_axes = True):
+def visualize_manipulator(joint_vertices : list, colliding : bool, cmap_scale = None, auto_bound_axes = True):
     visualizer = LinkManipulator2DVisualizer()
 
     ax = plt.gca() 
     ax.set_aspect('equal')
     ax.grid(zorder=0, alpha=0.5)
-    visualizer.sketch_manipulator(joint_vertices, cmap_scale, ax)
+    visualizer.sketch_manipulator(joint_vertices, colliding, cmap_scale, ax)
     if auto_bound_axes:
         visualizer.auto_bound_axes(joint_vertices)

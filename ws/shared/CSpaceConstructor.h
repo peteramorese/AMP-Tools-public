@@ -1,3 +1,5 @@
+#pragma once
+
 #include "AMPCore.h"
 #include "HelpfulClass.h"
 #include "hw/HW4.h"
@@ -10,6 +12,8 @@ class CSpaceConstructor : public amp::GridCSpace2D {
         void populateGrid(const vector<double>& linkLengths, const vector<amp::Obstacle2D>& obstacles);
         bool checkCollision(const Vector2d& prevJoint, const Vector2d& currJoint);
         virtual std::pair<std::size_t, std::size_t> getCellFromPoint(double x0, double x1) const override;
+        Vector2d getPointFromCell(const std::pair<int, int>& cell);
+
     private:
         vector<amp::Obstacle2D> allObstacles;
 };

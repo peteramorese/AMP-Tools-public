@@ -155,12 +155,32 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
                             if((m == 0 || n == 0) && m != n){
                                 std::size_t i = cell.first + m;
                                 std::size_t j = cell.second + n;
-                                if((i >= 0 && j >= 0 && i < grid_cspace.size().first && j < grid_cspace.size().second) && WVArr(i,j) == 0){
+                                if(i < 0){
+                                    // std::cout << "help1 "<< i << std::endl;
+                                    i = grid_cspace.size().first - 1;
+                                }
+                                else if(i >= grid_cspace.size().first){
+                                    // std::cout << "help2 "<< i << std::endl;
+                                    i = 0;
+                                }
+                                if(j < 0){
+                                    // std::cout << "help3 "<< j << std::endl;
+                                    j = grid_cspace.size().second - 1;
+                                }
+                                else if(j >= grid_cspace.size().second){
+                                    // std::cout << "help4 "<< j << std::endl;
+                                    j = 0;
+                                }
+                                // if((i >= 0 && j >= 0 && i < grid_cspace.size().first && j < grid_cspace.size().second) && WVArr(i,j) == 0){
+                                if(WVArr(i,j) == 0){
                                     //check if (i,j) collides
                                     double x0 = ((grid_cspace.x0Bounds().second - grid_cspace.x0Bounds().first)/siz.first)*(i + 0.5) + grid_cspace.x0Bounds().first;
                                     double x1 = ((grid_cspace.x1Bounds().second - grid_cspace.x1Bounds().first)/siz.second)*(j + 0.5) + grid_cspace.x1Bounds().first;
                                     if(grid_cspace.inCollision(x0,x1)){
                                         WVArr(i,j) = 1;
+                                        std::pair<std::size_t, std::size_t> nbr(i,j);
+                                        // Queue.push(nbr);
+                                        std::cout << "AAAAAHHHHHH "<< WVArr(i,j) << " i: " << i << " j: " << j << std::endl;
                                     }
                                     else{
                                         WVArr(i,j) =  WVArr(cell.first,cell.second) + 1;
@@ -189,13 +209,35 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
                         if((m == 0 || n == 0) && m != n){
                             std::size_t i = cell.first + m;
                             std::size_t j = cell.second + n;
-                            if((i >= 0 && j >= 0 && i < grid_cspace.size().first && j < grid_cspace.size().second)){
-                                if((WVArr(cell.first + m,cell.second + n) < WVArr(next.first,next.second)) && WVArr(cell.first + m,cell.second + n) != 1){
-                                    next.first = cell.first + m;
-                                    next.second = cell.second + n;
-                                    // std::cout << "next: " << next.first << " , " << next.second << " val: " << WVArr(cell.first + m,cell.second + n) << std::endl;
-                                }
+                            if(i < 0){
+                                // std::cout << "help1 "<< i << std::endl;
+                                i = grid_cspace.size().first - 1;
                             }
+                            else if(i >= grid_cspace.size().first){
+                                // std::cout << "help2 "<< i << std::endl;
+                                i = 0;
+                            }
+                            if(j < 0){
+                                // std::cout << "help3 "<< j << std::endl;
+                                j = grid_cspace.size().second - 1;
+                            }
+                            else if(j >= grid_cspace.size().second){
+                                // std::cout << "help4 "<< j << std::endl;
+                                j = 0;
+                            }
+                            // if((i >= 0 && j >= 0 && i < grid_cspace.size().first && j < grid_cspace.size().second)){
+
+
+
+                            // }
+                            // std::cout << "AAAA "<< WVArr(i,j) << " i: " << i << " j: " << j << std::endl;
+                            if((WVArr(i,j) < WVArr(next.first,next.second)) && WVArr(i,j) != 1){
+                                next.first = i;
+                                next.second = j;
+                                // std::cout << "AAAA "<< WVArr(i,j) << " i: " << i << " j: " << j << std::endl;
+                                std::cout << "next: " << next.first << " , " << next.second << " val: " << WVArr(i,j) << std::endl;
+                            }
+                            
                         }
                     }
                 }

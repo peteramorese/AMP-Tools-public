@@ -194,6 +194,7 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
                     }
                 }
             //3. Make plan based on filled wavefront thing
+            //Get lookahead
             amp::Path2D path;
             Eigen::Vector2d pt(0,0);
             cell = grid_cspace.getCellFromPoint(q_init(0),q_init(1));

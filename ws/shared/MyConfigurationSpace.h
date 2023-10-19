@@ -3,6 +3,7 @@
 #include "AMPCore.h"
 #include "hw/HW4.h"
 #include <Eigen/LU>
+#include <math.h>
 
 class MyGridCSpace2D: public amp::GridCSpace2D{
     public:
@@ -60,8 +61,8 @@ class MyGridCSpace2D: public amp::GridCSpace2D{
         }
         MyGridCSpace2D makeCSpace(MyLinkManipulator& mani, const amp::Environment2D& obs){
             //fills DenseArray2D by posing manipulator and checking for collision
-            MyGridCSpace2D tempGrid(250,250,0,2*M_PI,0,2*M_PI);
             std::pair<std::size_t, std::size_t> siz = dArr.size();
+            MyGridCSpace2D tempGrid(siz.first,siz.second,0,2*M_PI,0,2*M_PI);
             std::vector<double> state;
             for(int i = 0; i < siz.first; i++){
                 for(int j = 0; j < siz.second; j++){
@@ -87,7 +88,6 @@ class MyGridCSpace2D: public amp::GridCSpace2D{
                             }
                         }
                     }
-                    
                     dArr(i,j) =  hit;
                     tempGrid(i,j) = hit;
                 }
@@ -118,11 +118,24 @@ class MyGridCSpace2DConstructor: public amp::GridCSpace2DConstructor{
     public:
         virtual std::unique_ptr<amp::GridCSpace2D> construct(const amp::LinkManipulator2D& manipulator, const amp::Environment2D& env) override{
             std::cout << "constructing..." << std::endl;
-            std::unique_ptr<MyGridCSpace2D> ptr(new MyGridCSpace2D(250,250,0,2*M_PI,0,2*M_PI));
+            std::unique_ptr<MyGridCSpace2D> ptr(new MyGridCSpace2D(std::ceil((x0_bounds.second - x0_bounds.first)/gridWidth),std::ceil((x1_bounds.second - x1_bounds.first)/gridWidth),x0_bounds.first,x0_bounds.second,x1_bounds.first,x1_bounds.second));
             MyLinkManipulator mani(manipulator.getBaseLocation(),manipulator.getLinkLengths());
             ptr->makeCSpace(mani, env);
+            std::cout << "done constructing!" << std::endl;
             return ptr;
         }
+        double& getGridWidth(){return gridWidth;};
+        inline const double& getGridWidth() const {return gridWidth;};
+
+        std::pair<double, double>& getX0_bounds(){return x0_bounds;};
+        inline const std::pair<double, double>& getX0_bounds() const {return x0_bounds;};
+
+        std::pair<double, double>& getX1_bounds(){return x1_bounds;};
+        inline const std::pair<double, double>& getX1_bounds() const {return x1_bounds;};
+    private:
+        double gridWidth = 0.25;
+        std::pair<double, double> x0_bounds {0.0,2*M_PI};
+        std::pair<double, double> x1_bounds {0.0,2*M_PI};
 };
 
 

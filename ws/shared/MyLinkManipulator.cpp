@@ -67,5 +67,6 @@ ManipulatorState MyLinkManipulator::getConfigurationFromIK(const Eigen::Vector2d
         }
         if (pass) break;
     }
+    PRINT_VEC2("state: ", state);
     return state;
 };

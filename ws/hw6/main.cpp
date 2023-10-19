@@ -1,13 +1,12 @@
 // // This includes all of the necessary header files in the toolbox
 #include "AMPCore.h"
 
-// // Include the correct homework header
 #include "hw/HW2.h"
 #include "hw/HW6.h"
 #include "CSpaceConstructor.h"
+#include "MyLinkManipulator.h"
 #include "WaveFront.h"
 
-// // Include the header of the shared class
 #include "HelpfulClass.h"
 
 using namespace amp;
@@ -15,14 +14,11 @@ using Eigen::Vector2d, std::vector, std::cout;
 
 void problem1a() {
     Problem2D problem = HW2::getWorkspace1();
-    CSpaceConstructor cSpace(50, 50, problem.x_max);
-    cSpace.populateGrid(problem.obstacles)
-    
-    // MyPointWFAlgo algo;
-    // std::unique_ptr<amp::GridCSpace2D> cSpace = algo.constructDiscretizedWorkspace(problem);
-    // amp::Path2D path = algo.planInCSpace(problem.q_init, problem.q_goal, *cSpace);
+    MyPointWFAlgo algo;
+    std::unique_ptr<amp::GridCSpace2D> cSpace = algo.constructDiscretizedWorkspace(problem);
+    amp::Path2D path = algo.planInCSpace(problem.q_init, problem.q_goal, *cSpace);
     Visualizer::makeFigure(*cSpace);
-
+    Visualizer::makeFigure(problem, path);
 }
 
 void problem1b() {
@@ -31,13 +27,24 @@ void problem1b() {
     std::unique_ptr<amp::GridCSpace2D> cSpace = algo.constructDiscretizedWorkspace(problem);
     amp::Path2D path = algo.planInCSpace(problem.q_init, problem.q_goal, *cSpace);
     Visualizer::makeFigure(*cSpace);
+    Visualizer::makeFigure(problem, path);
 }
-// void problem2a() {
-//     vector<double> linkLengths = {0.5, 1, 0.5};
-//     ManipulatorState state = {M_PI/6, M_PI/3, 7*M_PI/4};
-//     MyLinkManipulator manipulator(linkLengths);
-//     Visualizer::makeFigure(manipulator, state);
-// }
+
+void problem2() {
+    Environment2D env = HW4::getEx3Workspace3();
+    MyLinkManipulator manipulator({1, 1});
+    ManipulatorState initState = manipulator.getConfigurationFromIK({-2, 0});
+    ManipulatorState goalState = manipulator.getConfigurationFromIK({2, 0});
+    MyManipWFAlgo algo;
+    std::unique_ptr<amp::GridCSpace2D> cSpace = algo.constructDiscretizedWorkspace(manipulator, env);
+    amp::Path2D path = algo.planInCSpace({initState[0], initState[1]}, {goalState[0], goalState[1]}, *cSpace);
+    int numStates = path.waypoints.size();
+    for (int i = 0; i < numStates; i += numStates/10) {
+        Vector2d state = path.waypoints[i];
+        Visualizer::makeFigure(env, manipulator, {state(0), state(1)});
+    }
+    Visualizer::makeFigure(*cSpace);
+}
 
 // void problem2b() {
 //     Vector2d endEffector(2, 0);
@@ -59,7 +66,8 @@ void problem1b() {
 
 int main(int argc, char** argv) {
     // problem1a();
-    problem1b();
+    // problem1b();
+    problem2();
     Visualizer::showFigures();
     return 0;
 }

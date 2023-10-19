@@ -8,9 +8,13 @@ using std::vector, std::string, std::cout, Eigen::Vector2d;
 
 CSpaceConstructor::CSpaceConstructor(std::size_t x0_cells, std::size_t x1_cells, double x0_min, double x0_max, double x1_min, double x1_max)
     : GridCSpace2D(x0_cells, x1_cells,  x0_min, x0_max, x1_min, x1_max) {}
-            // : ConfigurationSpace2D(x0_min, x0_max, x1_min, x1_max)
-            // , DenseArray2D<bool>(x0_cells, x1_cells)
-            // {}
+        // : ConfigurationSpace2D(x0_min, x0_max, x1_min, x1_max)
+        // , DenseArray2D<bool>(x0_cells, x1_cells)
+        // {}
+
+// MyManipConstructor::MyManipConstructor(std::size_t x0_cells, std::size_t x1_cells, double x0_min, double x0_max, double x1_min, double x1_max) {
+//     cSpace = std::make_unique<CSpaceConstructor>(x0_cells, x1_cells,  x0_min, x0_max, x1_min, x1_max);
+// }
 
 Vector2d CSpaceConstructor::getPointFromCell(const std::pair<int, int>& cell) {
     std::pair<double, double> x0lim = x0Bounds();

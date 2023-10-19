@@ -152,7 +152,7 @@ class MyManipWFAlgo : public MyWaveFrontAlgorithm, public amp::ManipulatorWaveFr
                             if(m != n){
                                 std::size_t i = cell.first + m;
                                 std::size_t j = cell.second + n;
-                                if((i >= 0 && j >= 0 && i <= grid_cspace.size().first && j <= grid_cspace.size().second) && WVArr(i,j) == 0){
+                                if((i >= 0 && j >= 0 && i < grid_cspace.size().first && j < grid_cspace.size().second) && WVArr(i,j) == 0){
                                     //check if (i,j) collides
                                     if(grid_cspace(i,j)){
                                         WVArr(i,j) = 1;

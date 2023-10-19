@@ -14,7 +14,7 @@ int main(int argc, char** argv) {
     MyGridCSpace2DConstructor MGSConstructor;
     MyManipWFAlgo mani(MGSConstructor);
     MyLinkManipulator mani3;
-    const amp::Problem2D env3 = HW6::getHW4Problem3();
+    const amp::Problem2D env3 = HW6::getHW4Problem1();
     auto path = mani.plan(mani3,env3);
     MyGridCSpace2D plotEnv3(250,250,0,2*M_PI,0,2*M_PI);
      Visualizer::makeFigure(env3);

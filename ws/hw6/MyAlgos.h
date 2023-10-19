@@ -155,7 +155,8 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
                             if((m == 0 || n == 0) && m != n){
                                 std::size_t i = cell.first + m;
                                 std::size_t j = cell.second + n;
-                                if(i < 0){
+                                // std::cout << "cell.first " << cell.first << " + " << m << " = " << i << std::endl;
+                                if(m < 0 && cell.first == 0){
                                     // std::cout << "help1 "<< i << std::endl;
                                     i = grid_cspace.size().first - 1;
                                 }
@@ -163,7 +164,7 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
                                     // std::cout << "help2 "<< i << std::endl;
                                     i = 0;
                                 }
-                                if(j < 0){
+                                if(n < 0 && cell.second == 0){
                                     // std::cout << "help3 "<< j << std::endl;
                                     j = grid_cspace.size().second - 1;
                                 }
@@ -180,7 +181,7 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
                                         WVArr(i,j) = 1;
                                         std::pair<std::size_t, std::size_t> nbr(i,j);
                                         // Queue.push(nbr);
-                                        std::cout << "AAAAAHHHHHH "<< WVArr(i,j) << " i: " << i << " j: " << j << std::endl;
+                                        // std::cout << "AAAAAHHHHHH "<< WVArr(i,j) << " i: " << i << " j: " << j << std::endl;
                                     }
                                     else{
                                         WVArr(i,j) =  WVArr(cell.first,cell.second) + 1;
@@ -230,12 +231,11 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
 
 
                             // }
-                            // std::cout << "AAAA "<< WVArr(i,j) << " i: " << i << " j: " << j << std::endl;
+                            // std::cout << "testing "<< WVArr(i,j) << " i: " << i << " j: " << j << std::endl;
                             if((WVArr(i,j) < WVArr(next.first,next.second)) && WVArr(i,j) != 1){
                                 next.first = i;
                                 next.second = j;
-                                // std::cout << "AAAA "<< WVArr(i,j) << " i: " << i << " j: " << j << std::endl;
-                                std::cout << "next: " << next.first << " , " << next.second << " val: " << WVArr(i,j) << std::endl;
+                                // std::cout << "next: " << next.first << " , " << next.second << " val: " << WVArr(i,j) << std::endl;
                             }
                             
                         }

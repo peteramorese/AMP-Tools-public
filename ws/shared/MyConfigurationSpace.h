@@ -117,6 +117,7 @@ class MyGridCSpace2D: public amp::GridCSpace2D{
 class MyGridCSpace2DConstructor: public amp::GridCSpace2DConstructor{
     public:
         virtual std::unique_ptr<amp::GridCSpace2D> construct(const amp::LinkManipulator2D& manipulator, const amp::Environment2D& env) override{
+            std::cout << "constructing..." << std::endl;
             std::unique_ptr<MyGridCSpace2D> ptr(new MyGridCSpace2D(250,250,0,2*M_PI,0,2*M_PI));
             MyLinkManipulator mani(manipulator.getBaseLocation(),manipulator.getLinkLengths());
             ptr->makeCSpace(mani, env);

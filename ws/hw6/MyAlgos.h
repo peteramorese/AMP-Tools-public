@@ -4,6 +4,7 @@
 #include "hw/HW4.h"
 #include <Eigen/LU>
 #include <queue>
+#include "MyConfigurationSpace.h"
 
 class MyWaveFrontAlgorithm: public amp::WaveFrontAlgorithm {
     public:
@@ -111,11 +112,13 @@ class MyPointWFAlgo : public MyWaveFrontAlgorithm, amp::PointWaveFrontAlgorithm 
         // }
 };
 
-class MyManipWFAlgo : public MyWaveFrontAlgorithm, public amp::ManipulatorWaveFrontAlgorithm {
+class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
     public:
         // // Default ctor
-        MyManipWFAlgo()
-            : amp::ManipulatorWaveFrontAlgorithm(std::make_shared<MyGridCSpace2DConstructor>()) {}
+        MyManipWFAlgo(MyGridCSpace2DConstructor& constructor)
+            : amp::ManipulatorWaveFrontAlgorithm(std::make_shared<MyGridCSpace2DConstructor>(constructor)) {
+
+            }
 
         // // You can have custom ctor params for all of these classes
         // MyManipWFAlgo(const std::string& beep) 
@@ -131,11 +134,11 @@ class MyManipWFAlgo : public MyWaveFrontAlgorithm, public amp::ManipulatorWaveFr
             //0. Create dense array for wave front cell values
             std::pair<std::size_t, std::size_t> siz = grid_cspace.size();
             amp::DenseArray2D<int> WVArr(siz.first,siz.second,0);
-
+            
             //1. Get cell for q_goal and assign value of 2
             std::pair<std::size_t, std::size_t> cell = grid_cspace.getCellFromPoint(q_goal(0),q_goal(1));
             WVArr(cell.first,cell.second) = 2;
-
+            
             std::queue<std::pair<std::size_t, std::size_t>> Queue;
             //2. Iterate through cells connected to q_goal and not colliding according to GridSpace2D and add 1
             //  Create queue array: Add q_goal initially.
@@ -149,12 +152,14 @@ class MyManipWFAlgo : public MyWaveFrontAlgorithm, public amp::ManipulatorWaveFr
                     //      ii) else if value in dense array is zero, set value to denseArray(i,j) + 1 and add to back of queue
                     for(int m = -1; m < 2; m++){
                         for(int n = -1; n < 2; n++){
-                            if(m != n){
+                            if((m == 0 || n == 0) && m != n){
                                 std::size_t i = cell.first + m;
                                 std::size_t j = cell.second + n;
                                 if((i >= 0 && j >= 0 && i < grid_cspace.size().first && j < grid_cspace.size().second) && WVArr(i,j) == 0){
                                     //check if (i,j) collides
-                                    if(grid_cspace(i,j)){
+                                    double x0 = ((grid_cspace.x0Bounds().second - grid_cspace.x0Bounds().first)/siz.first)*(i + 0.5) + grid_cspace.x0Bounds().first;
+                                    double x1 = ((grid_cspace.x1Bounds().second - grid_cspace.x1Bounds().first)/siz.second)*(j + 0.5) + grid_cspace.x1Bounds().first;
+                                    if(grid_cspace.inCollision(x0,x1)){
                                         WVArr(i,j) = 1;
                                     }
                                     else{
@@ -173,28 +178,36 @@ class MyManipWFAlgo : public MyWaveFrontAlgorithm, public amp::ManipulatorWaveFr
             cell = grid_cspace.getCellFromPoint(q_init(0),q_init(1));
             path.waypoints.push_back(q_init);
             //Push initial point cell centerpoint
-            pt(0) = ((grid_cspace.x0Bounds().second - grid_cspace.x0Bounds().first)/siz.first)*(double(cell.first) - 0.5) + grid_cspace.x0Bounds().first;
-            pt(1) = ((grid_cspace.x1Bounds().second - grid_cspace.x1Bounds().first)/siz.second)*(double(cell.second) - 0.5) + grid_cspace.x1Bounds().first;
+            pt(0) = ((grid_cspace.x0Bounds().second - grid_cspace.x0Bounds().first)/siz.first)*(double(cell.first) + 0.5) + grid_cspace.x0Bounds().first;
+            pt(1) = ((grid_cspace.x1Bounds().second - grid_cspace.x1Bounds().first)/siz.second)*(double(cell.second) + 0.5) + grid_cspace.x1Bounds().first;
             path.waypoints.push_back(pt);
 
             std::pair<std::size_t, std::size_t> next = cell;
             while(WVArr(cell.first,cell.second) != 2){
                 for(int m = -1; m < 2; m++){
                     for(int n = -1; n < 2; n++){
-                        if(m != n){
+                        if((m == 0 || n == 0) && m != n){
                             std::size_t i = cell.first + m;
                             std::size_t j = cell.second + n;
-                            if(WVArr(cell.first + m,cell.second + n) < WVArr(next.first,next.second)){
-                                next.first = cell.first + m;
-                                next.second = cell.second + n;
+                            if((i >= 0 && j >= 0 && i < grid_cspace.size().first && j < grid_cspace.size().second)){
+                                if((WVArr(cell.first + m,cell.second + n) < WVArr(next.first,next.second)) && WVArr(cell.first + m,cell.second + n) != 1){
+                                    next.first = cell.first + m;
+                                    next.second = cell.second + n;
+                                    // std::cout << "next: " << next.first << " , " << next.second << " val: " << WVArr(cell.first + m,cell.second + n) << std::endl;
+                                }
                             }
                         }
                     }
                 }
+                if(cell == next){
+                    //NO PATH AVAILABLE!
+                    std::cout << "failure! could not find path from " << q_init << " to " << q_goal << std::endl;
+                    return path;
+                }
                 // push centerpoint of next cell and move cell to next
                 cell = next;
-                pt(0) = ((grid_cspace.x0Bounds().second - grid_cspace.x0Bounds().first)/siz.first)*(double(cell.first) - 0.5) + grid_cspace.x0Bounds().first;
-                pt(1) = ((grid_cspace.x1Bounds().second - grid_cspace.x1Bounds().first)/siz.second)*(double(cell.second) - 0.5) + grid_cspace.x1Bounds().first;
+                pt(0) = ((grid_cspace.x0Bounds().second - grid_cspace.x0Bounds().first)/siz.first)*(double(cell.first) + 0.5) + grid_cspace.x0Bounds().first;
+                pt(1) = ((grid_cspace.x1Bounds().second - grid_cspace.x1Bounds().first)/siz.second)*(double(cell.second) + 0.5) + grid_cspace.x1Bounds().first;
                 path.waypoints.push_back(pt);
 
             }

@@ -23,8 +23,8 @@ int main(int argc, char** argv) {
         // Visualizer::makeFigure(plot1.makeCSpacePoint(problem1),path1);
 
         HW6::checkPointAgentPlan(path1,problem1);
-        bool random_trial_success = true;
         {
+            bool random_trial_success = true;
             // while(random_trial_success){
                 amp::Path2D path; // Make empty path, problem, and collision points, as they will be created by generateAndCheck()
                 amp::Problem2D random_prob; 
@@ -58,6 +58,27 @@ int main(int argc, char** argv) {
         unwrapPath(path,lowerB,upperB);
         Visualizer::makeFigure(problem2,mani,path);
         HW6::checkLinkManipulatorPlan(path,mani,problem2);
+        {
+            // bool random_trial_success = true;
+            // while(random_trial_success){
+            //     amp::Path2D path; // Make empty path, problem, and collision points, as they will be created by generateAndCheck()
+            //     amp::Problem2D random_prob; 
+            //     std::vector<Eigen::Vector2d> collision_points;
+            //     MyLinkManipulator mani;
+            //     MyGridCSpace2DConstructor consR;
+            //     cons.getGridWidth() = 0.05;
+            //     MyManipWFAlgo wfr(consR);
+            //     random_trial_success = HW6::generateAndCheck(wfr,mani,path,random_prob,collision_points);
+            //     LOG("Found valid solution in random environment: " << (random_trial_success ? "Yes!" : "No :("));
+            //     LOG("path length: " << path.length());
+
+            //     // Visualize the path environment, and any collision points with obstacles
+            //     // if(random_trial_success){
+            //         MyGridCSpace2D plotEnv3(std::ceil((consR.getX0_bounds().second - consR.getX0_bounds().first)/consR.getGridWidth()),std::ceil((consR.getX1_bounds().second - consR.getX1_bounds().first)/consR.getGridWidth()),consR.getX0_bounds().first,consR.getX0_bounds().second,consR.getX1_bounds().first,consR.getX1_bounds().second);
+            //         Visualizer::makeFigure(plotEnv3.makeCSpace(mani,random_prob),path);
+            //     // }
+            // }
+        }
     }
     
 

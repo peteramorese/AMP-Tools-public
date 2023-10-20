@@ -261,8 +261,21 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
             // }
             //1. Get cell for q_goal and assign value of 2
             std::pair<std::size_t, std::size_t> cell = grid_cspace.getCellFromPoint(q_goal(0),q_goal(1));
-            WVArr(cell.first,cell.second) = 2;
+            if(int(cell.first) < 0){
+                cell.first = grid_cspace.size().first - 1;
+            }
+            else if(cell.first >= grid_cspace.size().first){
+                cell.first = 0;
+            }
+            if(int(cell.second) < 0){
+                cell.second = grid_cspace.size().second - 1;
+            }
+            else if(cell.second >= grid_cspace.size().second){
+                cell.second = 0;
+            }
             
+            WVArr(cell.first,cell.second) = 2;
+            // std::cout << "cell.first " << cell.first << " cell.second " << cell.second << std::endl;
             std::queue<std::pair<std::size_t, std::size_t>> Queue;
             //2. Iterate through cells connected to q_goal and not colliding according to GridSpace2D and add 1
             //  Create queue array: Add q_goal initially.
@@ -281,19 +294,19 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
                                 std::size_t j = cell.second + n;
                                 // std::cout << "cell.first " << cell.first << " + " << m << " = " << i << std::endl;
                                 if(m < 0 && cell.first == 0){
-                                    // std::cout << "help1 "<< i << std::endl;
+                                    // std::cout << "help1 "<< int(i) << std::endl;
                                     i = grid_cspace.size().first - 1;
                                 }
                                 else if(i >= grid_cspace.size().first){
-                                    // std::cout << "help2 "<< i << std::endl;
+                                    // std::cout << "help2 "<< int(i) << std::endl;
                                     i = 0;
                                 }
                                 if(n < 0 && cell.second == 0){
-                                    // std::cout << "help3 "<< j << std::endl;
+                                    // std::cout << "help3 "<< int(j) << std::endl;
                                     j = grid_cspace.size().second - 1;
                                 }
                                 else if(j >= grid_cspace.size().second){
-                                    // std::cout << "help4 "<< j << std::endl;
+                                    // std::cout << "help4 "<< int(j) << std::endl;
                                     j = 0;
                                 }
                                 // if((i >= 0 && j >= 0 && i < grid_cspace.size().first && j < grid_cspace.size().second) && WVArr(i,j) == 0){
@@ -318,6 +331,7 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
                 }
             //3. Make plan based on filled wavefront thing
             //Get lookahead
+            LOG("Filled WF");
             amp::Path2D path;
             Eigen::Vector2d pt(0,0);
             cell = grid_cspace.getCellFromPoint(q_init(0),q_init(1));
@@ -359,7 +373,8 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
                 }
                 if(cell == next){
                     //NO PATH AVAILABLE!
-                    std::cout << "failure! could not find path from " << q_init << " to " << q_goal << std::endl;
+                    LOG("failure! could not find path from " << q_init << " to " << q_goal);
+                    path.waypoints.push_back(q_goal);
                     return path;
                 }
                 // push centerpoint of next cell and move cell to next
@@ -373,6 +388,7 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
 
             }
             // move from centerpoint of goal cell to goal :)
+            LOG("Found a path :)");
             path.waypoints.push_back(q_goal);
             return path;
         }

@@ -98,13 +98,21 @@ class MyWaveFrontAlgorithm: public amp::WaveFrontAlgorithm {
 class MyPointWFAlgo : amp::PointWaveFrontAlgorithm {
     public:
         virtual std::unique_ptr<amp::GridCSpace2D> constructDiscretizedWorkspace(const amp::Environment2D& environment) override {
-            return std::make_unique<MyGridCSpace2D>(1, 1, 0.0, 1.0, 0.0, 1.0);
+            const Eigen::Vector2d mT(0.0, 0.0);
+            const std::vector<double> mTV;
+            MyLinkManipulator mani(mT,mTV);
+            MyGridCSpace2DConstructor cons;
+            std::pair<double, double> x0_bounds(environment.x_min,environment.x_max);
+            std::pair<double, double> x1_bounds(environment.y_min,environment.y_max);
+            cons.getX0_bounds() = x0_bounds;
+            cons.getX1_bounds() = x1_bounds;
+            return cons.construct(mani,environment);
         }
 
         // This is just to get grade to work, you DO NOT need to override this method
-        virtual amp::Path2D plan(const amp::Problem2D& problem) override {
-            return amp::Path2D();
-        }
+        // virtual amp::Path2D plan(const amp::Problem2D& problem) override {
+        //     return amp::Path2D();
+        // }
 
         virtual amp::Path2D planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const amp::GridCSpace2D& grid_cspace) override{
             //0. Create dense array for wave front cell values

@@ -11,12 +11,14 @@ using namespace amp;
 
 int main(int argc, char** argv) {
     amp::RNG::seed(amp::RNG::randiUnbounded());
-    MyManipWFAlgo mani(Eigen::Vector2d(0.0, 0.0),std::vector<double>);
-    Problem2D problem1 = HW2::getWorkspace2();
+    const Problem2D problem1 = HW2::getWorkspace2();
+    MyPointWFAlgo mani1;
+    const std::unique_ptr<amp::GridCSpace2D> grid_cspace1 = mani1.constructDiscretizedWorkspace(problem1);
+    auto path1 = mani1.planInCSpace(problem1.q_init,problem1.q_goal,*grid_cspace1);
     LOG("Problem 1" << "lims: " << problem1.x_min << " , " << problem1.x_max << " , " << problem1.y_min << " , " << problem1.y_max);
     MyGridCSpace2D plot1(50, 50, problem1.x_min, problem1.x_max, problem1.y_min, problem1.y_max);
     Visualizer::makeFigure(problem1);
-    Visualizer::makeFigure(plot1.makeCSpacePoint(problem1));
+    Visualizer::makeFigure(plot1.makeCSpacePoint(problem1),path1);
 
     // LOG("Problem 2");
     // MyGridCSpace2DConstructor cons;

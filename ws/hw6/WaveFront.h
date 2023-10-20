@@ -60,13 +60,10 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
         virtual std::unique_ptr<amp::GridCSpace2D> constructDiscretizedWorkspace(const LinkManipulator2D& manipulator, const amp::Environment2D& env) {
             double cellWidth = 2*M_PI/100;
             double min = 0;
-            double max = 2*M_PI;
+            double max = 2 * M_PI;
             x0lim = x1lim = {min, max};
-            // x1lim = {0, 2*M_PI};
             int cells = static_cast<int>(std::floor((max - min) / cellWidth));
             gridSize = {cells, cells};
-            cout << cells << "\n";
-
             std::unique_ptr<CSpaceConstructor> cSpace = std::make_unique<CSpaceConstructor>(cells, cells, min, max, min, max);
             cSpace->populateGrid(manipulator.getLinkLengths(), env.obstacles);
             return cSpace;

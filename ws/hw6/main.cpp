@@ -6,7 +6,7 @@
 #include "CSpaceConstructor.h"
 #include "MyLinkManipulator.h"
 #include "WaveFront.h"
-
+#include "MyAStar.h"
 #include "HelpfulClass.h"
 
 using namespace amp;
@@ -31,28 +31,28 @@ void problem1b() {
 }
 
 void problem2() {
-    Environment2D env = HW4::getEx3Workspace3();
+    Problem2D problem = HW6::getHW4Problem1();
     MyLinkManipulator manipulator({1, 1});
-    ManipulatorState initState = manipulator.getConfigurationFromIK({-2, 0});
-    ManipulatorState goalState = manipulator.getConfigurationFromIK({2, 0});
+    ManipulatorState initState = manipulator.getConfigurationFromIK(problem.q_init);
+    ManipulatorState goalState = manipulator.getConfigurationFromIK(problem.q_goal);
     MyManipWFAlgo algo;
-    std::unique_ptr<amp::GridCSpace2D> cSpace = algo.constructDiscretizedWorkspace(manipulator, env);
+    std::unique_ptr<amp::GridCSpace2D> cSpace = algo.constructDiscretizedWorkspace(manipulator, problem);
     amp::Path2D path = algo.planInCSpace({initState[0], initState[1]}, {goalState[0], goalState[1]}, *cSpace);
+
     int numStates = path.waypoints.size();
     for (int i = 0; i < numStates; i += numStates/10) {
         Vector2d state = path.waypoints[i];
-        Visualizer::makeFigure(env, manipulator, {state(0), state(1)});
+        Visualizer::makeFigure(problem, manipulator, {state(0), state(1)});
     }
     Visualizer::makeFigure(*cSpace);
 }
 
-// void problem2b() {
-//     Vector2d endEffector(2, 0);
-//     vector<double> linkLengths = {1, 0.5, 1};
-//     MyLinkManipulator manipulator(linkLengths);
-//     ManipulatorState state = manipulator.getConfigurationFromIK(endEffector);
-//     Visualizer::makeFigure(manipulator, state);
-// }
+void problem3() {
+    ShortestPathProblem problem = HW6::getEx3SPP();
+    LookupSearchHeuristic heuristic = HW6::getEx3Heuristic();
+    MyAStarAlgo algo;
+    MyAStarAlgo::GraphSearchResult result = algo.search(problem, heuristic);
+}
 
 // void problem3a() {
 //     Environment2D workspace = HW4::getEx3Workspace1();
@@ -67,7 +67,8 @@ void problem2() {
 int main(int argc, char** argv) {
     // problem1a();
     // problem1b();
-    problem2();
+    // problem2();
+    problem3();
     Visualizer::showFigures();
     return 0;
 }

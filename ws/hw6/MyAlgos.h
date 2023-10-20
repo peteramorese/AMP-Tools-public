@@ -95,7 +95,7 @@ class MyWaveFrontAlgorithm: public amp::WaveFrontAlgorithm {
     };
 
 
-class MyPointWFAlgo : amp::PointWaveFrontAlgorithm {
+class MyPointWFAlgo : public amp::PointWaveFrontAlgorithm {
     public:
         virtual std::unique_ptr<amp::GridCSpace2D> constructDiscretizedWorkspace(const amp::Environment2D& environment) override {
             MyGridCSpace2DConstructor cons;
@@ -113,10 +113,22 @@ class MyPointWFAlgo : amp::PointWaveFrontAlgorithm {
         // }
 
         virtual amp::Path2D planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const amp::GridCSpace2D& grid_cspace) override{
-            //0. Create dense array for wave front cell values
+            //0. Create dense array for wave front cell values and pad obstacles
             std::pair<std::size_t, std::size_t> siz = grid_cspace.size();
             amp::DenseArray2D<int> WVArr(siz.first,siz.second,0);
-            
+            for(int i = 0; i < siz.first; i++){
+                for(int j = 0; j < siz.second; j++){
+                    double x0 = ((grid_cspace.x0Bounds().second - grid_cspace.x0Bounds().first)/siz.first)*(i + 0.5) + grid_cspace.x0Bounds().first;
+                    double x1 = ((grid_cspace.x1Bounds().second - grid_cspace.x1Bounds().first)/siz.second)*(j + 0.5) + grid_cspace.x1Bounds().first;
+                    if(grid_cspace.inCollision(x0,x1)){
+                        if(i != 0){WVArr(i-1,j) = 1;}
+                        if(i != grid_cspace.size().first - 1){WVArr(i+1,j) = 1;}
+                        if(j != 0 ){WVArr(i,j-1) = 1;}
+                        if(j != grid_cspace.size().second - 1){WVArr(i,j+1) = 1;}
+                    }
+                }
+            }
+            WVArr(grid_cspace.getCellFromPoint(q_init(0),q_init(1)).first,grid_cspace.getCellFromPoint(q_init(0),q_init(1)).second) = 0;
             //1. Get cell for q_goal and assign value of 2
             std::pair<std::size_t, std::size_t> cell = grid_cspace.getCellFromPoint(q_goal(0),q_goal(1));
             WVArr(cell.first,cell.second) = 2;
@@ -124,38 +136,47 @@ class MyPointWFAlgo : amp::PointWaveFrontAlgorithm {
             std::queue<std::pair<std::size_t, std::size_t>> Queue;
             //2. Iterate through cells connected to q_goal and not colliding according to GridSpace2D and add 1
             //  Create queue array: Add q_goal initially.
-                Queue.push(cell);
-                while(Queue.size() > 0){
-                    //  a) pop top of queue
-                    cell = Queue.front();
-                    Queue.pop();
-                    //  b) check (i+1,j),(i-1,j),(i,j+1),(i,j-1)
-                    //      i)  if idx collides, set value in dense array to 1
-                    //      ii) else if value in dense array is zero, set value to denseArray(i,j) + 1 and add to back of queue
-                    for(int m = -1; m < 2; m++){
-                        for(int n = -1; n < 2; n++){
-                            if((m == 0 || n == 0) && m != n){
-                                std::size_t i = cell.first + m;
-                                std::size_t j = cell.second + n;
+            Queue.push(cell);
+            while(Queue.size() > 0){
+                //  a) pop top of queue
+                cell = Queue.front();
+                Queue.pop();
+                //  b) check (i+1,j),(i-1,j),(i,j+1),(i,j-1)
+                //      i)  if idx collides, set value in dense array to 1
+                //      ii) else if value in dense array is zero, set value to denseArray(i,j) + 1 and add to back of queue
+                for(int m = -1; m < 2; m++){
+                    for(int n = -1; n < 2; n++){
+                        if((m == 0 || n == 0) && m != n){
+                            std::size_t i = cell.first + m;
+                            std::size_t j = cell.second + n;
 
-                                if((i >= 0 && j >= 0 && i < grid_cspace.size().first && j < grid_cspace.size().second) && WVArr(i,j) == 0){
+                            if((i >= 0 && j >= 0 && i < grid_cspace.size().first && j < grid_cspace.size().second) && WVArr(i,j) == 0){
 
-                                    double x0 = ((grid_cspace.x0Bounds().second - grid_cspace.x0Bounds().first)/siz.first)*(i + 0.5) + grid_cspace.x0Bounds().first;
-                                    double x1 = ((grid_cspace.x1Bounds().second - grid_cspace.x1Bounds().first)/siz.second)*(j + 0.5) + grid_cspace.x1Bounds().first;
-                                    if(grid_cspace.inCollision(x0,x1)){
-                                        WVArr(i,j) = 1;
-                                        std::pair<std::size_t, std::size_t> nbr(i,j);
-                                    }
-                                    else{
-                                        WVArr(i,j) =  WVArr(cell.first,cell.second) + 1;
-                                        std::pair<std::size_t, std::size_t> nbr(i,j);
-                                        Queue.push(nbr);
-                                    }
+                                double x0 = ((grid_cspace.x0Bounds().second - grid_cspace.x0Bounds().first)/siz.first)*(i + 0.5) + grid_cspace.x0Bounds().first;
+                                double x1 = ((grid_cspace.x1Bounds().second - grid_cspace.x1Bounds().first)/siz.second)*(j + 0.5) + grid_cspace.x1Bounds().first;
+                                if(grid_cspace.inCollision(x0,x1)){
+                                    WVArr(i,j) = 1;
+                                    LOG("this grid had an unfound collision!: " << i << " , " << j);
+                                    // if(i != 0 && WVArr(i-1,j) != 0){WVArr(i-1,j) = 1;}
+                                    // if(i != grid_cspace.size().first - 1 && WVArr(i+1,j) != 0){WVArr(i+1,j) = 1;}
+                                    // if(j != 0 && WVArr(i,j-1) != 0){WVArr(i,j-1) = 1;}
+                                    // if(j != grid_cspace.size().second - 1 && WVArr(i,j+1) != 0){WVArr(i,j+1) = 1;}
+                                    
+                                    // std::pair<std::size_t, std::size_t> nbr(i,j);
+                                }
+                                else{
+                                    WVArr(i,j) =  WVArr(cell.first,cell.second) + 1;
+                                    std::pair<std::size_t, std::size_t> nbr(i,j);
+                                    Queue.push(nbr);
                                 }
                             }
                         }
                     }
                 }
+            }
+            
+
+
             //3. Make plan based on filled wavefront thing
             //Get lookahead
             amp::Path2D path;
@@ -172,11 +193,9 @@ class MyPointWFAlgo : amp::PointWaveFrontAlgorithm {
                             std::size_t j = cell.second + n;
 
                             if((i >= 0 && j >= 0 && i < grid_cspace.size().first && j < grid_cspace.size().second)){
-
                                 if((WVArr(i,j) < WVArr(next.first,next.second)) && WVArr(i,j) != 1){
                                     next.first = i;
                                     next.second = j;
-                                    // std::cout << "next: " << next.first << " , " << next.second << " val: " << WVArr(i,j) << std::endl;
                                 }
                             }
                             
@@ -185,7 +204,9 @@ class MyPointWFAlgo : amp::PointWaveFrontAlgorithm {
                 }
                 if(cell == next){
                     //NO PATH AVAILABLE!
-                    std::cout << "failure! could not find path from " << q_init << " to " << q_goal << std::endl;
+                    pt(0) = ((grid_cspace.x0Bounds().second - grid_cspace.x0Bounds().first)/siz.first)*(double(cell.first) + 0.5) + grid_cspace.x0Bounds().first;
+                    pt(1) = ((grid_cspace.x1Bounds().second - grid_cspace.x1Bounds().first)/siz.second)*(double(cell.second) + 0.5) + grid_cspace.x1Bounds().first;
+                    std::cout << "failure! could not find path from " << q_init << " to " << q_goal << " , cell val and center: " << WVArr(next.first,next.second) << " , " << pt << std::endl;
                     return path;
                 }
                 // push centerpoint of next cell and move cell to next
@@ -226,7 +247,18 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
             //0. Create dense array for wave front cell values
             std::pair<std::size_t, std::size_t> siz = grid_cspace.size();
             amp::DenseArray2D<int> WVArr(siz.first,siz.second,0);
-            
+            // for(int i = 0; i < siz.first; i++){
+            //     for(int j = 0; j < siz.second; j++){
+            //         double x0 = ((grid_cspace.x0Bounds().second - grid_cspace.x0Bounds().first)/siz.first)*(i + 0.5) + grid_cspace.x0Bounds().first;
+            //         double x1 = ((grid_cspace.x1Bounds().second - grid_cspace.x1Bounds().first)/siz.second)*(j + 0.5) + grid_cspace.x1Bounds().first;
+            //         if(grid_cspace.inCollision(x0,x1)){
+            //             if(i != 0){WVArr(i-1,j) = 1;}
+            //             if(i != grid_cspace.size().first - 1){WVArr(i+1,j) = 1;}
+            //             if(j != 0 ){WVArr(i,j-1) = 1;}
+            //             if(j != grid_cspace.size().second - 1){WVArr(i,j+1) = 1;}
+            //         }
+            //     }
+            // }
             //1. Get cell for q_goal and assign value of 2
             std::pair<std::size_t, std::size_t> cell = grid_cspace.getCellFromPoint(q_goal(0),q_goal(1));
             WVArr(cell.first,cell.second) = 2;
@@ -273,7 +305,6 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
                                         WVArr(i,j) = 1;
                                         std::pair<std::size_t, std::size_t> nbr(i,j);
                                         // Queue.push(nbr);
-                                        // std::cout << "AAAAAHHHHHH "<< WVArr(i,j) << " i: " << i << " j: " << j << std::endl;
                                     }
                                     else{
                                         WVArr(i,j) =  WVArr(cell.first,cell.second) + 1;
@@ -292,9 +323,6 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
             cell = grid_cspace.getCellFromPoint(q_init(0),q_init(1));
             path.waypoints.push_back(q_init);
             //Push initial point cell centerpoint
-            // pt(0) = ((grid_cspace.x0Bounds().second - grid_cspace.x0Bounds().first)/siz.first)*(double(cell.first) + 0.5) + grid_cspace.x0Bounds().first;
-            // pt(1) = ((grid_cspace.x1Bounds().second - grid_cspace.x1Bounds().first)/siz.second)*(double(cell.second) + 0.5) + grid_cspace.x1Bounds().first;
-            // path.waypoints.push_back(pt);
 
             std::pair<std::size_t, std::size_t> next = cell;
             while(WVArr(cell.first,cell.second) != 2){
@@ -319,12 +347,7 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
                                 // std::cout << "help4 "<< j << std::endl;
                                 j = 0;
                             }
-                            // if((i >= 0 && j >= 0 && i < grid_cspace.size().first && j < grid_cspace.size().second)){
 
-
-
-                            // }
-                            // std::cout << "testing "<< WVArr(i,j) << " i: " << i << " j: " << j << std::endl;
                             if((WVArr(i,j) < WVArr(next.first,next.second)) && WVArr(i,j) != 1){
                                 next.first = i;
                                 next.second = j;

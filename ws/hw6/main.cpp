@@ -11,7 +11,7 @@ using namespace amp;
 
 int main(int argc, char** argv) {
     amp::RNG::seed(amp::RNG::randiUnbounded());
-    // MyManipWFAlgo mani;
+    MyManipWFAlgo mani(Eigen::Vector2d(0.0, 0.0),std::vector<double>);
     Problem2D problem1 = HW2::getWorkspace2();
     LOG("Problem 1" << "lims: " << problem1.x_min << " , " << problem1.x_max << " , " << problem1.y_min << " , " << problem1.y_max);
     MyGridCSpace2D plot1(50, 50, problem1.x_min, problem1.x_max, problem1.y_min, problem1.y_max);

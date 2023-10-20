@@ -90,34 +90,20 @@ class MyGridCSpace2D: public amp::GridCSpace2D{
             for(int i = 0; i < siz.first; i++){
                 for(int j = 0; j < siz.second; j++){
                     state.clear();
-                    double x = ((i + 0.5)*(x0Bounds().second - x0Bounds().first)/siz.first + x0Bounds().first);
-                    double y = ((j + 0.5)*(x1Bounds().second - x1Bounds().first)/siz.second + x1Bounds().first);
-
+                    double x = ((i+0.5)*(x0Bounds().second - x0Bounds().first)/siz.first + x0Bounds().first);
+                    double y = ((j+0.5)*(x1Bounds().second - x1Bounds().first)/siz.second + x1Bounds().first);
                     bool hit = false;
-                    bool out = false;
                     Eigen::Vector2d nextVertex;
                     Eigen::Vector2d currentVertex;
-                    Eigen::Vector2d testVec;
+                    // Point-in Polygon test modified from https://stackoverflow.com/a/34689268, retrieved 10/20/2023
                     for(auto Ob : obs.obstacles){
                         if(!hit){
                             hit = false;
-                            // out = false;
                             int pos = 0;
                             int neg = 0;
                             for(int j = 0; j < Ob.verticesCCW().size(); j++){
-                                // if(!out){
-                                //     nextVertex = Ob.verticesCCW()[(j + 1)%Ob.verticesCCW().size()];
-                                //     currentVertex = Ob.verticesCCW()[j];
-
-                                //     out = (nextVertex(1) - currentVertex(1))*(x - currentVertex(0)) + (-nextVertex(0) + currentVertex(0))*(y - currentVertex(1)) < 0;
-                                //     if(!out){
-                                //         LOG("hm?! " << x << " , " << y << " out: " << out);
-                                //     }
-                                // }
                                 nextVertex = Ob.verticesCCW()[(j + 1)%Ob.verticesCCW().size()];
                                 currentVertex = Ob.verticesCCW()[j];
-                                // LOG()
-                                // var d = (x - x1)*(y2 - y1) - (y - y1)*(x2 - x1);
                                 double d = (x - currentVertex(0))*(nextVertex(1) - currentVertex(1)) - (y - currentVertex(1))*(nextVertex(0) - currentVertex(0));
 
                                 if (d > 0) pos++;
@@ -132,14 +118,8 @@ class MyGridCSpace2D: public amp::GridCSpace2D{
                                 }
 
                             }
-                            // if(!out){
-                            //     hit = true;
-                            // }
-                            // LOG("out: " << out << " x: " << x << " y: " << y << " ob: " <<  Ob.verticesCCW()[0](0) << " , " << Ob.verticesCCW()[0](1));
+
                         }
-                    }
-                    if(hit){
-                        // LOG("I did something right! " << i << " , " << j);
                     }
                     dArr(i,j) =  hit;
                     tempGrid(i,j) = hit;
@@ -170,18 +150,26 @@ class MyGridCSpace2D: public amp::GridCSpace2D{
 class MyGridCSpace2DConstructor: public amp::GridCSpace2DConstructor{
     public:
         virtual std::unique_ptr<amp::GridCSpace2D> construct(const amp::LinkManipulator2D& manipulator, const amp::Environment2D& env) override{
-            std::cout << "constructing..." << std::endl;
+            LOG("constructing manipulator C-space...");
+
             std::unique_ptr<MyGridCSpace2D> ptr(new MyGridCSpace2D(std::ceil((x0_bounds.second - x0_bounds.first)/gridWidth),std::ceil((x1_bounds.second - x1_bounds.first)/gridWidth),x0_bounds.first,x0_bounds.second,x1_bounds.first,x1_bounds.second));
-            if(manipulator.nLinks() != 0){
-                MyLinkManipulator mani(manipulator.getBaseLocation(),manipulator.getLinkLengths());
-                ptr->makeCSpace(mani, env);
-            }
-            else{
-                ptr->makeCSpacePoint(env);
-            }
-            std::cout << "done constructing!" << std::endl;
+            //construct custom class version of manipulator
+            MyLinkManipulator mani(manipulator.getBaseLocation(),manipulator.getLinkLengths());
+            ptr->makeCSpace(mani, env);
+
+            LOG("done constructing!");
             return ptr;
         }
+
+        std::unique_ptr<amp::GridCSpace2D> construct(const amp::Environment2D& env){
+            LOG("constructing point C-space...");
+            std::unique_ptr<MyGridCSpace2D> ptr(new MyGridCSpace2D(std::ceil((x0_bounds.second - x0_bounds.first)/gridWidth),std::ceil((x1_bounds.second - x1_bounds.first)/gridWidth),x0_bounds.first,x0_bounds.second,x1_bounds.first,x1_bounds.second));
+            ptr->makeCSpacePoint(env);
+            
+            LOG("done constructing!");
+            return ptr;
+        }
+        
         double& getGridWidth(){return gridWidth;};
         inline const double& getGridWidth() const {return gridWidth;};
 

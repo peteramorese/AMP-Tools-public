@@ -98,15 +98,13 @@ class MyWaveFrontAlgorithm: public amp::WaveFrontAlgorithm {
 class MyPointWFAlgo : amp::PointWaveFrontAlgorithm {
     public:
         virtual std::unique_ptr<amp::GridCSpace2D> constructDiscretizedWorkspace(const amp::Environment2D& environment) override {
-            const Eigen::Vector2d mT(0.0, 0.0);
-            const std::vector<double> mTV;
-            MyLinkManipulator mani(mT,mTV);
             MyGridCSpace2DConstructor cons;
             std::pair<double, double> x0_bounds(environment.x_min,environment.x_max);
             std::pair<double, double> x1_bounds(environment.y_min,environment.y_max);
+            cons.getGridWidth() = 0.25;
             cons.getX0_bounds() = x0_bounds;
             cons.getX1_bounds() = x1_bounds;
-            return cons.construct(mani,environment);
+            return cons.construct(environment);
         }
 
         // This is just to get grade to work, you DO NOT need to override this method

@@ -32,7 +32,11 @@ amp::Path2D MyPointWFAlgo::planInCSpace(const Eigen::Vector2d& q_init, const Eig
     }
     MyNode finalCell = cellQueue.back();
     cout << "Break at " << step << " steps\n";
-    return findPath(finalCell, waveGrid);
+    amp::Path2D path;
+    path.waypoints.push_back(q_init);
+    findPath(finalCell, waveGrid, path);
+    path.waypoints.push_back(q_goal);
+    return path;
 }
 
 void MyPointWFAlgo::extendWave(const MyNode& cell, DenseArray2D<MyNode>& waveGrid) {
@@ -60,9 +64,8 @@ void MyPointWFAlgo::extendWave(const MyNode& cell, DenseArray2D<MyNode>& waveGri
     }
 }
 
-amp::Path2D MyPointWFAlgo::findPath(const MyNode& finalCell, const DenseArray2D<MyNode>& waveGrid) {
+void MyPointWFAlgo::findPath(const MyNode& finalCell, const DenseArray2D<MyNode>& waveGrid, Path2D& path) {
     cout << "\nRetracing path\n";
-    amp::Path2D path;
     MyNode currCell = finalCell;
     auto[i, j] = currCell.ind;
     int ind = 0;
@@ -78,7 +81,6 @@ amp::Path2D MyPointWFAlgo::findPath(const MyNode& finalCell, const DenseArray2D<
     }
     path.waypoints.push_back(getPointFromCell({i, j}));
     cout << "Path length: " << ind << "\n";
-    return path;
 }
 
 void MyPointWFAlgo::defineObstacles(const amp::GridCSpace2D& grid_cspace, DenseArray2D<MyNode>& waveGrid) {
@@ -137,7 +139,11 @@ amp::Path2D MyManipWFAlgo::planInCSpace(const Eigen::Vector2d& q_init, const Eig
     }
     MyNode finalCell = cellQueue.back();
     cout << "Break at " << step << " steps\n";
-    return findPath(finalCell, waveGrid);
+    amp::Path2D path;
+    path.waypoints.push_back(q_init);
+    findPath(finalCell, waveGrid, path);
+    path.waypoints.push_back(q_goal);
+    return path;
 }
 
 void MyManipWFAlgo::defineObstacles(const amp::GridCSpace2D& grid_cspace, DenseArray2D<MyNode>& waveGrid) {
@@ -189,9 +195,8 @@ void MyManipWFAlgo::extendWave(const MyNode& cell, DenseArray2D<MyNode>& waveGri
     }
 }
 
-amp::Path2D MyManipWFAlgo::findPath(const MyNode& finalCell, const DenseArray2D<MyNode>& waveGrid) {
+void MyManipWFAlgo::findPath(const MyNode& finalCell, const DenseArray2D<MyNode>& waveGrid, amp::Path2D& path) {
     cout << "\nRetracing path\n";
-    amp::Path2D path;
     MyNode currCell = finalCell;
     auto[i, j] = currCell.ind;
     int ind = 0;
@@ -207,7 +212,6 @@ amp::Path2D MyManipWFAlgo::findPath(const MyNode& finalCell, const DenseArray2D<
     }
     path.waypoints.push_back(getPointFromCell({i, j}));
     cout << "Path length: " << ind << "\n";
-    return path;
 }
 
 Vector2d MyManipWFAlgo::getPointFromCell(const std::pair<int, int>& cell) {

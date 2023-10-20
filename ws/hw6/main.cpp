@@ -17,7 +17,8 @@ void problem1a() {
     MyPointWFAlgo algo;
     std::unique_ptr<amp::GridCSpace2D> cSpace = algo.constructDiscretizedWorkspace(problem);
     amp::Path2D path = algo.planInCSpace(problem.q_init, problem.q_goal, *cSpace);
-    Visualizer::makeFigure(*cSpace);
+    cout << path.length() << " = Path length\n";
+    // Visualizer::makeFigure(*cSpace);
     Visualizer::makeFigure(problem, path);
 }
 
@@ -26,7 +27,8 @@ void problem1b() {
     MyPointWFAlgo algo;
     std::unique_ptr<amp::GridCSpace2D> cSpace = algo.constructDiscretizedWorkspace(problem);
     amp::Path2D path = algo.planInCSpace(problem.q_init, problem.q_goal, *cSpace);
-    Visualizer::makeFigure(*cSpace);
+    cout << path.length() << "Path length\n";
+    // Visualizer::makeFigure(*cSpace);
     Visualizer::makeFigure(problem, path);
 }
 
@@ -47,10 +49,17 @@ void problem2() {
     Visualizer::makeFigure(*cSpace);
 }
 
-void problem3() {
+void problem3a() {
     ShortestPathProblem problem = HW6::getEx3SPP();
     LookupSearchHeuristic heuristic = HW6::getEx3Heuristic();
-    MyAStarAlgo algo;
+    MyAStarAlgo algo(false);
+    MyAStarAlgo::GraphSearchResult result = algo.search(problem, heuristic);
+}
+
+void problem3b() {
+    ShortestPathProblem problem = HW6::getEx3SPP();
+    LookupSearchHeuristic heuristic;
+    MyAStarAlgo algo(true);
     MyAStarAlgo::GraphSearchResult result = algo.search(problem, heuristic);
 }
 
@@ -67,8 +76,9 @@ void problem3() {
 int main(int argc, char** argv) {
     // problem1a();
     // problem1b();
-    // problem2();
-    problem3();
-    Visualizer::showFigures();
+    problem2();
+    // problem3a();
+    // problem3b();
+    // Visualizer::showFigures();
     return 0;
 }

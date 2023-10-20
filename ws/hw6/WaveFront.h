@@ -31,7 +31,7 @@ class MyPointWFAlgo : public amp::PointWaveFrontAlgorithm {
         // You need to implement here
         virtual amp::Path2D planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const GridCSpace2D& grid_cspace) override;
         void extendWave(const MyNode& cell, DenseArray2D<MyNode>& waveGrid);
-        amp::Path2D findPath(const MyNode& finalCell, const DenseArray2D<MyNode>& waveGrid);
+        void findPath(const MyNode& finalCell, const DenseArray2D<MyNode>& waveGrid, amp::Path2D& path);
         void defineObstacles(const amp::GridCSpace2D& grid_cspace, DenseArray2D<MyNode>& waveGrid);
         Vector2d getPointFromCell(const std::pair<int, int>& cell);
 
@@ -77,7 +77,7 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
         // You need to implement here
         virtual amp::Path2D planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const GridCSpace2D& grid_cspace) override;
         void extendWave(const MyNode& cell, DenseArray2D<MyNode>& waveGrid);
-        amp::Path2D findPath(const MyNode& finalCell, const DenseArray2D<MyNode>& waveGrid);
+        void findPath(const MyNode& finalCell, const DenseArray2D<MyNode>& waveGrid, amp::Path2D& path);
         void defineObstacles(const amp::GridCSpace2D& grid_cspace, DenseArray2D<MyNode>& waveGrid);
         Vector2d getPointFromCell(const std::pair<int, int>& cell);
     private:

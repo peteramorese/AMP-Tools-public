@@ -12,9 +12,12 @@ struct ANode {
 
 class MyAStarAlgo : public amp::AStar {
     public:
+        MyAStarAlgo(bool isDijkstra) 
+        : isDijkstra(isDijkstra) {}
         virtual GraphSearchResult search(const amp::ShortestPathProblem& problem, const amp::SearchHeuristic& heuristic) override;
         static bool compareCost(const ANode& a, const ANode& b);
     private:
         Node init;
         Node goal;
+        bool isDijkstra;
 };

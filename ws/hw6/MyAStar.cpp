@@ -10,7 +10,7 @@ MyAStarAlgo::GraphSearchResult MyAStarAlgo::search(const amp::ShortestPathProble
         currNode.ind = init;
         std::list<ANode> queue = {currNode};
         std::map<uint32_t, ANode> processed;
-        problem.graph->print();
+        // problem.graph->print();
         int steps = 0;
         vector<uint32_t> childern;
         vector<double> edges;
@@ -30,9 +30,10 @@ MyAStarAlgo::GraphSearchResult MyAStarAlgo::search(const amp::ShortestPathProble
             childern = problem.graph->children(currNode.ind);
             edges = problem.graph->outgoingEdges(currNode.ind);
             for (int i = 0; i < edges.size(); ++i) {
+                double h = (isDijkstra) ? 0 : heuristic(childern[i]) ;
                 queue.push_back({childern[i], currNode.ind, currNode.cost + edges[i], 
-                                 currNode.cost + edges[i] + heuristic(childern[i])});
-                cout << "Added node " << childern[i] << " with cost " << currNode.cost + edges[i] << "\n";
+                                 currNode.cost + edges[i] + h});
+                // cout << "Added node " << childern[i] << " with cost " << currNode.cost + edges[i] << "\n";
             }
             if (queue.empty()) {
                 success = false;
@@ -48,10 +49,11 @@ MyAStarAlgo::GraphSearchResult MyAStarAlgo::search(const amp::ShortestPathProble
         std::list<uint32_t> path;
         uint32_t node = currNode.ind;
         while (node != init ) {
+            cout << node << " added to path\n";
             path.push_front(node);
             node = processed[node].parent;
-            cout << node << " added to path\n";
         }
+        path.push_front(init);
         GraphSearchResult result = {success, path, currNode.cost};
         cout << "\nValid path: " << success << "\nPath length: " << path.size() 
              << "\nPath cost: " << result.path_cost << "\nIterations: " << steps << "\n";

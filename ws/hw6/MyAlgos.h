@@ -200,9 +200,9 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
             cell = grid_cspace.getCellFromPoint(q_init(0),q_init(1));
             path.waypoints.push_back(q_init);
             //Push initial point cell centerpoint
-            pt(0) = ((grid_cspace.x0Bounds().second - grid_cspace.x0Bounds().first)/siz.first)*(double(cell.first) + 0.5) + grid_cspace.x0Bounds().first;
-            pt(1) = ((grid_cspace.x1Bounds().second - grid_cspace.x1Bounds().first)/siz.second)*(double(cell.second) + 0.5) + grid_cspace.x1Bounds().first;
-            path.waypoints.push_back(pt);
+            // pt(0) = ((grid_cspace.x0Bounds().second - grid_cspace.x0Bounds().first)/siz.first)*(double(cell.first) + 0.5) + grid_cspace.x0Bounds().first;
+            // pt(1) = ((grid_cspace.x1Bounds().second - grid_cspace.x1Bounds().first)/siz.second)*(double(cell.second) + 0.5) + grid_cspace.x1Bounds().first;
+            // path.waypoints.push_back(pt);
 
             std::pair<std::size_t, std::size_t> next = cell;
             while(WVArr(cell.first,cell.second) != 2){
@@ -251,7 +251,10 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
                 cell = next;
                 pt(0) = ((grid_cspace.x0Bounds().second - grid_cspace.x0Bounds().first)/siz.first)*(double(cell.first) + 0.5) + grid_cspace.x0Bounds().first;
                 pt(1) = ((grid_cspace.x1Bounds().second - grid_cspace.x1Bounds().first)/siz.second)*(double(cell.second) + 0.5) + grid_cspace.x1Bounds().first;
-                path.waypoints.push_back(pt);
+                
+                if(WVArr(cell.first,cell.second) != 2){
+                    path.waypoints.push_back(pt);
+                }
 
             }
             // move from centerpoint of goal cell to goal :)

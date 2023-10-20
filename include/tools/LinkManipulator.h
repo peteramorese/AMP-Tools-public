@@ -10,7 +10,7 @@ namespace amp {
 
 /// @brief Vector of angles (radians) for each joint. The size of the vector should match the 
 /// number of links (and hence joints) of the manipulator
-using ManipulatorState = std::vector<double>;
+using ManipulatorState = Eigen::VectorXd;
 /// @brief For the specific 2-link case, use Eigen::Vector2d to make it consistent with other 2D planning problems
 using ManipulatorState2Link = Eigen::Vector2d;
 

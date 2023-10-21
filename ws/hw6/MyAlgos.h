@@ -403,6 +403,7 @@ class MyAStarAlgo : public amp::AStar {
         struct NodeStr{
             Node idx;
             Node back;
+            Node ord;
             double cost;
             NodeStr(Node i, Node b, double c){
                 idx = i;
@@ -411,21 +412,21 @@ class MyAStarAlgo : public amp::AStar {
             }
         };
 
-        bool inC(const std::vector<NodeStr>& C, Node idx){
-                // Check if node is in closed list
-                for(auto c : C){
-                    if(c.idx == idx){
-                        return true;
-                    }
+        int inC(const std::vector<NodeStr>& C, Node idx){
+            // Check if node is in closed list
+            for(int j = 0; j < C.size(); j++){
+                if(C[j].idx == idx){
+                    return j;
                 }
-                return false;
             }
+            return -1;
+        }
 
         int inO(const std::vector<NodeStr>& O, Node idx){
             // return index in O if node is in priority queue, or return -1 if node is not
-            for(auto o : O){
-                if(o.idx == idx){
-                    return o.idx;
+            for(int j = 0; j < O.size(); j++){
+                if(O[j].idx == idx){
+                    return j;
                 }
             }
             return -1;
@@ -437,37 +438,52 @@ class MyAStarAlgo : public amp::AStar {
             }
         };
 
+        struct orderNodeStr{
+            bool operator()(const NodeStr& a,const NodeStr& b) const{
+                return a.ord < b.ord;
+            }
+        };
+
         virtual GraphSearchResult search(const amp::ShortestPathProblem& problem, const amp::SearchHeuristic& heuristic) override {
 
             std::vector<NodeStr> O; //Priority Queue
             std::vector<NodeStr> C; //Processed Nodes
-            problem.graph;
-            problem.init_node;
-            problem.goal_node;
+            GraphSearchResult GSR = GraphSearchResult();
             NodeStr nBest(problem.init_node,problem.init_node,heuristic(problem.init_node));
             O.push_back(nBest);
             while(O.size() > 0){
                 // get smallest distance node
-                std::pop_heap(O.begin(),O.end(),compNodeStr());
+                std::pop_heap(O.begin(), O.end(), compNodeStr());
                 nBest = O.back();
                 O.pop_back();
                 C.push_back(nBest);
-                // add neighbors to queue
-                for(int j = 0; j < problem.graph->children(nBest.idx).size(); j++){
-                    if(!inC(C,problem.graph->children(nBest.idx)[j])){
-                        Node nbrIdx = problem.graph->children(nBest.idx)[j];
-                        double edge = problem.graph->outgoingEdges(nBest.idx)[j];
-                        NodeStr nbr(nbrIdx, nBest.idx, nBest.cost + edge + heuristic(nbrIdx) - heuristic(nBest.idx));
-                        int oIdx = inO(O, nbr.idx);
-                        if(oIdx == -1){
-                            O.push_back(nbr);
-                            std::push_heap(O.begin(),O.end(),compNodeStr());
-                        }
-                        else if(nbr.cost < O[oIdx].cost){
-                            O[oIdx] = nbr;
-                            std::make_heap(O.begin(),O.end(),compNodeStr());
+                if(nBest.idx != problem.goal_node){
+                    // add neighbors to queue
+                    for(int j = 0; j < problem.graph->children(nBest.idx).size(); j++){
+                        if(inC(C,problem.graph->children(nBest.idx)[j]) == -1){
+                            Node nbrIdx = problem.graph->children(nBest.idx)[j];
+                            double edge = problem.graph->outgoingEdges(nBest.idx)[j];
+                            NodeStr nbr(nbrIdx, nBest.idx, nBest.cost + edge + heuristic(nbrIdx) - heuristic(nBest.idx));
+                            int oIdx = inO(O, nbr.idx);
+                            if(oIdx == -1){
+                                O.push_back(nbr);
+                                std::push_heap(O.begin(), O.end(), compNodeStr());
+                            }
+                            else if(nbr.cost < O[oIdx].cost){
+                                O[oIdx] = nbr;
+                                std::make_heap(O.begin(), O.end(), compNodeStr());
+                            }
                         }
                     }
+                }
+                else{
+                    O.clear();
+                    while(nBest.idx != problem.init_node){
+                        GSR.node_path.push_front(nBest.idx);
+                        GSR.path_cost += nBest.cost - heuristic(nBest.idx);
+                        nBest = C[inC(C,nBest.back)];
+                    }
+                    GSR.success = true;
                 }
 
 

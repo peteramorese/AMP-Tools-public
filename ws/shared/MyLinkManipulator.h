@@ -71,10 +71,27 @@ class MyLinkManipulator: public amp::LinkManipulator2D{
                     {
                         //check that end effector is within reachable band of 2-link arm
                         if(diffVec.norm() >= abs(getLinkLengths()[1] - getLinkLengths()[0])){
-                            double theta2 = acos((std::pow(end_effector_location.norm(),2) - (std::pow(getLinkLengths()[0],2) + std::pow(getLinkLengths()[1],2)))
-                                /(2*getLinkLengths()[0]*getLinkLengths()[1]));
-                            double theta1 = acos((end_effector_location[0]*(getLinkLengths()[0] + getLinkLengths()[1]*cos(theta2))
-                                + end_effector_location[1]*getLinkLengths()[1]*sin(theta2))/std::pow(end_effector_location.norm(),2));
+                            // double theta2 = acos((std::pow(end_effector_location.norm(),2) - (std::pow(getLinkLengths()[0],2) + std::pow(getLinkLengths()[1],2)))
+                            //     /(2*getLinkLengths()[0]*getLinkLengths()[1]));
+                            // double theta1 = acos((end_effector_location[0]*(getLinkLengths()[0] + getLinkLengths()[1]*cos(theta2))
+                            //     + end_effector_location[1]*getLinkLengths()[1]*sin(theta2))/std::pow(end_effector_location.norm(),2));
+
+                            double inputC = (std::pow(end_effector_location.norm(),2) - (std::pow(getLinkLengths()[0],2) + std::pow(getLinkLengths()[1],2)))
+                            /(2*getLinkLengths()[0]*getLinkLengths()[1]);
+                        
+                            double check = 1-std::pow(inputC,2);
+                            if(check < 1e-10){
+                                check = 0;
+                            }
+                            double inputS = sqrt(check);
+                            double theta2 = atan2(inputS,inputC);
+                            inputC = (end_effector_location[0]*(getLinkLengths()[0] + getLinkLengths()[1]*cos(theta2))
+                                + end_effector_location[1]*getLinkLengths()[1]*sin(theta2))/std::pow(end_effector_location.norm(),2);
+                            inputS = (end_effector_location[1]*(getLinkLengths()[0] + getLinkLengths()[1]*cos(theta2))
+                                - end_effector_location[0]*getLinkLengths()[1]*sin(theta2))/std::pow(end_effector_location.norm(),2);
+                            double theta1 = atan2(inputS,inputC);
+
+
                             state.push_back(theta1);
                             state.push_back(theta2);
                         }

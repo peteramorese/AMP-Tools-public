@@ -12,42 +12,42 @@ using namespace amp;
 int main(int argc, char** argv) {
     amp::RNG::seed(amp::RNG::randiUnbounded());
 
-    LOG("Problem 1");
-    {
-        const Problem2D problem1 = HW2::getWorkspace1();
-        MyPointWFAlgo wf1;
-        const std::unique_ptr<amp::GridCSpace2D> grid_cspace1 = wf1.constructDiscretizedWorkspace(problem1);
-        auto path1 = wf1.planInCSpace(problem1.q_init,problem1.q_goal,*grid_cspace1);    
-        Visualizer::makeFigure(problem1,path1);
-        HW6::checkPointAgentPlan(path1,problem1);
-        LOG("path length: " << path1.length());
-        // MyGridCSpace2D plot1(std::ceil((problem1.x_max - problem1.x_min)/0.25),std::ceil((problem1.y_max - problem1.y_min)/0.25),problem1.x_min,problem1.x_max,problem1.y_min,problem1.y_max);
-        // Visualizer::makeFigure(plot1.makeCSpacePoint(problem1),path1);
-        const Problem2D problem2 = HW2::getWorkspace2();
-        // MyPointWFAlgo wf1;
-        const std::unique_ptr<amp::GridCSpace2D> grid_cspace2 = wf1.constructDiscretizedWorkspace(problem2);
-        auto path2 = wf1.planInCSpace(problem2.q_init,problem2.q_goal,*grid_cspace2);    
-        Visualizer::makeFigure(problem2,path2);
-        HW6::checkPointAgentPlan(path2,problem2);
-        LOG("path length: " << path2.length());
-        {
-            bool random_trial_success = true;
-            // while(random_trial_success){
-                amp::Path2D path; // Make empty path, problem, and collision points, as they will be created by generateAndCheck()
-                amp::Problem2D random_prob; 
-                std::vector<Eigen::Vector2d> collision_points;
+    // LOG("Problem 1");
+    // {
+    //     const Problem2D problem1 = HW2::getWorkspace1();
+    //     MyPointWFAlgo wf1;
+    //     const std::unique_ptr<amp::GridCSpace2D> grid_cspace1 = wf1.constructDiscretizedWorkspace(problem1);
+    //     auto path1 = wf1.planInCSpace(problem1.q_init,problem1.q_goal,*grid_cspace1);    
+    //     Visualizer::makeFigure(problem1,path1);
+    //     HW6::checkPointAgentPlan(path1,problem1);
+    //     LOG("path length: " << path1.length());
+    //     // MyGridCSpace2D plot1(std::ceil((problem1.x_max - problem1.x_min)/0.25),std::ceil((problem1.y_max - problem1.y_min)/0.25),problem1.x_min,problem1.x_max,problem1.y_min,problem1.y_max);
+    //     // Visualizer::makeFigure(plot1.makeCSpacePoint(problem1),path1);
+    //     const Problem2D problem2 = HW2::getWorkspace2();
+    //     // MyPointWFAlgo wf1;
+    //     const std::unique_ptr<amp::GridCSpace2D> grid_cspace2 = wf1.constructDiscretizedWorkspace(problem2);
+    //     auto path2 = wf1.planInCSpace(problem2.q_init,problem2.q_goal,*grid_cspace2);    
+    //     Visualizer::makeFigure(problem2,path2);
+    //     HW6::checkPointAgentPlan(path2,problem2);
+    //     LOG("path length: " << path2.length());
+    //     {
+    //         bool random_trial_success = true;
+    //         // while(random_trial_success){
+    //             amp::Path2D path; // Make empty path, problem, and collision points, as they will be created by generateAndCheck()
+    //             amp::Problem2D random_prob; 
+    //             std::vector<Eigen::Vector2d> collision_points;
                 
-                random_trial_success = HW6::generateAndCheck(wf1, path, random_prob, collision_points);
-                // LOG("Found valid solution in random environment: " << (random_trial_success ? "Yes!" : "No :("));
-                LOG("path length: " << path.length());
+    //             random_trial_success = HW6::generateAndCheck(wf1, path, random_prob, collision_points);
+    //             // LOG("Found valid solution in random environment: " << (random_trial_success ? "Yes!" : "No :("));
+    //             LOG("path length: " << path.length());
 
-                // Visualize the path environment, and any collision points with obstacles
-                // if(!random_trial_success){
-                    Visualizer::makeFigure(random_prob, path, collision_points);
-                // }
-            // }
-        }
-    }
+    //             // Visualize the path environment, and any collision points with obstacles
+    //             // if(!random_trial_success){
+    //                 Visualizer::makeFigure(random_prob, path, collision_points);
+    //             // }
+    //         // }
+    //     }
+    // }
 
     LOG("Problem 2");
     {
@@ -55,7 +55,7 @@ int main(int argc, char** argv) {
         cons.getGridWidth() = 0.25;
         MyManipWFAlgo wf2(cons);
         MyLinkManipulator mani;
-        const amp::Problem2D problem2 = HW6::getHW4Problem3();
+        const amp::Problem2D problem2 = HW6::getHW4Problem1();
         auto path = wf2.plan(mani,problem2);
         MyGridCSpace2D plotEnv3(std::ceil((cons.getX0_bounds().second - cons.getX0_bounds().first)/cons.getGridWidth()),std::ceil((cons.getX1_bounds().second - cons.getX1_bounds().first)/cons.getGridWidth()),cons.getX0_bounds().first,cons.getX0_bounds().second,cons.getX1_bounds().first,cons.getX1_bounds().second);
         Visualizer::makeFigure(plotEnv3.makeCSpace(mani,problem2),path);
@@ -66,33 +66,39 @@ int main(int argc, char** argv) {
         Visualizer::makeFigure(problem2,mani,path);
         HW6::checkLinkManipulatorPlan(path,mani,problem2);
         LOG("path length: " << path.length());
-        {
-            // bool random_trial_success = true;
-            // while(random_trial_success){
-            //     amp::Path2D path; // Make empty path, problem, and collision points, as they will be created by generateAndCheck()
-            //     amp::Problem2D random_prob; 
-            //     std::vector<Eigen::Vector2d> collision_points;
-            //     MyLinkManipulator mani;
-            //     MyGridCSpace2DConstructor consR;
-            //     cons.getGridWidth() = 0.05;
-            //     MyManipWFAlgo wfr(consR);
-            //     random_trial_success = HW6::generateAndCheck(wfr,mani,path,random_prob,collision_points);
-            //     LOG("Found valid solution in random environment: " << (random_trial_success ? "Yes!" : "No :("));
-            //     LOG("path length: " << path.length());
+        // {
+        //     bool random_trial_success = true;
+        //     while(random_trial_success){
+        //         amp::Path2D path; // Make empty path, problem, and collision points, as they will be created by generateAndCheck()
+        //         amp::Problem2D random_prob; 
+        //         std::vector<Eigen::Vector2d> collision_points;
+        //         MyLinkManipulator mani;
+        //         MyGridCSpace2DConstructor consR;
+        //         consR.getGridWidth() = 0.25;
+        //         MyManipWFAlgo wfr(consR);
+        //         random_trial_success = HW6::generateAndCheck(wfr,mani,path,random_prob,collision_points);
+        //         LOG("Found valid solution in random environment: " << (random_trial_success ? "Yes!" : "No :("));
+        //         LOG("path length: " << path.length());
 
-            //     // Visualize the path environment, and any collision points with obstacles
-            //     // if(random_trial_success){
-            //         MyGridCSpace2D plotEnv3(std::ceil((consR.getX0_bounds().second - consR.getX0_bounds().first)/consR.getGridWidth()),std::ceil((consR.getX1_bounds().second - consR.getX1_bounds().first)/consR.getGridWidth()),consR.getX0_bounds().first,consR.getX0_bounds().second,consR.getX1_bounds().first,consR.getX1_bounds().second);
-            //         Visualizer::makeFigure(plotEnv3.makeCSpace(mani,random_prob),path);
-            //     // }
-            // }
-        }
+        //         // Visualize the path environment, and any collision points with obstacles
+        //         if(!random_trial_success){
+        //             MyGridCSpace2D plotEnv3(std::ceil((consR.getX0_bounds().second - consR.getX0_bounds().first)/consR.getGridWidth()),std::ceil((consR.getX1_bounds().second - consR.getX1_bounds().first)/consR.getGridWidth()),consR.getX0_bounds().first,consR.getX0_bounds().second,consR.getX1_bounds().first,consR.getX1_bounds().second);
+        //             Visualizer::makeFigure(plotEnv3.makeCSpace(mani,random_prob),path);
+        //             Eigen::Vector2d lowerB(consR.getX0_bounds().first,consR.getX1_bounds().first);
+        //             Eigen::Vector2d upperB(consR.getX0_bounds().second,consR.getX1_bounds().second);
+        //             unwrapPath(path,lowerB,upperB);
+        //             Visualizer::makeFigure(random_prob,mani,path);
+        //             // HW6::checkLinkManipulatorPlan(path,mani,problem2);
+        //             // LOG("path length: " << path.length());
+        //         }
+        //     }
+        // }
     }
 
-    LOG("Problem 3");
+    // LOG("Problem 3");
     
     MyAStarAlgo Astar;
-    HW6::checkGraphSearchResult(Astar.search(HW6::getEx3SPP(),HW6::getEx3Heuristic()),HW6::getEx3SPP(),HW6::getEx3Heuristic());
+    // HW6::checkGraphSearchResult(Astar.search(HW6::getEx3SPP(),HW6::getEx3Heuristic()),HW6::getEx3SPP(),HW6::getEx3Heuristic());
 
 
     const Problem2D problem1 = HW2::getWorkspace1();
@@ -101,8 +107,8 @@ int main(int argc, char** argv) {
     MyGridCSpace2DConstructor cons;
     cons.getGridWidth() = 0.25;
     MyManipWFAlgo wf2(cons);
-    
+
     Visualizer::showFigures();
-    amp::HW6::grade(wf1, wf2, Astar, "collin.hudson@colorado.edu", argc, argv);
+    // amp::HW6::grade(wf1, wf2, Astar, "collin.hudson@colorado.edu", argc, argv);
     return 0;
 }

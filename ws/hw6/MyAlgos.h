@@ -5,6 +5,7 @@
 #include <Eigen/LU>
 #include <queue>
 #include <algorithm>
+#include <cmath>
 #include "MyConfigurationSpace.h"
 
 using Node = uint32_t;
@@ -264,22 +265,52 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
             //     }
             // }
             //1. Get cell for q_goal and assign value of 2
-            std::pair<std::size_t, std::size_t> cell = grid_cspace.getCellFromPoint(q_goal(0),q_goal(1));
-            if(int(cell.first) < 0){
-                cell.first = grid_cspace.size().first - 1;
+            std::pair<std::size_t, std::size_t> cell;
+            Eigen::Vector2d goalWrap(q_goal(0),q_goal(1));
+            if(q_goal(0) < 0){
+                goalWrap(0) = q_goal(0) + 2*M_PI;
             }
-            else if(cell.first >= grid_cspace.size().first){
-                cell.first = 0;
+            else if(q_goal(0) > 2*M_PI){
+                goalWrap(0) = q_goal(0) - 2*M_PI;
             }
-            if(int(cell.second) < 0){
-                cell.second = grid_cspace.size().second - 1;
+            if(q_goal(1) < 0){
+                goalWrap(1) = q_goal(1) + 2*M_PI;
             }
-            else if(cell.second >= grid_cspace.size().second){
-                cell.second = 0;
+            else if(q_goal(1) > 2*M_PI){
+                goalWrap(1) = q_goal(1) - 2*M_PI;
+            }
+
+            Eigen::Vector2d initWrap(q_init(0),q_init(1));
+            if(q_init(0) < 0){
+                initWrap(0) = q_init(0) + 2*M_PI;
+            }
+            else if(q_init(0) > 2*M_PI){
+                initWrap(0) = q_init(0) - 2*M_PI;
+            }
+            if(q_init(1) < 0){
+                initWrap(1) = q_init(1) + 2*M_PI;
+            }
+            else if(q_init(1) > 2*M_PI){
+                initWrap(1) = q_init(1) - 2*M_PI;
             }
             
+            cell = grid_cspace.getCellFromPoint(goalWrap(0),goalWrap(1));
+            // std::cout << "cell.first " << int(cell.first) << " cell.second " << int(cell.second) << std::endl;
+            // if(int(cell.first) < 0){
+            //     cell.first = grid_cspace.size().first - 1;
+            // }
+            // else if(cell.first >= grid_cspace.size().first){
+            //     cell.first = 0;
+            // }
+            // if(int(cell.second) < 0){
+            //     cell.second = grid_cspace.size().second - 1;
+            // }
+            // else if(cell.second >= grid_cspace.size().second){
+            //     cell.second = 0;
+            // }
+            
             WVArr(cell.first,cell.second) = 2;
-            // std::cout << "cell.first " << cell.first << " cell.second " << cell.second << std::endl;
+            // std::cout << "goal cell.first " << cell.first << " cell.second " << cell.second << std::endl;
             std::queue<std::pair<std::size_t, std::size_t>> Queue;
             //2. Iterate through cells connected to q_goal and not colliding according to GridSpace2D and add 1
             //  Create queue array: Add q_goal initially.
@@ -297,6 +328,7 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
                                 std::size_t i = cell.first + m;
                                 std::size_t j = cell.second + n;
                                 // std::cout << "cell.first " << cell.first << " + " << m << " = " << i << std::endl;
+                                // std::cout << "cell.second " << cell.second << " + " << n << " = " << j << std::endl;
                                 if(m < 0 && cell.first == 0){
                                     // std::cout << "help1 "<< int(i) << std::endl;
                                     i = grid_cspace.size().first - 1;
@@ -338,10 +370,18 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
             // LOG("Filled WF");
             amp::Path2D path;
             Eigen::Vector2d pt(0,0);
-            cell = grid_cspace.getCellFromPoint(q_init(0),q_init(1));
-            path.waypoints.push_back(q_init);
+            cell = grid_cspace.getCellFromPoint(initWrap(0),initWrap(1));
+            // std::cout << "init cell.first " << cell.first << " cell.second " << cell.second << std::endl;
+            // LOG("WVArr(cell.first,cell.second): " << WVArr(cell.first,cell.second));
+            // if(WVArr(cell.first,cell.second) < 2){
+            //     initWrap(0) = 2*M_PI - initWrap(0);
+            //     initWrap(1) = 2*M_PI - initWrap(1);
+            //     cell = grid_cspace.getCellFromPoint(initWrap(0),initWrap(1));
+            //     std::cout << "NEW!!! init cell.first " << cell.first << " cell.second " << cell.second << std::endl;
+            //     cell = grid_cspace.getCellFromPoint(2*M_PI - initWrap(0),2*M_PI - initWrap(1));
+            // }
+            path.waypoints.push_back(initWrap);
             //Push initial point cell centerpoint
-
             std::pair<std::size_t, std::size_t> next = cell;
             while(WVArr(cell.first,cell.second) != 2){
                 for(int m = -1; m < 2; m++){
@@ -377,15 +417,17 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
                 }
                 if(cell == next){
                     //NO PATH AVAILABLE!
-                    LOG("failure! could not find path from " << q_init << " to " << q_goal);
-                    path.waypoints.push_back(q_goal);
+                    LOG("failure! could not find path from " << q_init << " to " << q_goal << " Cell: (" << cell.first << " , " << cell.second << ") cost " << WVArr(cell.first,cell.second));
+                    LOG("init point: " << initWrap << " compared to " << q_init);
+                    LOG("final point: " << goalWrap << " compared to " << q_goal);
+                    path.waypoints.push_back(goalWrap);
                     return path;
                 }
                 // push centerpoint of next cell and move cell to next
                 cell = next;
                 pt(0) = ((grid_cspace.x0Bounds().second - grid_cspace.x0Bounds().first)/siz.first)*(double(cell.first) + 0.5) + grid_cspace.x0Bounds().first;
                 pt(1) = ((grid_cspace.x1Bounds().second - grid_cspace.x1Bounds().first)/siz.second)*(double(cell.second) + 0.5) + grid_cspace.x1Bounds().first;
-                
+                // std::cout << "adding: init cell.first " << cell.first << " cell.second " << cell.second << " -> (" << pt(0) << "," << pt(0) << ")" << std::endl;
                 if(WVArr(cell.first,cell.second) != 2){
                     path.waypoints.push_back(pt);
                 }
@@ -393,7 +435,10 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
             }
             // move from centerpoint of goal cell to goal :)
             // LOG("Found a path :)");
-            path.waypoints.push_back(q_goal);
+            // LOG("init point: " << initWrap << " compared to " << q_init);
+            // LOG("final point: " << goalWrap << " compared to " << q_goal);
+            path.waypoints.push_back(goalWrap);
+
             return path;
         }
 };

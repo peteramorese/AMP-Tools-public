@@ -438,7 +438,9 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
             // LOG("init point: " << initWrap << " compared to " << q_init);
             // LOG("final point: " << goalWrap << " compared to " << q_goal);
             path.waypoints.push_back(goalWrap);
-
+            Eigen::Vector2d lowerB(grid_cspace.x0Bounds().first,grid_cspace.x1Bounds().first);
+            Eigen::Vector2d upperB(grid_cspace.x0Bounds().second,grid_cspace.x1Bounds().second);
+            unwrapPath(path,lowerB,upperB);
             return path;
         }
 };

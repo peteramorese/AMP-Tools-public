@@ -76,7 +76,7 @@ class MyLinkManipulator: public amp::LinkManipulator2D{
                             // double theta1 = acos((end_effector_location[0]*(getLinkLengths()[0] + getLinkLengths()[1]*cos(theta2))
                             //     + end_effector_location[1]*getLinkLengths()[1]*sin(theta2))/std::pow(end_effector_location.norm(),2));
 
-                            double inputC = (std::pow(end_effector_location.norm(),2) - (std::pow(getLinkLengths()[0],2) + std::pow(getLinkLengths()[1],2)))
+                            double inputC = (std::pow(end_effector_location.norm(),2) - (std::pow(getLinkLengths()[0],2) - std::pow(getLinkLengths()[1],2)))
                             /(2*getLinkLengths()[0]*getLinkLengths()[1]);
                         
                             double check = 1-std::pow(inputC,2);
@@ -86,9 +86,9 @@ class MyLinkManipulator: public amp::LinkManipulator2D{
                             double inputS = sqrt(check);
                             double theta2 = atan2(inputS,inputC);
                             inputC = (end_effector_location[0]*(getLinkLengths()[0] + getLinkLengths()[1]*cos(theta2))
-                                + end_effector_location[1]*getLinkLengths()[1]*sin(theta2))/std::pow(end_effector_location.norm(),2);
+                                - end_effector_location[1]*getLinkLengths()[1]*sin(theta2))/std::pow(end_effector_location.norm(),2);
                             inputS = (end_effector_location[1]*(getLinkLengths()[0] + getLinkLengths()[1]*cos(theta2))
-                                - end_effector_location[0]*getLinkLengths()[1]*sin(theta2))/std::pow(end_effector_location.norm(),2);
+                                + end_effector_location[0]*getLinkLengths()[1]*sin(theta2))/std::pow(end_effector_location.norm(),2);
                             double theta1 = atan2(inputS,inputC);
 
 

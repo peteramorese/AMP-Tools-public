@@ -235,6 +235,7 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
             : amp::ManipulatorWaveFrontAlgorithm(std::make_shared<MyGridCSpace2DConstructor>(constructor)) {
 
             }
+            
 
         // // You can have custom ctor params for all of these classes
         // MyManipWFAlgo(const std::string& beep) 
@@ -448,9 +449,11 @@ class MyAStarAlgo : public amp::AStar {
             std::vector<NodeStr> O; //Priority Queue
             std::vector<NodeStr> C; //Processed Nodes
             GraphSearchResult GSR;
+            int numIts = 0;
             NodeStr nBest(problem.init_node,problem.init_node,heuristic(problem.init_node));
             O.push_back(nBest);
             while(O.size() > 0){
+                numIts++;
                 // get smallest distance node
                 std::pop_heap(O.begin(), O.end(), compNodeStr());
                 nBest = O.back();
@@ -487,11 +490,11 @@ class MyAStarAlgo : public amp::AStar {
                         nBest = C[inC(C,nBest.back)];
                     }
                     GSR.node_path.push_front(problem.init_node);
-                    // LOG("Found Path with cost " << GSR.path_cost << " :");
-                    // for(auto ele : GSR.node_path){
-                    //     std::cout <<  " -> " << ele;
-                    // }
-                    // std::cout << std::endl;
+                    LOG("Found Path with cost " << GSR.path_cost << " after " << numIts << " iterations:");
+                    for(auto ele : GSR.node_path){
+                        std::cout << ele << " -> ";
+                    }
+                    std::cout << "done :)" << std::endl;
                     GSR.success = true;
                 }
 

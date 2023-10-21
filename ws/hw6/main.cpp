@@ -19,11 +19,17 @@ int main(int argc, char** argv) {
         const std::unique_ptr<amp::GridCSpace2D> grid_cspace1 = wf1.constructDiscretizedWorkspace(problem1);
         auto path1 = wf1.planInCSpace(problem1.q_init,problem1.q_goal,*grid_cspace1);    
         Visualizer::makeFigure(problem1,path1);
-        // MyGridCSpace2D plot1(std::ceil((problem1.x_max - problem1.x_min)/0.25),std::ceil((problem1.y_max - problem1.y_min)/0.25),problem1.x_min,problem1.x_max,problem1.y_min,problem1.y_max);
-        // Visualizer::makeFigure(plot1.makeCSpacePoint(problem1),path1);
-
         HW6::checkPointAgentPlan(path1,problem1);
         LOG("path length: " << path1.length());
+        // MyGridCSpace2D plot1(std::ceil((problem1.x_max - problem1.x_min)/0.25),std::ceil((problem1.y_max - problem1.y_min)/0.25),problem1.x_min,problem1.x_max,problem1.y_min,problem1.y_max);
+        // Visualizer::makeFigure(plot1.makeCSpacePoint(problem1),path1);
+        const Problem2D problem2 = HW2::getWorkspace2();
+        // MyPointWFAlgo wf1;
+        const std::unique_ptr<amp::GridCSpace2D> grid_cspace2 = wf1.constructDiscretizedWorkspace(problem2);
+        auto path2 = wf1.planInCSpace(problem2.q_init,problem2.q_goal,*grid_cspace2);    
+        Visualizer::makeFigure(problem2,path2);
+        HW6::checkPointAgentPlan(path2,problem2);
+        LOG("path length: " << path2.length());
         {
             bool random_trial_success = true;
             // while(random_trial_success){
@@ -89,8 +95,14 @@ int main(int argc, char** argv) {
     HW6::checkGraphSearchResult(Astar.search(HW6::getEx3SPP(),HW6::getEx3Heuristic()),HW6::getEx3SPP(),HW6::getEx3Heuristic());
 
 
+    const Problem2D problem1 = HW2::getWorkspace1();
+    MyPointWFAlgo wf1;
 
+    MyGridCSpace2DConstructor cons;
+    cons.getGridWidth() = 0.25;
+    MyManipWFAlgo wf2(cons);
+    
     Visualizer::showFigures();
-    // amp::HW6::grade<MyPointWFAlgo, MyManipWFAlgo, MyAStarAlgo>("collin.hudson@colorado.edu", argc, argv, std::make_tuple(), std::make_tuple("hey therre"), std::make_tuple());
+    amp::HW6::grade(wf1, wf2, Astar, "collin.hudson@colorado.edu", argc, argv);
     return 0;
 }

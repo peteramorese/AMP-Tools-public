@@ -23,6 +23,7 @@ int main(int argc, char** argv) {
         // Visualizer::makeFigure(plot1.makeCSpacePoint(problem1),path1);
 
         HW6::checkPointAgentPlan(path1,problem1);
+        LOG("path length: " << path1.length());
         {
             bool random_trial_success = true;
             // while(random_trial_success){
@@ -31,7 +32,7 @@ int main(int argc, char** argv) {
                 std::vector<Eigen::Vector2d> collision_points;
                 
                 random_trial_success = HW6::generateAndCheck(wf1, path, random_prob, collision_points);
-                LOG("Found valid solution in random environment: " << (random_trial_success ? "Yes!" : "No :("));
+                // LOG("Found valid solution in random environment: " << (random_trial_success ? "Yes!" : "No :("));
                 LOG("path length: " << path.length());
 
                 // Visualize the path environment, and any collision points with obstacles
@@ -58,6 +59,7 @@ int main(int argc, char** argv) {
         unwrapPath(path,lowerB,upperB);
         Visualizer::makeFigure(problem2,mani,path);
         HW6::checkLinkManipulatorPlan(path,mani,problem2);
+        LOG("path length: " << path.length());
         {
             // bool random_trial_success = true;
             // while(random_trial_success){
@@ -80,6 +82,8 @@ int main(int argc, char** argv) {
             // }
         }
     }
+
+    LOG("Problem 3");
     
 
 

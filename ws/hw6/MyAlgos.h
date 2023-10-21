@@ -4,7 +4,10 @@
 #include "hw/HW4.h"
 #include <Eigen/LU>
 #include <queue>
+#include <algorithm>
 #include "MyConfigurationSpace.h"
+
+using Node = uint32_t;
 
 class MyWaveFrontAlgorithm: public amp::WaveFrontAlgorithm {
     public:
@@ -331,7 +334,7 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
                 }
             //3. Make plan based on filled wavefront thing
             //Get lookahead
-            LOG("Filled WF");
+            // LOG("Filled WF");
             amp::Path2D path;
             Eigen::Vector2d pt(0,0);
             cell = grid_cspace.getCellFromPoint(q_init(0),q_init(1));
@@ -388,7 +391,7 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
 
             }
             // move from centerpoint of goal cell to goal :)
-            LOG("Found a path :)");
+            // LOG("Found a path :)");
             path.waypoints.push_back(q_goal);
             return path;
         }
@@ -396,7 +399,80 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
 
 class MyAStarAlgo : public amp::AStar {
     public:
+        //node struct
+        struct NodeStr{
+            Node idx;
+            Node back;
+            double cost;
+            NodeStr(Node i, Node b, double c){
+                idx = i;
+                back = b;
+                cost = c;
+            }
+        };
+
+        bool inC(const std::vector<NodeStr>& C, Node idx){
+                // Check if node is in closed list
+                for(auto c : C){
+                    if(c.idx == idx){
+                        return true;
+                    }
+                }
+                return false;
+            }
+
+        int inO(const std::vector<NodeStr>& O, Node idx){
+            // return index in O if node is in priority queue, or return -1 if node is not
+            for(auto o : O){
+                if(o.idx == idx){
+                    return o.idx;
+                }
+            }
+            return -1;
+        }
+
+        struct compNodeStr{
+            bool operator()(const NodeStr& a,const NodeStr& b) const{
+                return a.cost > b.cost;
+            }
+        };
+
         virtual GraphSearchResult search(const amp::ShortestPathProblem& problem, const amp::SearchHeuristic& heuristic) override {
+
+            std::vector<NodeStr> O; //Priority Queue
+            std::vector<NodeStr> C; //Processed Nodes
+            problem.graph;
+            problem.init_node;
+            problem.goal_node;
+            NodeStr nBest(problem.init_node,problem.init_node,heuristic(problem.init_node));
+            O.push_back(nBest);
+            while(O.size() > 0){
+                // get smallest distance node
+                std::pop_heap(O.begin(),O.end(),compNodeStr());
+                nBest = O.back();
+                O.pop_back();
+                C.push_back(nBest);
+                // add neighbors to queue
+                for(int j = 0; j < problem.graph->children(nBest.idx).size(); j++){
+                    if(!inC(C,problem.graph->children(nBest.idx)[j])){
+                        Node nbrIdx = problem.graph->children(nBest.idx)[j];
+                        double edge = problem.graph->outgoingEdges(nBest.idx)[j];
+                        NodeStr nbr(nbrIdx, nBest.idx, nBest.cost + edge + heuristic(nbrIdx) - heuristic(nBest.idx));
+                        int oIdx = inO(O, nbr.idx);
+                        if(oIdx == -1){
+                            O.push_back(nbr);
+                            std::push_heap(O.begin(),O.end(),compNodeStr());
+                        }
+                        else if(nbr.cost < O[oIdx].cost){
+                            O[oIdx] = nbr;
+                            std::make_heap(O.begin(),O.end(),compNodeStr());
+                        }
+                    }
+                }
+
+
+            }
+
             return GraphSearchResult();
         }
 };

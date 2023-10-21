@@ -403,7 +403,6 @@ class MyAStarAlgo : public amp::AStar {
         struct NodeStr{
             Node idx;
             Node back;
-            Node ord;
             double cost;
             NodeStr(Node i, Node b, double c){
                 idx = i;
@@ -438,23 +437,24 @@ class MyAStarAlgo : public amp::AStar {
             }
         };
 
-        struct orderNodeStr{
-            bool operator()(const NodeStr& a,const NodeStr& b) const{
-                return a.ord < b.ord;
-            }
-        };
+        // struct orderNodeStr{
+        //     bool operator()(const NodeStr& a,const NodeStr& b) const{
+        //         return a.ord < b.ord;
+        //     }
+        // };
 
         virtual GraphSearchResult search(const amp::ShortestPathProblem& problem, const amp::SearchHeuristic& heuristic) override {
 
             std::vector<NodeStr> O; //Priority Queue
             std::vector<NodeStr> C; //Processed Nodes
-            GraphSearchResult GSR = GraphSearchResult();
+            GraphSearchResult GSR;
             NodeStr nBest(problem.init_node,problem.init_node,heuristic(problem.init_node));
             O.push_back(nBest);
             while(O.size() > 0){
                 // get smallest distance node
                 std::pop_heap(O.begin(), O.end(), compNodeStr());
                 nBest = O.back();
+                // LOG("Popping node: (" << nBest.idx << "," << nBest.back << "," << nBest.cost << ")");
                 O.pop_back();
                 C.push_back(nBest);
                 if(nBest.idx != problem.goal_node){
@@ -466,10 +466,12 @@ class MyAStarAlgo : public amp::AStar {
                             NodeStr nbr(nbrIdx, nBest.idx, nBest.cost + edge + heuristic(nbrIdx) - heuristic(nBest.idx));
                             int oIdx = inO(O, nbr.idx);
                             if(oIdx == -1){
+                                // LOG("Adding child: (" << nbr.idx << "," << nbr.back << "," << nbr.cost << ")");
                                 O.push_back(nbr);
                                 std::push_heap(O.begin(), O.end(), compNodeStr());
                             }
                             else if(nbr.cost < O[oIdx].cost){
+                                // LOG("Update child: (" << nbr.idx << "," << nbr.back << "," << nbr.cost << ")");
                                 O[oIdx] = nbr;
                                 std::make_heap(O.begin(), O.end(), compNodeStr());
                             }
@@ -478,17 +480,24 @@ class MyAStarAlgo : public amp::AStar {
                 }
                 else{
                     O.clear();
+                    // LOG("Goal found at: " << nBest.idx << " back: " << nBest.back << " cost: " << nBest.cost);
+                    GSR.path_cost = (nBest.cost - heuristic(nBest.idx));
                     while(nBest.idx != problem.init_node){
                         GSR.node_path.push_front(nBest.idx);
-                        GSR.path_cost += nBest.cost - heuristic(nBest.idx);
                         nBest = C[inC(C,nBest.back)];
                     }
+                    GSR.node_path.push_front(problem.init_node);
+                    // LOG("Found Path with cost " << GSR.path_cost << " :");
+                    // for(auto ele : GSR.node_path){
+                    //     std::cout <<  " -> " << ele;
+                    // }
+                    // std::cout << std::endl;
                     GSR.success = true;
                 }
 
 
             }
 
-            return GraphSearchResult();
+            return GSR;
         }
 };

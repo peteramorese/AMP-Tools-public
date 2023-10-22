@@ -12,59 +12,59 @@ using namespace amp;
 int main(int argc, char** argv) {
     amp::RNG::seed(amp::RNG::randiUnbounded());
 
-    // LOG("Problem 1");
-    // {
-        // const Problem2D problem1 = HW2::getWorkspace1();
+    LOG("Problem 1");
+    {
+        const Problem2D problem1 = HW2::getWorkspace1();
+        MyPointWFAlgo wf1;
+        const std::unique_ptr<amp::GridCSpace2D> grid_cspace1 = wf1.constructDiscretizedWorkspace(problem1);
+        auto path1 = wf1.planInCSpace(problem1.q_init,problem1.q_goal,*grid_cspace1);    
+        Visualizer::makeFigure(problem1,path1);
+        HW6::checkPointAgentPlan(path1,problem1);
+        LOG("path length: " << path1.length());
+        // MyGridCSpace2D plot1(std::ceil((problem1.x_max - problem1.x_min)/0.25),std::ceil((problem1.y_max - problem1.y_min)/0.25),problem1.x_min,problem1.x_max,problem1.y_min,problem1.y_max);
+        // Visualizer::makeFigure(plot1.makeCSpacePoint(problem1),path1);
+        const Problem2D problem2 = HW2::getWorkspace2();
         // MyPointWFAlgo wf1;
-        // const std::unique_ptr<amp::GridCSpace2D> grid_cspace1 = wf1.constructDiscretizedWorkspace(problem1);
-        // auto path1 = wf1.planInCSpace(problem1.q_init,problem1.q_goal,*grid_cspace1);    
-        // Visualizer::makeFigure(problem1,path1);
-        // HW6::checkPointAgentPlan(path1,problem1);
-        // LOG("path length: " << path1.length());
-        // // MyGridCSpace2D plot1(std::ceil((problem1.x_max - problem1.x_min)/0.25),std::ceil((problem1.y_max - problem1.y_min)/0.25),problem1.x_min,problem1.x_max,problem1.y_min,problem1.y_max);
-        // // Visualizer::makeFigure(plot1.makeCSpacePoint(problem1),path1);
-        // const Problem2D problem2 = HW2::getWorkspace2();
-        // // MyPointWFAlgo wf1;
-        // const std::unique_ptr<amp::GridCSpace2D> grid_cspace2 = wf1.constructDiscretizedWorkspace(problem2);
-        // auto path2 = wf1.planInCSpace(problem2.q_init,problem2.q_goal,*grid_cspace2);    
-        // Visualizer::makeFigure(problem2,path2);
-        // HW6::checkPointAgentPlan(path2,problem2);
-        // LOG("path length: " << path2.length());
-    //     {
-    //         bool random_trial_success = true;
-    //         // while(random_trial_success){
-    //             amp::Path2D path; // Make empty path, problem, and collision points, as they will be created by generateAndCheck()
-    //             amp::Problem2D random_prob; 
-    //             std::vector<Eigen::Vector2d> collision_points;
+        const std::unique_ptr<amp::GridCSpace2D> grid_cspace2 = wf1.constructDiscretizedWorkspace(problem2);
+        auto path2 = wf1.planInCSpace(problem2.q_init,problem2.q_goal,*grid_cspace2);    
+        Visualizer::makeFigure(problem2,path2);
+        HW6::checkPointAgentPlan(path2,problem2);
+        LOG("path length: " << path2.length());
+        {
+            // bool random_trial_success = true;
+            // // while(random_trial_success){
+            //     amp::Path2D path; // Make empty path, problem, and collision points, as they will be created by generateAndCheck()
+            //     amp::Problem2D random_prob; 
+            //     std::vector<Eigen::Vector2d> collision_points;
                 
-    //             random_trial_success = HW6::generateAndCheck(wf1, path, random_prob, collision_points);
-    //             // LOG("Found valid solution in random environment: " << (random_trial_success ? "Yes!" : "No :("));
-    //             LOG("path length: " << path.length());
+            //     random_trial_success = HW6::generateAndCheck(wf1, path, random_prob, collision_points);
+            //     // LOG("Found valid solution in random environment: " << (random_trial_success ? "Yes!" : "No :("));
+            //     LOG("path length: " << path.length());
 
-    //             // Visualize the path environment, and any collision points with obstacles
-    //             // if(!random_trial_success){
-    //                 Visualizer::makeFigure(random_prob, path, collision_points);
-    //             // }
-    //         // }
-    //     }
-    // }
+            //     // Visualize the path environment, and any collision points with obstacles
+            //     // if(!random_trial_success){
+            //         Visualizer::makeFigure(random_prob, path, collision_points);
+            //     // }
+            // // }
+        }
+    }
 
     LOG("Problem 2");
     {
-        // MyGridCSpace2DConstructor cons;
-        // cons.getGridWidth() = 0.25;
-        // MyManipWFAlgo wf2(cons);
-        // MyLinkManipulator mani;
-        // const amp::Problem2D problem2 = HW6::getHW4Problem1();
-        // auto path = wf2.plan(mani,problem2);
-        // MyGridCSpace2D plotEnv3(std::ceil((cons.getX0_bounds().second - cons.getX0_bounds().first)/cons.getGridWidth()),std::ceil((cons.getX1_bounds().second - cons.getX1_bounds().first)/cons.getGridWidth()),cons.getX0_bounds().first,cons.getX0_bounds().second,cons.getX1_bounds().first,cons.getX1_bounds().second);
-        // Visualizer::makeFigure(plotEnv3.makeCSpace(mani,problem2),path);
+        MyGridCSpace2DConstructor cons;
+        cons.getGridWidth() = 0.1;
+        MyManipWFAlgo wf2(cons);
+        MyLinkManipulator mani;
+        const amp::Problem2D problem2 = HW6::getHW4Problem3();
+        auto path = wf2.plan(mani,problem2);
+        MyGridCSpace2D plotEnv3(std::ceil((cons.getX0_bounds().second - cons.getX0_bounds().first)/cons.getGridWidth()),std::ceil((cons.getX1_bounds().second - cons.getX1_bounds().first)/cons.getGridWidth()),cons.getX0_bounds().first,cons.getX0_bounds().second,cons.getX1_bounds().first,cons.getX1_bounds().second);
+        Visualizer::makeFigure(plotEnv3.makeCSpace(mani,problem2),path);
 
-        // // Eigen::Vector2d lowerB(cons.getX0_bounds().first,cons.getX1_bounds().first);
-        // // Eigen::Vector2d upperB(cons.getX0_bounds().second,cons.getX1_bounds().second);
-        // // unwrapPath(path,lowerB,upperB);
-        // Visualizer::makeFigure(problem2,mani,path);
-        // HW6::checkLinkManipulatorPlan(path,mani,problem2);
+        // Eigen::Vector2d lowerB(cons.getX0_bounds().first,cons.getX1_bounds().first);
+        // Eigen::Vector2d upperB(cons.getX0_bounds().second,cons.getX1_bounds().second);
+        // unwrapPath(path,lowerB,upperB);
+        Visualizer::makeFigure(problem2,mani,path);
+        HW6::checkLinkManipulatorPlan(path,mani,problem2);
         // LOG("path length: " << path.length());
         // {
         //     bool random_trial_success = true;
@@ -95,20 +95,21 @@ int main(int argc, char** argv) {
         // }
     }
 
-    // LOG("Problem 3");
+    LOG("Problem 3");
     
     MyAStarAlgo Astar;
-    // HW6::checkGraphSearchResult(Astar.search(HW6::getEx3SPP(),HW6::getEx3Heuristic()),HW6::getEx3SPP(),HW6::getEx3Heuristic());
-
+    HW6::checkGraphSearchResult(Astar.search(HW6::getEx3SPP(),HW6::getEx3Heuristic()),HW6::getEx3SPP(),HW6::getEx3Heuristic());
+    LOG("Dijkstra's Algoritm: ");
+    HW6::checkGraphSearchResult(Astar.search(HW6::getEx3SPP(),amp::SearchHeuristic()),HW6::getEx3SPP(),amp::SearchHeuristic());
 
     // const Problem2D problem1 = HW2::getWorkspace1();
     MyPointWFAlgo wf1g;
 
     MyGridCSpace2DConstructor cons;
-    cons.getGridWidth() = 0.25;
+    cons.getGridWidth() = 0.1;
     MyManipWFAlgo wf2g(cons);
 
     Visualizer::showFigures();
-    amp::HW6::grade(wf1g, wf2g, Astar, "collin.hudson@colorado.edu", argc, argv);
+    // amp::HW6::grade(wf1g, wf2g, Astar, "collin.hudson@colorado.edu", argc, argv);
     return 0;
 }

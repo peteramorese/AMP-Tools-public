@@ -150,23 +150,23 @@ class MyGridCSpace2D: public amp::GridCSpace2D{
 class MyGridCSpace2DConstructor: public amp::GridCSpace2DConstructor{
     public:
         virtual std::unique_ptr<amp::GridCSpace2D> construct(const amp::LinkManipulator2D& manipulator, const amp::Environment2D& env) override{
-            LOG("constructing manipulator C-space...");
+            // LOG("constructing manipulator C-space...");
 
             std::unique_ptr<MyGridCSpace2D> ptr(new MyGridCSpace2D(std::ceil((x0_bounds.second - x0_bounds.first)/gridWidth),std::ceil((x1_bounds.second - x1_bounds.first)/gridWidth),x0_bounds.first,x0_bounds.second,x1_bounds.first,x1_bounds.second));
             //construct custom class version of manipulator
             MyLinkManipulator mani(manipulator.getBaseLocation(),manipulator.getLinkLengths());
             ptr->makeCSpace(mani, env);
 
-            LOG("done constructing!");
+            // LOG("done constructing!");
             return ptr;
         }
 
         std::unique_ptr<amp::GridCSpace2D> construct(const amp::Environment2D& env){
-            LOG("constructing point C-space...");
+            // LOG("constructing point C-space...");
             std::unique_ptr<MyGridCSpace2D> ptr(new MyGridCSpace2D(std::ceil((x0_bounds.second - x0_bounds.first)/gridWidth),std::ceil((x1_bounds.second - x1_bounds.first)/gridWidth),x0_bounds.first,x0_bounds.second,x1_bounds.first,x1_bounds.second));
             ptr->makeCSpacePoint(env);
             
-            LOG("done constructing!");
+            // LOG("done constructing!");
             return ptr;
         }
         

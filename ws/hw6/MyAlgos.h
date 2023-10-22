@@ -252,18 +252,18 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
             //0. Create dense array for wave front cell values
             std::pair<std::size_t, std::size_t> siz = grid_cspace.size();
             amp::DenseArray2D<int> WVArr(siz.first,siz.second,0);
-            // for(int i = 0; i < siz.first; i++){
-            //     for(int j = 0; j < siz.second; j++){
-            //         double x0 = ((grid_cspace.x0Bounds().second - grid_cspace.x0Bounds().first)/siz.first)*(i + 0.5) + grid_cspace.x0Bounds().first;
-            //         double x1 = ((grid_cspace.x1Bounds().second - grid_cspace.x1Bounds().first)/siz.second)*(j + 0.5) + grid_cspace.x1Bounds().first;
-            //         if(grid_cspace.inCollision(x0,x1)){
-            //             if(i != 0){WVArr(i-1,j) = 1;}
-            //             if(i != grid_cspace.size().first - 1){WVArr(i+1,j) = 1;}
-            //             if(j != 0 ){WVArr(i,j-1) = 1;}
-            //             if(j != grid_cspace.size().second - 1){WVArr(i,j+1) = 1;}
-            //         }
-            //     }
-            // }
+            for(int i = 0; i < siz.first; i++){
+                for(int j = 0; j < siz.second; j++){
+                    double x0 = ((grid_cspace.x0Bounds().second - grid_cspace.x0Bounds().first)/siz.first)*(i + 0.5) + grid_cspace.x0Bounds().first;
+                    double x1 = ((grid_cspace.x1Bounds().second - grid_cspace.x1Bounds().first)/siz.second)*(j + 0.5) + grid_cspace.x1Bounds().first;
+                    if(grid_cspace.inCollision(x0,x1)){
+                        if(i != 0){WVArr(i-1,j) = 1;}
+                        if(i != grid_cspace.size().first - 1){WVArr(i+1,j) = 1;}
+                        if(j != 0 ){WVArr(i,j-1) = 1;}
+                        if(j != grid_cspace.size().second - 1){WVArr(i,j+1) = 1;}
+                    }
+                }
+            }
             //1. Get cell for q_goal and assign value of 2
             std::pair<std::size_t, std::size_t> cell;
             Eigen::Vector2d goalWrap(q_goal(0),q_goal(1));
@@ -417,9 +417,9 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
                 }
                 if(cell == next){
                     //NO PATH AVAILABLE!
-                    LOG("failure! could not find path from " << q_init << " to " << q_goal << " Cell: (" << cell.first << " , " << cell.second << ") cost " << WVArr(cell.first,cell.second));
-                    LOG("init point: " << initWrap << " compared to " << q_init);
-                    LOG("final point: " << goalWrap << " compared to " << q_goal);
+                    // LOG("failure! could not find path from " << q_init << " to " << q_goal << " Cell: (" << cell.first << " , " << cell.second << ") cost " << WVArr(cell.first,cell.second));
+                    // LOG("init point: " << initWrap << " compared to " << q_init);
+                    // LOG("final point: " << goalWrap << " compared to " << q_goal);
                     path.waypoints.push_back(goalWrap);
                     return path;
                 }

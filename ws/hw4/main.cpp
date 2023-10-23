@@ -44,6 +44,7 @@ void problem3a() {
     vector<double> linkLengths = {1, 1};
     CSpaceConstructor cSpace(100, 100, -10, 10, -10, 10);
     cSpace.populateGrid(linkLengths, workspace.obstacles);
+        
     Visualizer::makeFigure(cSpace);
     Visualizer::makeFigure(workspace.obstacles);
 }
@@ -59,11 +60,6 @@ void problem3b() {
 
 void problem3c() {
     Environment2D workspace = HW4::getEx3Workspace3();
-    // for (const amp::Obstacle2D& obstacle : workspace.obstacles) {
-    //     for (const Vector2d& vertex : obstacle.verticesCW()) {
-    //         cout << "Vertex (" << vertex(0) << ", " << vertex(1) << ")\n";
-    //     }
-    // }
     vector<double> linkLengths = {1, 1};
     CSpaceConstructor cSpace(50, 50, -10, 10, -10, 10);
     cSpace.populateGrid(linkLengths, workspace.obstacles);

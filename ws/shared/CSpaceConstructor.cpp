@@ -31,19 +31,18 @@ Vector2d CSpaceConstructor::getPointFromCell(const std::pair<int, int>& cell) {
 
 void CSpaceConstructor::populateGrid(const vector<amp::Obstacle2D>& obstacles)  {
     cout << "Finding Obstacles\n";
-    std::pair<double, double> x0lim = x0Bounds();
-    std::pair<double, double> x1lim = x1Bounds();    
     std::pair<int, int> gridSize = size();
-    int cells0 = gridSize.first;
-    int cells1 = gridSize.second;
     Vector2d point;
-    for (int i = 0; i < cells0; ++i) {
-        for (int j = 0; j < cells1; ++j) {
+    for (int i = 0; i < gridSize.first; ++i) {
+        for (int j = 0; j < gridSize.second; ++j) {
             point = getPointFromCell({i, j});
             bool collision = false;
             for (const amp::Obstacle2D& obstacle : obstacles) {
                 collision = isPointInsidePolygon(point, obstacle.verticesCW());
-                if (collision) operator()(i, j) = 1;
+                if (collision) {
+                    operator()(i, j) = 1;
+                    break;
+                }
             }
         }
     }
@@ -105,8 +104,8 @@ std::pair<std::size_t, std::size_t> CSpaceConstructor::getCellFromPoint(double x
     int cells1 = gridSize.second;
     double cellWidth0 = (x0lim.second - x0lim.first)/cells0;
     double cellWidth1 = (x1lim.second - x1lim.first)/cells1;
-    int i = static_cast<int>(std::floor((x0 - x0lim.first) / cellWidth0));
-    int j = static_cast<int>(std::floor((x1 - x1lim.first) / cellWidth1));
+    int i = std::floor((x0 - x0lim.first) / cellWidth0);
+    int j = std::floor((x1 - x1lim.first) / cellWidth1);
     return std::pair<std::size_t, std::size_t>(i, j);
 };
 

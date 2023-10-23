@@ -14,11 +14,12 @@ using Eigen::Vector2d, std::vector, std::cout;
 
 void problem1a() {
     Problem2D problem = HW2::getWorkspace1();
+    problem.print();
     MyPointWFAlgo algo;
     std::unique_ptr<amp::GridCSpace2D> cSpace = algo.constructDiscretizedWorkspace(problem);
     amp::Path2D path = algo.planInCSpace(problem.q_init, problem.q_goal, *cSpace);
     cout << path.length() << " = Path length\n";
-    // Visualizer::makeFigure(*cSpace);
+    Visualizer::makeFigure(*cSpace);
     Visualizer::makeFigure(problem, path);
 }
 
@@ -33,7 +34,9 @@ void problem1b() {
 }
 
 void problem2() {
-    Problem2D problem = HW6::getHW4Problem1();
+    // Problem2D problem = HW6::getHW4Problem1();
+    Problem2D problem = HW6::getHW4Problem2();
+    // Problem2D problem = HW6::getHW4Problem3(); 
     MyLinkManipulator manipulator({1, 1});
     ManipulatorState initState = manipulator.getConfigurationFromIK(problem.q_init);
     ManipulatorState goalState = manipulator.getConfigurationFromIK(problem.q_goal);
@@ -44,9 +47,11 @@ void problem2() {
     int numStates = path.waypoints.size();
     for (int i = 0; i < numStates; i += numStates/10) {
         Vector2d state = path.waypoints[i];
-        Visualizer::makeFigure(problem, manipulator, {state(0), state(1)});
     }
-    Visualizer::makeFigure(*cSpace);
+    Visualizer::makeFigure(problem, manipulator, path);
+    Visualizer::makeFigure(problem, path);
+
+    // Visualizer::makeFigure(*cSpace);
 }
 
 void problem3a() {
@@ -63,22 +68,13 @@ void problem3b() {
     MyAStarAlgo::GraphSearchResult result = algo.search(problem, heuristic);
 }
 
-// void problem3a() {
-//     Environment2D workspace = HW4::getEx3Workspace1();
-//     vector<double> linkLengths = {1, 1};
-//     CSpaceConstructor cSpace(360, 360, -10, 10, -10, 10);
-//     cSpace.populateGrid(linkLengths, workspace.obstacles);
-//     Visualizer::makeFigure(workspace.obstacles);
-// }
-
-
-
 int main(int argc, char** argv) {
     // problem1a();
     // problem1b();
-    problem2();
+    // problem2();
     // problem3a();
     // problem3b();
     // Visualizer::showFigures();
+    amp::HW6::grade<MyPointWFAlgo, MyManipWFAlgo, MyAStarAlgo>("nonhuman.biologic@myspace.edu", argc, argv, std::make_tuple(), std::make_tuple(), std::make_tuple(false));
     return 0;
 }

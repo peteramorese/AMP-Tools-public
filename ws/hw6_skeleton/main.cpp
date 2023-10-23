@@ -72,4 +72,5 @@ int main(int argc, char** argv) {
 
     amp::HW6::grade<MyPointWFAlgo, MyManipWFAlgo, MyAStarAlgo>("nonhuman.biologic@myspace.edu", argc, argv, std::make_tuple(), std::make_tuple("hey therre"), std::make_tuple());
     return 0;
+
 }

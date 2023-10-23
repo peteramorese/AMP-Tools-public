@@ -77,6 +77,18 @@ void amp::Visualizer::makeFigure(const Problem2D& prob, const Path2D& path, cons
     createAxes(path, collision_points);
 }
 
+void amp::Visualizer::makeFigure(const Problem2D& prob, double circular_agent_radius, const Path2D& path) {
+    newFigure();
+    createAxes(prob);
+
+}
+
+void amp::Visualizer::makeFigure(const Problem2D& prob, double circular_agent_radius, const Path2D& path, const std::vector<Eigen::Vector2d>& collision_states) {
+    newFigure();
+    createAxes(prob);
+
+}
+
 void amp::Visualizer::makeFigure(const std::vector<Polygon>& polygons, bool filled) {
     newFigure();
     createAxes(polygons, filled);
@@ -167,6 +179,11 @@ void amp::Visualizer::makeFigure(const PotentialFunction2D& potential_function, 
     createAxes(potential_function, x0_min, x0_max, x1_min, x1_max, n_grid, u_min, u_max);
 }
 
+void amp::Visualizer::makeFigure(const Problem2D& prob, const Graph<double>& coordinate_map, const std::map<amp::Node, Eigen::Vector2d>& node_to_coordinate) {
+    createAxes(prob);
+    createAxes(coordinate_map, [&](amp::Node node) -> Eigen::Vector2d {return node_to_coordinate.at(node);});
+}
+
 void amp::Visualizer::showFigures() {
     ampprivate::pybridge::ScriptCaller::call("FigureHandler", "show_figure", std::make_tuple());
 }
@@ -197,6 +214,16 @@ void amp::Visualizer::createAxes(const Path2D& path, const std::vector<Eigen::Ve
     std::unique_ptr<ampprivate::pybridge::PythonObject> path_arg = listOfPointsToPythonObject(path.waypoints);
     std::unique_ptr<ampprivate::pybridge::PythonObject> collison_points_arg = listOfPointsToPythonObject(collision_points);
     ampprivate::pybridge::ScriptCaller::call("VisualizeEnvironment", "visualize_path", std::make_tuple(path_arg->get(), collison_points_arg->get()));
+}
+
+void amp::Visualizer::createAxes(double circular_agent_radius, const Path2D& path) {
+    //std::unique_ptr<ampprivate::pybridge::PythonObject> polygons_arg = polygonsToPythonObject(polygons);
+    //std::unique_ptr<ampprivate::pybridge::PythonObject> filled_arg = ampprivate::pybridge::makeBool(filled);
+    //ampprivate::pybridge::ScriptCaller::call("VisualizeCircleAgent", "visualize_circle_agent", std::make_tuple(polygons_arg->get(), filled_arg->get()));
+}
+
+void amp::Visualizer::createAxes(double circular_agent_radius, const Path2D& path, const std::vector<Eigen::Vector2d>& collision_states) {
+
 }
 
 void amp::Visualizer::createAxes(const std::vector<Polygon>& polygons, bool filled) {
@@ -310,6 +337,75 @@ void amp::Visualizer::createAxes(const PotentialFunction2D& potential_function, 
     std::unique_ptr<ampprivate::pybridge::PythonObject> u_values_arg = ampprivate::pybridge::makeList(std::move(u_values));
 
     ampprivate::pybridge::ScriptCaller::call("VisualizePotentialFunction", "visualize_potential_function", std::make_tuple(bounds_arg->get(), n_grid_arg->get(), u_values_arg->get()));
+}
+
+void amp::Visualizer::makeBoxPlot(const std::list<std::vector<double>>& data_sets, const std::vector<std::string>& labels, const std::string& title, const std::string& xlabel, const std::string& ylabel) {
+    ASSERT(labels.size() == data_sets.size(), "Number of labels does not match number of data sets");
+    newFigure();
+
+    // Data
+    std::vector<std::unique_ptr<ampprivate::pybridge::PythonObject>> data_py_objects;
+    data_py_objects.reserve(data_sets.size());
+    for (const std::vector<double>& data_set : data_sets) {
+        std::vector<std::unique_ptr<ampprivate::pybridge::PythonObject>> data_points_py_objects;
+        data_points_py_objects.reserve(data_set.size());
+        for (double data_point : data_set) {
+            data_points_py_objects.push_back(ampprivate::pybridge::makeScalar(data_point));
+        }
+        data_py_objects.push_back(ampprivate::pybridge::makeList(std::move(data_points_py_objects)));
+    }
+    std::unique_ptr<ampprivate::pybridge::PythonObject> data_arg = ampprivate::pybridge::makeList(std::move(data_py_objects));
+
+    // Labels
+    std::vector<std::unique_ptr<ampprivate::pybridge::PythonObject>> labels_py_objects;
+    labels_py_objects.reserve(labels.size());
+    for (const std::string& label : labels) {
+        labels_py_objects.push_back(ampprivate::pybridge::makeString(label));
+    }
+    std::unique_ptr<ampprivate::pybridge::PythonObject> labels_arg = ampprivate::pybridge::makeList(std::move(labels_py_objects));
+
+    // Title
+    std::unique_ptr<ampprivate::pybridge::PythonObject> title_arg = ampprivate::pybridge::makeString(title);
+
+    // X-label
+    std::unique_ptr<ampprivate::pybridge::PythonObject> xlabel_arg = ampprivate::pybridge::makeString(xlabel);
+
+    // Y-label
+    std::unique_ptr<ampprivate::pybridge::PythonObject> ylabel_arg = ampprivate::pybridge::makeString(ylabel);
+
+    ampprivate::pybridge::ScriptCaller::call("Plotter", "make_box_plot", std::make_tuple(data_arg->get(), labels_arg->get(), title_arg->get(), xlabel_arg->get(), ylabel_arg->get()));
+}
+
+void amp::Visualizer::makeBarGraph(const std::vector<double>& values, const std::vector<std::string>& labels, const std::string& title, const std::string& xlabel, const std::string& ylabel) {
+    ASSERT(labels.size() == values.size(), "Number of labels does not match number of values");
+    newFigure();
+
+    // Values
+    std::vector<std::unique_ptr<ampprivate::pybridge::PythonObject>> values_py_objects;
+    values_py_objects.reserve(values.size());
+    for (double value : values) {
+        values_py_objects.push_back(ampprivate::pybridge::makeScalar(value));
+    }
+    std::unique_ptr<ampprivate::pybridge::PythonObject> values_arg = ampprivate::pybridge::makeList(std::move(values_py_objects));
+
+    // Labels
+    std::vector<std::unique_ptr<ampprivate::pybridge::PythonObject>> labels_py_objects;
+    labels_py_objects.reserve(labels.size());
+    for (const std::string& label : labels) {
+        labels_py_objects.push_back(ampprivate::pybridge::makeString(label));
+    }
+    std::unique_ptr<ampprivate::pybridge::PythonObject> labels_arg = ampprivate::pybridge::makeList(std::move(labels_py_objects));
+
+    // Title
+    std::unique_ptr<ampprivate::pybridge::PythonObject> title_arg = ampprivate::pybridge::makeString(title);
+
+    // X-label
+    std::unique_ptr<ampprivate::pybridge::PythonObject> xlabel_arg = ampprivate::pybridge::makeString(xlabel);
+
+    // Y-label
+    std::unique_ptr<ampprivate::pybridge::PythonObject> ylabel_arg = ampprivate::pybridge::makeString(ylabel);
+
+    ampprivate::pybridge::ScriptCaller::call("Plotter", "make_bar_graph", std::make_tuple(values_arg->get(), labels_arg->get(), title_arg->get(), xlabel_arg->get(), ylabel_arg->get()));
 }
 
 #endif

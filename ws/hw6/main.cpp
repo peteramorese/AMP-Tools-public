@@ -110,6 +110,6 @@ int main(int argc, char** argv) {
     MyManipWFAlgo wf2g(cons);
 
     Visualizer::showFigures();
-    // amp::HW6::grade(wf1g, wf2g, Astar, "collin.hudson@colorado.edu", argc, argv);
+    amp::HW6::grade(wf1g, wf2g, Astar, "collin.hudson@colorado.edu", argc, argv);
     return 0;
 }

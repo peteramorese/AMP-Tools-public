@@ -537,11 +537,11 @@ class MyAStarAlgo : public amp::AStar {
                         nBest = C[inC(C,nBest.back)];
                     }
                     GSR.node_path.push_front(problem.init_node);
-                    LOG("Found Path with cost " << GSR.path_cost << " after " << numIts << " iterations:");
-                    for(auto ele : GSR.node_path){
-                        std::cout << ele << " -> ";
-                    }
-                    std::cout << "done :)" << std::endl;
+                    // LOG("Found Path with cost " << GSR.path_cost << " after " << numIts << " iterations:");
+                    // for(auto ele : GSR.node_path){
+                    //     std::cout << ele << " -> ";
+                    // }
+                    // std::cout << "done :)" << std::endl;
                     GSR.success = true;
                 }
 

@@ -7,6 +7,10 @@
 
 namespace amp {
 
+class ConfigurationSpace {
+    
+};
+
 /// @brief User implemented abstract class that accesses the continuous C-Space (bounded)
 class ConfigurationSpace2D {
     public:

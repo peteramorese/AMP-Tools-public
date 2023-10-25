@@ -50,23 +50,30 @@ Vector2d MyLinkManipulator::getJointLocation(const ManipulatorState& state, uint
 };
 
 ManipulatorState MyLinkManipulator::getConfigurationFromIK(const Eigen::Vector2d& end_effector_location) const {
-    ManipulatorState state;
     std::vector<double> links = getLinkLengths();
-    for (int i = 0; i < 12; ++i) {
-        double theta3 = 2 * M_PI / 12 * i;
-        double x = links[2]*cos(theta3) + end_effector_location(0);
-        double y = links[2]*sin(theta3) + end_effector_location(1);
-        // cout << "Point: ( " << x << ", " << y << " )\n";
+    if (links.size() == 3) {
+        for (int i = 0; i < 12; ++i) {
+            double theta3 = 2 * M_PI / 12 * i;
+            double x = links[2]*cos(theta3) + end_effector_location(0);
+            double y = links[2]*sin(theta3) + end_effector_location(1);
+            // cout << "Point: ( " << x << ", " << y << " )\n";
+            double cosTheta2 = ((pow(x, 2) + pow(y, 2)) - (pow(links[0], 2) + pow(links[1], 2)))/(2*links[0]*links[1]);
+            double cosTheta1 = (x*(links[0] + links[1]*cosTheta2)+y*links[1]*sqrt(1-pow(cosTheta2, 2)))/(pow(x, 2) + pow(y, 2));
+            ManipulatorState state(3);
+            state << acos(cosTheta1), acos(cosTheta2), theta3 - acos(cosTheta2) - acos(cosTheta1) - M_PI;
+            bool pass = true;
+            for (auto element : state) {          
+                if (std::isnan(element)) pass = false;
+            }
+            if (pass) return state;
+        }
+    } else {
+        double x = end_effector_location(0);
+        double y = end_effector_location(1);
         double cosTheta2 = ((pow(x, 2) + pow(y, 2)) - (pow(links[0], 2) + pow(links[1], 2)))/(2*links[0]*links[1]);
         double cosTheta1 = (x*(links[0] + links[1]*cosTheta2)+y*links[1]*sqrt(1-pow(cosTheta2, 2)))/(pow(x, 2) + pow(y, 2));
-        state = {acos(cosTheta1), acos(cosTheta2), theta3 - acos(cosTheta2) - acos(cosTheta1) - M_PI};
-        bool pass = true;
-        for (auto element : state) {  
-            cout << element << "\n";          
-            if (std::isnan(element)) pass = false;
-        }
-        if (pass) break;
+        ManipulatorState state(2);
+        state << acos(cosTheta1), acos(cosTheta2);
+        return state;
     }
-    PRINT_VEC2("state: ", state);
-    return state;
 };

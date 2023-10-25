@@ -35,8 +35,8 @@ void problem1b() {
 
 void problem2() {
     // Problem2D problem = HW6::getHW4Problem1();
-    Problem2D problem = HW6::getHW4Problem2();
-    // Problem2D problem = HW6::getHW4Problem3(); 
+    // Problem2D problem = HW6::getHW4Problem2();
+    Problem2D problem = HW6::getHW4Problem3(); 
     MyLinkManipulator manipulator({1, 1});
     ManipulatorState initState = manipulator.getConfigurationFromIK(problem.q_init);
     ManipulatorState goalState = manipulator.getConfigurationFromIK(problem.q_goal);
@@ -48,8 +48,8 @@ void problem2() {
     for (int i = 0; i < numStates; i += numStates/10) {
         Vector2d state = path.waypoints[i];
     }
-    Visualizer::makeFigure(problem, manipulator, path);
-    Visualizer::makeFigure(problem, path);
+    // Visualizer::makeFigure(problem, manipulator, path);
+    Visualizer::makeFigure(*cSpace, path);
 
     // Visualizer::makeFigure(*cSpace);
 }
@@ -75,6 +75,6 @@ int main(int argc, char** argv) {
     // problem3a();
     // problem3b();
     // Visualizer::showFigures();
-    amp::HW6::grade<MyPointWFAlgo, MyManipWFAlgo, MyAStarAlgo>("nonhuman.biologic@myspace.edu", argc, argv, std::make_tuple(), std::make_tuple(), std::make_tuple(false));
+    amp::HW6::grade<MyPointWFAlgo, MyManipWFAlgo, MyAStarAlgo>("yusif.razzaq@colorado.edu", argc, argv, std::make_tuple(), std::make_tuple(), std::make_tuple(false));
     return 0;
 }

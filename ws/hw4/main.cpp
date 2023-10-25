@@ -26,7 +26,8 @@ void problem1() {
 
 void problem2a() {
     vector<double> linkLengths = {0.5, 1, 0.5};
-    ManipulatorState state = {M_PI/6, M_PI/3, 7*M_PI/4};
+    ManipulatorState state(3);
+    state << M_PI/6, M_PI/3, 7*M_PI/4;
     MyLinkManipulator manipulator(linkLengths);
     Visualizer::makeFigure(manipulator, state);
 }

@@ -134,7 +134,7 @@ amp::Path2D MyManipWFAlgo::planInCSpace(const Eigen::Vector2d& q_init, const Eig
         cell = cellQueue.front();
         cellQueue.erase(cellQueue.begin());
         extendWave(cell, waveGrid);
-        if (step > 10000) break;
+        if (step > 30000) break;
         step++;
     }
     MyNode finalCell = cellQueue.back();

@@ -60,14 +60,16 @@ void CSpaceConstructor::populateGrid(const vector<double>& linkLengths, const ve
     Vector2d prevJoint;
     Vector2d currJoint;
     bool collision;
+    ManipulatorState state(2);
     for (int i = 0; i < x0; ++i){
         t0 = 2*i*M_PI / x0;
         for (int j = 0; j < x1; ++j){
             collision = false;
             t1 = 2*j*M_PI / x1;
             for (int k=0; k < linkLengths.size(); ++k) {
-                prevJoint = manipulator.getJointLocation({t0, t1}, k);
-                currJoint = manipulator.getJointLocation({t0, t1}, k+1);
+                state << t0, t1;
+                prevJoint = manipulator.getJointLocation(state, k);
+                currJoint = manipulator.getJointLocation(state, k+1);
                 collision  = checkCollision(prevJoint, currJoint);
                 if (collision) {
                     break;
@@ -76,7 +78,6 @@ void CSpaceConstructor::populateGrid(const vector<double>& linkLengths, const ve
             if (collision) operator()(i, j) = 1;
         }
     }
-    // cout << operator()(1, 1) << "\n";
 };
 
 bool CSpaceConstructor::checkCollision(const Vector2d& prevJoint, const Vector2d& currJoint) {

@@ -1,7 +1,5 @@
 #include "AMPCore.h"
 // #include "hw/HW7.h"
-#include "MyLinkManipulator.h"
-#include "MyConfigurationSpace.h"
 #include "MyPointMotionPlanner.h"
 
 using namespace amp;

@@ -1,5 +1,5 @@
-#include "HelpfulClass.h"
+// #include "HelpfulClass.h"
 
-void MyClass::hereIsAMethod() {
-    // Implementation
-}
+// void MyClass::hereIsAMethod() {
+//     // Implementation
+// }

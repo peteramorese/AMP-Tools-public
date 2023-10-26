@@ -7,6 +7,7 @@
 #include "tools/Obstacle.h" 
 #include "tools/LinkManipulator.h" 
 #include "tools/Graph.h" 
+#include "tools/AgentTypes.h" 
 
 namespace amp { 
 
@@ -35,6 +36,17 @@ class GeometricMotionPlanner2D {
         virtual amp::Path2D plan(const AgentType& geometric_agent, const amp::Problem2D& problem) = 0;
 
         virtual ~GeometricMotionPlanner2D() {}
+};
+
+class CircleMotionPlanner2D {
+    public:
+        /// @brief Solve a motion planning problem. Derive class and override this method
+        /// @param circle_agent_radius Radius of the circular agent
+        /// @param problem Motion planning problem
+        /// @return Path solution of the circular agent
+        virtual amp::Path2D plan(double circle_agent_radius, const amp::Problem2D& problem) = 0;
+
+        virtual ~CircleMotionPlanner2D() {}
 };
 
 class LinkManipulatorMotionPlanner2D {

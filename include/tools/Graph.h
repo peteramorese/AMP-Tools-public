@@ -51,13 +51,13 @@ class Graph {
 		/// @return Set of all outgoing edges
 		inline const std::vector<EDGE_T>& outgoingEdges(NATIVE_NODE_T node) const;
 
-		/// @brief Read the set of all child nodes of a given node. Graph must be REVERSIBLE to enable this method.
+		/// @brief Read the set of all parent nodes of a given node. Graph must be REVERSIBLE to enable this method.
 		/// NOTE: Returned in the same respective order as edges in `incomingEdges()`.
 		/// @param node Node 
-		/// @return Set of all child nodes
+		/// @return Set of all parent nodes
 		inline const std::vector<NATIVE_NODE_T>& parents(NATIVE_NODE_T node) const;
 
-		/// @brief Read the set of all outgoing edges from a given node. Graph must be REVERSIBLE to enable this method.
+		/// @brief Read the set of all incoming edges from a given node. Graph must be REVERSIBLE to enable this method.
 		/// NOTE: Returned in the same respective order as edges in `parents()`.
 		/// @param node Node
 		/// @return Set of all incoming edges

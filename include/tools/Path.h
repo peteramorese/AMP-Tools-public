@@ -12,6 +12,9 @@ struct Path2D {
     Path2D() = default;
     std::vector<Eigen::Vector2d> waypoints;
 
+    /// @brief `true` if a solution was found, `false` otherwise
+    bool valid;
+
     /// @brief Get the path length
     /// @return Total path length
     double length() const;
@@ -28,6 +31,9 @@ struct Path2D {
 struct Path {
     Path() = default;
     std::vector<Eigen::VectorXd> waypoints;
+
+    /// @brief `true` if a solution was found, `false` otherwise
+    bool valid;
 
     /// @brief Print the object
     /// @param heading Log what type of object is being printed

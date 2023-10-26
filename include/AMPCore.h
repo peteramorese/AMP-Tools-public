@@ -10,4 +10,5 @@
 #include "tools/PotentialFunction.h"
 #include "tools/Random.h"
 #include "tools/Serializer.h"
+#include "tools/Time.h"
 #include "tools/Visualizer.h"

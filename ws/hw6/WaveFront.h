@@ -26,7 +26,7 @@ class MyPointWFAlgo : public amp::PointWaveFrontAlgorithm {
         }
 
         // This is just to get grade to work, you DO NOT need to override this method
-        virtual amp::Path2D plan(const amp::Problem2D& problem) override { return amp::Path2D(); }
+        // virtual amp::Path2D plan(const amp::Problem2D& problem) override { return amp::Path2D(); }
 
         // You need to implement here
         virtual amp::Path2D planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const GridCSpace2D& grid_cspace) override;
@@ -49,7 +49,7 @@ class MyPointWFAlgo : public amp::PointWaveFrontAlgorithm {
 class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
     public:
         // Default ctor
-        MyManipWFAlgo()
+        MyManipWFAlgo() {}
             : amp::ManipulatorWaveFrontAlgorithm(std::make_shared<MyManipConstructor>()) {}
 
         // You can have custom ctor params for all of these classes
@@ -70,9 +70,9 @@ class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
         }
 
         // This is just to get grade to work, you DO NOT need to override this method
-        virtual amp::ManipulatorTrajectory2Link plan(const LinkManipulator2D& link_manipulator_agent, const amp::Problem2D& problem) override {
-            return amp::ManipulatorTrajectory2Link();
-        }
+        // virtual amp::ManipulatorTrajectory2Link plan(const LinkManipulator2D& link_manipulator_agent, const amp::Problem2D& problem) override {
+        //     return amp::ManipulatorTrajectory2Link();
+        // }
         
         // You need to implement here
         virtual amp::Path2D planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const GridCSpace2D& grid_cspace) override;

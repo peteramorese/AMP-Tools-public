@@ -9,8 +9,8 @@ MyAStarAlgo::GraphSearchResult MyAStarAlgo::search(const amp::ShortestPathProble
         ANode currNode, node;
         currNode.ind = init;
         std::list<ANode> queue = {currNode};
-        std::map<uint32_t, ANode> processed;
         std::map<uint32_t, ANode> openList;
+        std::map<uint32_t, ANode> processed;
         openList[init] = currNode;
         // problem.graph->print();
         int steps = 0;
@@ -71,7 +71,6 @@ MyAStarAlgo::GraphSearchResult MyAStarAlgo::search(const amp::ShortestPathProble
         while (index != init ) {
             path.push_front(index);
             index = processed[index].parent;
-            // cout << "Added node " << index << " to path\n";
         }
         path.push_front(init);
         GraphSearchResult result = {success, path, currNode.cost};

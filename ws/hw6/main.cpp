@@ -74,7 +74,7 @@ int main(int argc, char** argv) {
     // problem2();
     // problem3a();
     // problem3b();
-    // Visualizer::showFigures();
+    Visualizer::showFigures();
     amp::HW6::grade<MyPointWFAlgo, MyManipWFAlgo, MyAStarAlgo>("yusif.razzaq@colorado.edu", argc, argv, std::make_tuple(), std::make_tuple(), std::make_tuple(false));
     return 0;
 }

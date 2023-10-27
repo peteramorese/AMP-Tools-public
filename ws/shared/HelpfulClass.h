@@ -26,6 +26,8 @@ class MyClass {
 
 bool isPointInsidePolygon(const Vector2d& point, const vector<Vector2d>& polygon);
 
+bool isPointInCollision(const Vector2d& point, const vector<amp::Obstacle2D> obstacles);
+
 double distanceBetweenPoints(const Vector2d& point1, const Vector2d& point2);
 
 Edge findLineEquation(const Vector2d& point1,const Vector2d& point2);
@@ -37,3 +39,7 @@ bool checkLine(const Vector2d& point, const Edge& edge, bool left);
 double distanceToLine(const Vector2d& point, const Edge& edge);
 
 Vector2d closestPointOnLine(const Vector2d& point, const Edge& edge);
+
+bool doesLineIntersectPolygon(const Vector2d& p1, const Vector2d& p2, const vector<Vector2d>& polygon);
+
+bool isLineInCollision(const Vector2d& point1, const Vector2d& point2, const vector<amp::Obstacle2D> obstacles);

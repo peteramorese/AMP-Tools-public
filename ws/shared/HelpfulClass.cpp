@@ -125,6 +125,15 @@ bool isPointInsidePolygon(const Vector2d& point, const vector<Vector2d>& polygon
     return inside;
 }
 
+bool isPointInCollision(const Vector2d& point, const vector<amp::Obstacle2D> obstacles){
+    bool isInside;
+    for (const amp::Obstacle2D& obstacle : obstacles) {
+        isInside = isPointInsidePolygon(point, obstacle.verticesCCW());
+        if (isInside) return true;
+    }
+    return false;
+}
+
 double distanceBetweenPoints(const Vector2d& point1, const Vector2d& point2) {
 	return (point2 - point1).norm();
 }
@@ -172,4 +181,44 @@ Vector2d closestPointOnLine(const Vector2d& point, const Edge& edge) {
     double xPos = (edge.coeff.b * (edge.coeff.b * point.x() - edge.coeff.a * point.y()) - edge.coeff.a * edge.coeff.c) / denominator;
     double yPos = (edge.coeff.a * (-edge.coeff.b * point.x() + edge.coeff.a * point.y()) - edge.coeff.b * edge.coeff.c) / denominator;
     return {xPos, yPos};
+}
+
+double cross(const Vector2d& a, const Vector2d& b) {
+    return a.x() * b.y() - a.y() * b.x();
+}
+
+double orient(const Vector2d& a, const Vector2d& b, const Vector2d& c) {
+    return cross(b-a, c-a);
+}
+
+bool properInter(const Vector2d& a, const Vector2d& b, const Vector2d& c, const Vector2d& d) {
+    double oa = orient(c,d,a), 
+        ob = orient(c,d,b),            
+        oc = orient(a,b,c),            
+        od = orient(a,b,d);      
+    // Proper intersection exists iff opposite signs  
+    return (oa*ob < 0 && oc*od < 0);
+} 
+
+bool doesLineIntersectPolygon(const Vector2d& a, const Vector2d& b, const vector<Vector2d>& polygon) {
+    if (isPointInsidePolygon(a, polygon) || isPointInsidePolygon(b, polygon)) {
+        return true;  // At least one of the line endpoints is inside the polygon.
+    }
+    int n = polygon.size();
+    for (int i = 0; i < n; i++) {
+        int j = (i + 1) % n;
+        const Vector2d& c = polygon[i];
+        const Vector2d& d = polygon[j];
+        if (properInter(a, b, c, d)) return true;
+    }
+    return false;
+}
+
+bool isLineInCollision(const Vector2d& point1, const Vector2d& point2, const vector<amp::Obstacle2D> obstacles){
+    bool doesIntersect;
+    for (const amp::Obstacle2D& obstacle : obstacles) {
+        doesIntersect = doesLineIntersectPolygon(point1, point2, obstacle.verticesCCW());
+        if (doesIntersect) return true;
+    }
+    return false;
 }

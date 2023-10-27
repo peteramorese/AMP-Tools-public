@@ -40,18 +40,12 @@ void problem2() {
     MyLinkManipulator manipulator({1, 1});
     ManipulatorState initState = manipulator.getConfigurationFromIK(problem.q_init);
     ManipulatorState goalState = manipulator.getConfigurationFromIK(problem.q_goal);
-    MyManipWFAlgo algo;
-    std::unique_ptr<amp::GridCSpace2D> cSpace = algo.constructDiscretizedWorkspace(manipulator, problem);
-    amp::Path2D path = algo.planInCSpace({initState[0], initState[1]}, {goalState[0], goalState[1]}, *cSpace);
+    // MyManipWFAlgo algo;
+    // std::unique_ptr<amp::GridCSpace2D> cSpace = algo.constructDiscretizedWorkspace(manipulator, problem);
+    // amp::Path2D path = algo.planInCSpace({initState[0], initState[1]}, {goalState[0], goalState[1]}, *cSpace);
 
-    int numStates = path.waypoints.size();
-    for (int i = 0; i < numStates; i += numStates/10) {
-        Vector2d state = path.waypoints[i];
-    }
     // Visualizer::makeFigure(problem, manipulator, path);
-    Visualizer::makeFigure(*cSpace, path);
-
-    // Visualizer::makeFigure(*cSpace);
+    // Visualizer::makeFigure(*cSpace, path);
 }
 
 void problem3a() {
@@ -75,6 +69,6 @@ int main(int argc, char** argv) {
     // problem3a();
     // problem3b();
     Visualizer::showFigures();
-    amp::HW6::grade<MyPointWFAlgo, MyManipWFAlgo, MyAStarAlgo>("yusif.razzaq@colorado.edu", argc, argv, std::make_tuple(), std::make_tuple(), std::make_tuple(false));
+    // amp::HW6::grade<MyPointWFAlgo, MyManipWFAlgo, MyAStarAlgo>("yusif.razzaq@colorado.edu", argc, argv, std::make_tuple(), std::make_tuple(), std::make_tuple(false));
     return 0;
 }

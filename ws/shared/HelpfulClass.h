@@ -41,4 +41,60 @@ class checkPath {
             }
             return false;
         }
+        bool pointCollision2D(const Eigen::Vector2d state, const amp::Environment2D& obs){
+            bool hit = false;
+            Eigen::Vector2d nextVertex;
+            Eigen::Vector2d currentVertex;
+            double d;
+            for(auto Ob : obs.obstacles){
+                if(!hit){
+                    hit = false;
+                    int pos = 0;
+                    int neg = 0;
+                    for(int j = 0; j < Ob.verticesCCW().size(); j++){
+                        nextVertex = Ob.verticesCCW()[(j + 1)%Ob.verticesCCW().size()];
+                        currentVertex = Ob.verticesCCW()[j];
+                        d = (state(0) - currentVertex(0))*(nextVertex(1) - currentVertex(1)) - (state(1) - currentVertex(1))*(nextVertex(0) - currentVertex(0));
+
+                        if (d > 0) pos++;
+                        if (d < 0) neg++;
+
+                        //If the sign changes, then point is outside
+                        if (pos > 0 && neg > 0){
+                            hit = false;
+                        }
+                        else{
+                            hit = true;
+                        }
+
+                    }
+
+                }
+            }
+            return hit;
+        }
+        bool lineCollision2D(const Eigen::Vector2d state0, const Eigen::Vector2d state1, const amp::Environment2D& obs){
+            bool hit = false;
+            for(auto Ob : obs.obstacles){
+                if(!hit){
+                    for(int j = 0; j < Ob.verticesCCW().size(); j++){
+                        if(!hit){
+                            hit = checkHit(state0,state1,Ob,j);
+                        }
+                    }
+                }
+            }
+            return hit;
+        }
+};
+
+class MyConfigurationSpace : public amp::ConfigurationSpace {
+
+    virtual bool inCollision(const Eigen::VectorXd& cspace_state) const override{
+
+
+        return true;
+    }
+
+
 };

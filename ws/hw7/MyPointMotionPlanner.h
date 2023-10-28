@@ -26,12 +26,25 @@ class MyPRM : public amp::PointMotionPlanner2D {
             //2. Connect every sample within r radius with straight line (make graph?)
             //2.1. Check that each edge doesn't collide (line polygon check)
             //3. Search graph from start to goal, return node nums, convert to appropriate Eigen Vectors
-            // amp::Graph graph();
-            // Eigen::Vector2d temp;
-            // for(int j = 0; j < n; j++){
-            //     temp(0) = 
-            // }
-
+            std::vector<Eigen::Vector2d> samples;
+            amp::Graph<double> graph;
+            Eigen::Vector2d temp;
+            int id = 0;
+            checkPath c;
+            for(int j = 0; j < numSamples; j++){
+                temp(0) = amp::RNG::randd(problem.x_min, problem.x_max);
+                temp(1) = amp::RNG::randd(problem.y_min, problem.y_max);
+                if(!c.pointCollision2D(temp,problem)){
+                    for(int k = 0; k < samples.size(); k++){
+                        if((samples[k] - temp).norm() <= radius && !c.lineCollision2D(temp, samples[k], problem)){
+                            graph.connect(k,id,(samples[k] - temp).norm());
+                        }
+                    }
+                    samples.push_back(temp);
+                    id++;
+                }
+            }
+            
 
             return amp::Path2D();
         }

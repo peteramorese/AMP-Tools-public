@@ -6,7 +6,18 @@
 #include "HelpfulClass.h"
 
 
-
+struct MySearchHeuristic : public amp::SearchHeuristic {
+	/// @brief Default heuristic that just returns L2 norm distance to goal.
+	/// @param node Node to get the heuristic value h(node) for. 
+	/// @return Heuristic value
+    Eigen::Vector2d goal;
+    std::vector<Eigen::Vector2d> samples;
+    MySearchHeuristic(const Eigen::Vector2d& goal_, std::vector<Eigen::Vector2d>& samples_){
+        goal = goal_;
+        samples = samples_;
+    }
+	virtual double operator()(amp::Node node) const {return (goal - samples[node]).norm();}
+};
 
 // /// @brief Derive this class and implement your algorithm in the `plan` method. 
 // class MyPRM : public HW7::PointMotionPlanner2D {
@@ -16,7 +27,7 @@
 
 //         virtual ~PRM() {}
 // };
-class MyPRM : public amp::PointMotionPlanner2D {
+class MyPRM : public amp::PRM2D {
     public:
         /// @brief Solve a motion planning problem. Create a derived class and override this method
         virtual amp::Path2D plan(const amp::Problem2D& problem) override{
@@ -26,10 +37,13 @@ class MyPRM : public amp::PointMotionPlanner2D {
             //2. Connect every sample within r radius with straight line (make graph?)
             //2.1. Check that each edge doesn't collide (line polygon check)
             //3. Search graph from start to goal, return node nums, convert to appropriate Eigen Vectors
+            amp::Path2D path;
             std::vector<Eigen::Vector2d> samples;
-            amp::Graph<double> graph;
+            samples.push_back(problem.q_init);
+            samples.push_back(problem.q_goal);
+            auto graph = std::make_shared<amp::Graph<double>>();
             Eigen::Vector2d temp;
-            int id = 0;
+            int id = 2;
             checkPath c;
             for(int j = 0; j < numSamples; j++){
                 temp(0) = amp::RNG::randd(problem.x_min, problem.x_max);
@@ -37,16 +51,27 @@ class MyPRM : public amp::PointMotionPlanner2D {
                 if(!c.pointCollision2D(temp,problem)){
                     for(int k = 0; k < samples.size(); k++){
                         if((samples[k] - temp).norm() <= radius && !c.lineCollision2D(temp, samples[k], problem)){
-                            graph.connect(k,id,(samples[k] - temp).norm());
+                            graph->connect(k,id,(samples[k] - temp).norm());
+                            graph->connect(id,k,(samples[k] - temp).norm());
                         }
                     }
                     samples.push_back(temp);
                     id++;
                 }
             }
-            
+            MySearchHeuristic sh(problem.q_goal,samples);
+            MyAStarAlgo As;
+            amp::ShortestPathProblem spp;
+            spp.graph = graph;
+            spp.init_node = 0;
+            spp.goal_node = 1;
+            // amp::GraphSearchResult Ares =  As.search(spp,sh);
 
-            return amp::Path2D();
+            for(auto idx : As.search(spp,sh).node_path){
+                path.waypoints.push_back(samples[idx]);
+            }
+
+            return path;
         }
 
         amp::Path planND(const amp::Problem2D& problem, const amp::ConfigurationSpace& checker){

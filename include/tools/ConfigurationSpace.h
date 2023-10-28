@@ -7,8 +7,42 @@
 
 namespace amp {
 
+/// @brief N-Dimensional configuration space/collision checker. You can derive this to implement different
+/// collision checkers or C-space representations for different problems
 class ConfigurationSpace {
-    
+    public: 
+        ConfigurationSpace(const Eigen::VectorXd& lower_bounds, const Eigen::VectorXd& upper_bounds)
+            : m_lower_bounds(lower_bounds)
+            , m_upper_bounds(upper_bounds) 
+        {
+            ASSERT(lower_bounds.size() == upper_bounds.size(), "Upper and lower bounds do not have the same size")
+        }
+
+        /******* User Implemented Methods ********/
+
+        /// @brief Check if a state in C-space is colliding
+        /// @param cspace_state N-dimensional C-space state
+        /// @return `true` if the the state is in collision, `false` if it is not
+        virtual bool inCollision(const Eigen::VectorXd& cspace_state) const = 0;
+
+        /*****************************************/
+
+        /// @brief Get the lower bounds for each configuration dimension
+        /// @return Lower bounds
+        inline const Eigen::VectorXd& lowerBounds() {return m_lower_bounds;}
+
+        /// @brief Get the upper bounds for each configuration dimension
+        /// @return Lower bounds
+        inline const Eigen::VectorXd& upperBounds() {return m_upper_bounds;}
+
+        /// @brief Get the dimension of the configuration space
+        /// @return Dimension
+        inline std::size_t dimension() {return m_lower_bounds.size();}
+
+    protected:
+        Eigen::VectorXd m_lower_bounds;
+        Eigen::VectorXd m_upper_bounds;
+
 };
 
 /// @brief User implemented abstract class that accesses the continuous C-Space (bounded)

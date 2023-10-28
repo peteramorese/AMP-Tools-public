@@ -18,6 +18,8 @@ shift
 
 #use_valgrind=false
 
+remove_logs=OFF
+
 for arg in "$@"; do
     case "$arg" in 
         -r|--rebuild)
@@ -25,6 +27,11 @@ for arg in "$@"; do
             rm -rf build            
             rm grade.sh
             rm .env.sh
+            shift 1
+            ;;
+        -q|--quiet)
+            echo "Removing logs"
+            remove_logs=ON
             shift 1
             ;;
         #-d|--valgrind)
@@ -48,7 +55,7 @@ echo "Library path: $@OS_LD_LIBRARY_PATH_VAR@"
 mkdir -p build && cd build
 
 architecture=$(uname -m)
-cmake ./.. -DAMP_BUILD_LIB=OFF -DAMP_EXCLUDE_VIS=OFF -DAMP_EXCLUDE_LOGS=OFF -DSYSTEM_ARCHITECTURE="${architecture}" 
+cmake ./.. -DAMP_BUILD_LIB=OFF -DAMP_EXCLUDE_VIS=OFF -DAMP_EXCLUDE_LOGS=${remove_logs} -DSYSTEM_ARCHITECTURE="${architecture}" 
 
 make
 if [ $? == 0 ]; then

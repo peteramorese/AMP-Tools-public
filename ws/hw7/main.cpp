@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
         // Visualizer::makeFigure(w1, path, collision_points);
         prm.pathSmoother(w1,path);
         // Visualizer::makeFigure(w1, path, collision_points);
-        prm.getN() = 250;
+        prm.getN() = 150;
         prm.getR() = 5;
         prm.getW() = true;
         collision_points.clear();

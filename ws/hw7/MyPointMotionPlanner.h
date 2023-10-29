@@ -68,11 +68,7 @@ class MyPRM : public amp::PRM2D {
                     id++;
                 }
             }
-            if(web_slinger){
-                // makeMap(samples);
-                amp::Visualizer::makeFigure(problem, *graph.get(), makeMap(samples));
-                amp::Visualizer::showFigures();
-            }
+            
             // auto stop = std::chrono::high_resolution_clock::now();
             // auto duration = duration_cast<std::chrono::milliseconds>(stop - start);
             // LOG("sampling time: " << duration.count());
@@ -99,7 +95,12 @@ class MyPRM : public amp::PRM2D {
                 path.waypoints.push_back(problem.q_init);
                 path.waypoints.push_back(problem.q_goal);
             }
-            
+            if(web_slinger){
+                // makeMap(samples);
+                amp::Visualizer::makeFigure(problem, path);
+                amp::Visualizer::makeFigure(problem, *graph.get(), makeMap(samples));
+                amp::Visualizer::showFigures();
+            }
             // LOG("length of nodePath: " << searchResult.node_path.size());
             return path;
         }

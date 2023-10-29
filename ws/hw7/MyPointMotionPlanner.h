@@ -6,6 +6,7 @@
 #include "HelpfulClass.h"
 #include <chrono>
 
+using Node = uint32_t;
 
 struct MySearchHeuristic : public amp::SearchHeuristic {
 	/// @brief Default heuristic that just returns L2 norm distance to goal.
@@ -67,6 +68,11 @@ class MyPRM : public amp::PRM2D {
                     id++;
                 }
             }
+            if(web_slinger){
+                // makeMap(samples);
+                amp::Visualizer::makeFigure(problem, *graph.get(), makeMap(samples));
+                amp::Visualizer::showFigures();
+            }
             // auto stop = std::chrono::high_resolution_clock::now();
             // auto duration = duration_cast<std::chrono::milliseconds>(stop - start);
             // LOG("sampling time: " << duration.count());
@@ -110,13 +116,19 @@ class MyPRM : public amp::PRM2D {
                     idx2 = amp::RNG::randi(0,path.waypoints.size());
                     }while(idx1 >= idx2 || idx2 - idx1 == 1);
                     if(!c.lineCollision2D(path.waypoints[idx1], path.waypoints[idx2], problem)){
-                        LOG("removing idx between " << idx1 << " and " << idx2);
+                        // LOG("removing idx between " << idx1 << " and " << idx2);
                         path.waypoints.erase(path.waypoints.begin() + idx1 + 1, path.waypoints.begin() + idx2);
                     }
                 }
             }
         }
-
+        std::map<Node, Eigen::Vector2d> makeMap(std::vector<Eigen::Vector2d> samples){
+            std::map<Node, Eigen::Vector2d> mapOfSamples;
+            for (Node j = 0; j < samples.size(); j++){ 
+                mapOfSamples.insert({j, samples[j]}); 
+            }
+            return mapOfSamples;
+        }
         amp::Path planND(const amp::Problem2D& problem, const amp::ConfigurationSpace& checker){
             // TODO:
             //1. Sample numSamples times to fill vector of Eigen samples (use rand() % x_max + x_min)
@@ -133,10 +145,12 @@ class MyPRM : public amp::PRM2D {
         int& getN(){return numSamples;};
         double& getR(){return radius;};
         bool& getS(){return smooth;};
+        bool& getW(){return web_slinger;};
     private:
         int numSamples = 300;
         double radius = 4;
         bool smooth = false;
+        bool web_slinger = false;
 };
 
 

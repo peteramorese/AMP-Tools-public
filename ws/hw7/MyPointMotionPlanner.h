@@ -4,7 +4,7 @@
 #include "hw/HW7.h"
 #include <Eigen/LU>
 #include "HelpfulClass.h"
-
+#include <chrono>
 
 
 struct MySearchHeuristic : public amp::SearchHeuristic {
@@ -52,6 +52,7 @@ class MyPRM : public amp::PRM2D {
             Eigen::Vector2d temp;
             int id = 2;
             checkPath c;
+            // auto start = std::chrono::high_resolution_clock::now();
             for(int j = 0; j < numSamples; j++){
                 temp(0) = amp::RNG::randd(problem.x_min, problem.x_max);
                 temp(1) = amp::RNG::randd(problem.y_min, problem.y_max);
@@ -66,6 +67,9 @@ class MyPRM : public amp::PRM2D {
                     id++;
                 }
             }
+            // auto stop = std::chrono::high_resolution_clock::now();
+            // auto duration = duration_cast<std::chrono::milliseconds>(stop - start);
+            // LOG("sampling time: " << duration.count());
             // LOG("# Valid samples: " << samples.size());
             // LOG("# Valid nodes: " << graph->nodes().size());
             MySearchHeuristic sh(problem.q_goal,samples);
@@ -75,6 +79,7 @@ class MyPRM : public amp::PRM2D {
             spp.init_node = 0;
             spp.goal_node = 1;
             amp::AStar::GraphSearchResult searchResult =  As.search(spp,sh);
+
             if(searchResult.success){
                 for(auto idx : searchResult.node_path){
                     path.waypoints.push_back(samples[idx]);
@@ -129,8 +134,8 @@ class MyPRM : public amp::PRM2D {
         double& getR(){return radius;};
         bool& getS(){return smooth;};
     private:
-        int numSamples = 1000;
-        double radius = 1;
+        int numSamples = 300;
+        double radius = 4;
         bool smooth = false;
 };
 

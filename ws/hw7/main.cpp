@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
     amp::Path2D path;
     std::vector<Eigen::Vector2d> collision_points;
     // {LOG("PRM");
-    //     MyPRM prm;
+        MyPRM prm;
     //     prm.getN() = 200;
     //     prm.getR() = 1;
     //     prm.getS() = false;
@@ -47,21 +47,23 @@ int main(int argc, char** argv) {
     //     prm.pathSmoother(w3,path);
     //     Visualizer::makeFigure(w3, path, collision_points);
     // }
-    {LOG("RRT");
+    // {LOG("RRT");
         MyGoalBiasRRT RRT;
-        collision_points.clear();
-        path = RRT.plan(w1);
-        HW7::check(path,w1,collision_points);
-        Visualizer::makeFigure(w1, path, collision_points);
-        collision_points.clear();
-        path = RRT.plan(w2);
-        HW7::check(path,w2,collision_points);
-        Visualizer::makeFigure(w2, path, collision_points);
-        collision_points.clear();
-        path = RRT.plan(w3);
-        HW7::check(path,w3,collision_points);
-        Visualizer::makeFigure(w3, path, collision_points);
-    }
-    Visualizer::showFigures();
+    //     collision_points.clear();
+    //     path = RRT.plan(w1);
+    //     HW7::check(path,w1,collision_points);
+    //     Visualizer::makeFigure(w1, path, collision_points);
+    //     collision_points.clear();
+    //     path = RRT.plan(w2);
+    //     HW7::check(path,w2,collision_points);
+    //     Visualizer::makeFigure(w2, path, collision_points);
+    //     collision_points.clear();
+    //     path = RRT.plan(w3);
+    //     HW7::check(path,w3,collision_points);
+    //     Visualizer::makeFigure(w3, path, collision_points);
+    // }
+    // Visualizer::showFigures();
+    amp::HW7::grade(prm, RRT, "collin.hudson@colorado.edu", argc, argv);
+
     return 0;
 }

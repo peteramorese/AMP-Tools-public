@@ -6,6 +6,7 @@
 #include "HelpfulClass.h"
 
 
+
 struct MySearchHeuristic : public amp::SearchHeuristic {
 	/// @brief Default heuristic that just returns L2 norm distance to goal.
 	/// @param node Node to get the heuristic value h(node) for. 
@@ -152,14 +153,14 @@ class MyGoalBiasRRT : public amp::GoalBiasRRT2D {
         virtual amp::Path2D plan(const amp::Problem2D& problem) override{
             amp::Path2D path;
             std::vector<sampleS> samples;
-            samples.push_back(sampleS(problem.q_init,0));
+            samples.push_back(sampleS(problem.q_init,-1));
             Eigen::Vector2d q_rand;
             bool soln = false;
             int minID = 0;
-            int nodeID = 1;
             double tempMin = 0;
             checkPath c;
-            while(!soln){
+            int steps = 0;
+            while(!soln && steps < numIterations){
                 //Generate q_rand
                 q_rand(0) = amp::RNG::randd(problem.x_min, problem.x_max);
                 q_rand(1) = amp::RNG::randd(problem.y_min, problem.y_max);
@@ -176,11 +177,25 @@ class MyGoalBiasRRT : public amp::GoalBiasRRT2D {
                 if(!c.lineCollision2D(q_rand, samples[minID].xy, problem)){
                     sampleS q_randS(q_rand,minID);
                     samples.push_back(q_randS);
-                    nodeID++;
                     if((q_rand - problem.q_goal).norm() < eps){
                         soln = true;
                     }
                 }
+            }
+            std::list<Eigen::Vector2d> l;
+            if(soln){
+                sampleS testS(problem.q_goal,samples.size() - 1);
+                while(testS.back != -1){
+                    l.push_front(testS.xy);
+                    testS = samples[testS.back];
+                }
+                l.push_front(problem.q_init);
+                path.waypoints = { std::begin(l), std::end(l) };
+            }
+            else{
+                LOG("Couldn't find path :(");
+                path.waypoints.push_back(problem.q_init);
+                path.waypoints.push_back(problem.q_goal);
             }
 
             return path;
@@ -193,7 +208,7 @@ class MyGoalBiasRRT : public amp::GoalBiasRRT2D {
         double& getS(){return stepSize;};
         double& getE(){return eps;};
     private:
-        int numIterations = 1000;
+        int numIterations = 10000;
         double goalBiasP;
         double stepSize = 1;
         double eps = 0.1;

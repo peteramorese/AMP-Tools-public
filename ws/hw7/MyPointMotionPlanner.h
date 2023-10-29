@@ -79,20 +79,11 @@ class MyPRM : public amp::PRM2D {
                     path.waypoints.push_back(samples[idx]);
                 }
                 if(smooth){
-                    // for(int j = 0; j < 2*searchResult.node_path.size(); j ++){
-                    //     int idx1 = amp::RNG::randi(0,path.waypoints.size());
-                    //     int idx2 = amp::RNG::randi(0,path.waypoints.size());
-                    //     if(idx1 < idx2 && !c.lineCollision2D(path.waypoints[idx1], path.waypoints[idx2], problem)){
-                    //         // LOG("i1: " << idx1 << " idx2 " << idx2);
-                    //         path.waypoints.erase(path.waypoints.begin() + idx1 + 1, path.waypoints.begin() + idx2);
-                    //         // LOG("ok :) len: " << path.waypoints.size());
-                    //     }
-                    // }
                     pathSmoother(problem, path);
                 }
             }
             else{
-                LOG("sadge :(");
+                LOG("Can't find a path :(");
                 path.waypoints.push_back(problem.q_init);
                 path.waypoints.push_back(problem.q_goal);
             }
@@ -106,7 +97,7 @@ class MyPRM : public amp::PRM2D {
             int idx1 = 0;
             int idx2 = 1;
             int initSize = path.waypoints.size();
-            for(int j = 0; j < 5*initSize; j ++){
+            for(int j = 0; j < 10*initSize; j ++){
                 if(path.waypoints.size() > 2){
                     do{
                     idx1 = amp::RNG::randi(0,path.waypoints.size());
@@ -142,22 +133,69 @@ class MyPRM : public amp::PRM2D {
         bool smooth = false;
 };
 
+
 // /// @brief Derive this class and implement your algorithm in the `plan` method. 
-// class MyGoalBiasRRT : public HW7::PointMotionPlanner2D {
-//     public:
-//         /// @brief Solve a motion planning problem. Create a derived class and override this method
-//         //virtual amp::Path2D plan(const amp::Problem2D& problem) = 0;
-
-//         virtual ~GoalBiasRRT() {}
-// };
-
-class MyGoalBiasRRT : public amp::PointMotionPlanner2D {
+class MyGoalBiasRRT : public amp::GoalBiasRRT2D {
     public:
+
+
+        struct sampleS{
+            Eigen::Vector2d xy;
+            int back = 0;
+            sampleS(const Eigen::Vector2d& inXY, int inBack){
+                xy = inXY;
+                back = inBack;
+            }
+        };
+
         /// @brief Solve a motion planning problem. Create a derived class and override this method
-        amp::Path2D plan(const amp::Problem2D& problem){
+        virtual amp::Path2D plan(const amp::Problem2D& problem) override{
+            amp::Path2D path;
+            std::vector<sampleS> samples;
+            samples.push_back(sampleS(problem.q_init,0));
+            Eigen::Vector2d q_rand;
+            bool soln = false;
+            int minID = 0;
+            int nodeID = 1;
+            double tempMin = 0;
+            checkPath c;
+            while(!soln){
+                //Generate q_rand
+                q_rand(0) = amp::RNG::randd(problem.x_min, problem.x_max);
+                q_rand(1) = amp::RNG::randd(problem.y_min, problem.y_max);
+                //Find closest node in tree to q_rand
+                minID = 0;
+                tempMin = (samples[0].xy - q_rand).norm();
+                for(int k = 1; k < samples.size(); k++){
+                    if((samples[k].xy - q_rand).norm() < tempMin){
+                        tempMin = (samples[k].xy - q_rand).norm();
+                        minID = k;
+                    }
+                }
+                q_rand = ((1 - stepSize/tempMin)*samples[minID].xy + (stepSize/tempMin)*q_rand);
+                if(!c.lineCollision2D(q_rand, samples[minID].xy, problem)){
+                    sampleS q_randS(q_rand,minID);
+                    samples.push_back(q_randS);
+                    nodeID++;
+                    if((q_rand - problem.q_goal).norm() < eps){
+                        soln = true;
+                    }
+                }
+            }
 
-            return amp::Path2D();
-        }
+            return path;
 
-        // virtual ~GoalBiasRRT() {}
+
+        };
+
+        int& getN(){return numIterations;};
+        double& getG(){return goalBiasP;};
+        double& getS(){return stepSize;};
+        double& getE(){return eps;};
+    private:
+        int numIterations = 1000;
+        double goalBiasP;
+        double stepSize = 1;
+        double eps = 0.1;
 };
+

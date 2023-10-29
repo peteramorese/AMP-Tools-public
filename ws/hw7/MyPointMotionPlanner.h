@@ -162,8 +162,13 @@ class MyGoalBiasRRT : public amp::GoalBiasRRT2D {
             int steps = 0;
             while(!soln && steps < numIterations){
                 //Generate q_rand
-                q_rand(0) = amp::RNG::randd(problem.x_min, problem.x_max);
-                q_rand(1) = amp::RNG::randd(problem.y_min, problem.y_max);
+                if(amp::RNG::randi(0,100) < goalBiasP*100){
+                    q_rand(0) = amp::RNG::randd(problem.x_min, problem.x_max);
+                    q_rand(1) = amp::RNG::randd(problem.y_min, problem.y_max);
+                }
+                else{
+                    q_rand = problem.q_goal;
+                }
                 //Find closest node in tree to q_rand
                 minID = 0;
                 tempMin = (samples[0].xy - q_rand).norm();
@@ -209,7 +214,7 @@ class MyGoalBiasRRT : public amp::GoalBiasRRT2D {
         double& getE(){return eps;};
     private:
         int numIterations = 10000;
-        double goalBiasP;
+        double goalBiasP = 0.05;
         double stepSize = 1;
         double eps = 0.1;
 };

@@ -65,8 +65,8 @@ class MyPRM : public amp::PRM2D {
                     id++;
                 }
             }
-            LOG("# Valid samples: " << samples.size());
-            LOG("# Valid nodes: " << graph->nodes().size());
+            // LOG("# Valid samples: " << samples.size());
+            // LOG("# Valid nodes: " << graph->nodes().size());
             MySearchHeuristic sh(problem.q_goal,samples);
             MyAStarAlgo As;
             amp::ShortestPathProblem spp;
@@ -78,14 +78,17 @@ class MyPRM : public amp::PRM2D {
                 for(auto idx : searchResult.node_path){
                     path.waypoints.push_back(samples[idx]);
                 }
-                for(int j = 0; j < 2*searchResult.node_path.size(); j ++){
-                    int idx1 = amp::RNG::randi(0,path.waypoints.size());
-                    int idx2 = amp::RNG::randi(0,path.waypoints.size());
-                    if(idx1 < idx2 && !c.lineCollision2D(path.waypoints[idx1], path.waypoints[idx2], problem)){
-                        // LOG("i1: " << idx1 << " idx2 " << idx2);
-                        path.waypoints.erase(path.waypoints.begin() + idx1 + 1, path.waypoints.begin() + idx2);
-                        // LOG("ok :) len: " << path.waypoints.size());
-                    }
+                if(smooth){
+                    // for(int j = 0; j < 2*searchResult.node_path.size(); j ++){
+                    //     int idx1 = amp::RNG::randi(0,path.waypoints.size());
+                    //     int idx2 = amp::RNG::randi(0,path.waypoints.size());
+                    //     if(idx1 < idx2 && !c.lineCollision2D(path.waypoints[idx1], path.waypoints[idx2], problem)){
+                    //         // LOG("i1: " << idx1 << " idx2 " << idx2);
+                    //         path.waypoints.erase(path.waypoints.begin() + idx1 + 1, path.waypoints.begin() + idx2);
+                    //         // LOG("ok :) len: " << path.waypoints.size());
+                    //     }
+                    // }
+                    pathSmoother(problem, path);
                 }
             }
             else{
@@ -94,8 +97,27 @@ class MyPRM : public amp::PRM2D {
                 path.waypoints.push_back(problem.q_goal);
             }
             
-            LOG("length of nodePath: " << searchResult.node_path.size());
+            // LOG("length of nodePath: " << searchResult.node_path.size());
             return path;
+        }
+
+        void pathSmoother(const amp::Problem2D& problem, amp::Path2D& path){
+            checkPath c;
+            int idx1 = 0;
+            int idx2 = 1;
+            int initSize = path.waypoints.size();
+            for(int j = 0; j < 5*initSize; j ++){
+                if(path.waypoints.size() > 2){
+                    do{
+                    idx1 = amp::RNG::randi(0,path.waypoints.size());
+                    idx2 = amp::RNG::randi(0,path.waypoints.size());
+                    }while(idx1 >= idx2 || idx2 - idx1 == 1);
+                    if(!c.lineCollision2D(path.waypoints[idx1], path.waypoints[idx2], problem)){
+                        LOG("removing idx between " << idx1 << " and " << idx2);
+                        path.waypoints.erase(path.waypoints.begin() + idx1 + 1, path.waypoints.begin() + idx2);
+                    }
+                }
+            }
         }
 
         amp::Path planND(const amp::Problem2D& problem, const amp::ConfigurationSpace& checker){

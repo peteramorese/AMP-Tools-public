@@ -5,6 +5,7 @@ project(amp-tools)
 if(DEFINED CMAKE_BUILD_TYPE)
     message("Building type is DEBUG")
 else()
+    set(CMAKE_BUILD_TYPE Release)
     message("Building type is RELEASE")
 endif()
 

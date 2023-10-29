@@ -1,3 +1,5 @@
+#ifndef AMP_EXCLUDE_VIS
+
 #include "public/ScriptCaller.h"
 #include "public/VarsPublic.h"
 #include "tools/Logging.h"
@@ -63,3 +65,5 @@ ampprivate::pybridge::ScriptCaller::_Lifeline::~_Lifeline() {
     PyGILState_Release(gil_state);
     Py_Finalize();
 }
+
+#endif

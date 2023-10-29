@@ -1,3 +1,5 @@
+#ifndef AMP_EXCLUDE_VIS
+
 #include "public/PythonObjects.h"
 #include "tools/Logging.h"
 
@@ -70,3 +72,5 @@ std::unique_ptr<ampprivate::pybridge::PythonObject> ampprivate::pybridge::makePa
     tuple_elements.second.release();
     return tuple;
 }
+
+#endif

@@ -1,5 +1,7 @@
 #pragma once
 
+#ifndef AMP_EXCLUDE_VIS
+
 #include <Python.h>
 #include <string>
 #include <vector>
@@ -33,3 +35,5 @@ class ScriptCaller {
 }
 
 #include "ScriptCaller_impl.h"
+
+#endif

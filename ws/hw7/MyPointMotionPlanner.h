@@ -29,6 +29,12 @@ struct MySearchHeuristic : public amp::SearchHeuristic {
 // };
 class MyPRM : public amp::PRM2D {
     public:
+        MyPRM(){}
+        MyPRM(int nS, double rad, bool sM){
+            numSamples = nS;
+            radius = rad;
+            smooth = sM;
+        }
         /// @brief Solve a motion planning problem. Create a derived class and override this method
         virtual amp::Path2D plan(const amp::Problem2D& problem) override{
             // TODO:
@@ -59,18 +65,29 @@ class MyPRM : public amp::PRM2D {
                     id++;
                 }
             }
+            LOG("# Valid samples: " << samples.size());
+            LOG("# Valid nodes: " << graph->nodes().size());
             MySearchHeuristic sh(problem.q_goal,samples);
             MyAStarAlgo As;
             amp::ShortestPathProblem spp;
             spp.graph = graph;
             spp.init_node = 0;
             spp.goal_node = 1;
-            // amp::GraphSearchResult Ares =  As.search(spp,sh);
+            amp::AStar::GraphSearchResult searchResult =  As.search(spp,sh);
+            if(searchResult.success){
+                for(auto idx : searchResult.node_path){
+                    path.waypoints.push_back(samples[idx]);
+                }
+                for(int j = 0; j < searchResult.node_path.size(); j ++){
 
-            for(auto idx : As.search(spp,sh).node_path){
-                path.waypoints.push_back(samples[idx]);
+                }
             }
-
+            else{
+                path.waypoints.push_back(problem.q_init);
+                path.waypoints.push_back(problem.q_goal);
+            }
+            
+            LOG("length of nodePath: " << searchResult.node_path.size());
             return path;
         }
 
@@ -89,9 +106,11 @@ class MyPRM : public amp::PRM2D {
         // virtual ~PRM() {}
         int& getN(){return numSamples;};
         double& getR(){return radius;};
+        bool& getS(){return smooth;};
     private:
-        int numSamples = 100;
+        int numSamples = 1000;
         double radius = 1;
+        bool smooth = false;
 };
 
 // /// @brief Derive this class and implement your algorithm in the `plan` method. 

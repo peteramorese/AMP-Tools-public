@@ -16,6 +16,7 @@ int main(int argc, char** argv) {
     MyPRM prm;
     prm.getN() = 200;
     prm.getR() = 1;
+    prm.getS() = true;
     std::vector<Eigen::Vector2d> collision_points;
     amp::Problem2D w1 = HW5::getWorkspace1();
     w1.y_min = -3;
@@ -26,6 +27,7 @@ int main(int argc, char** argv) {
 
     prm.getN() = 1000;
     prm.getR() = 2;
+    prm.getS() = true;
     collision_points.clear();
     amp::Problem2D w2 = HW2::getWorkspace1();
     path = prm.plan(w2);

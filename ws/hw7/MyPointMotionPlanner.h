@@ -78,11 +78,18 @@ class MyPRM : public amp::PRM2D {
                 for(auto idx : searchResult.node_path){
                     path.waypoints.push_back(samples[idx]);
                 }
-                for(int j = 0; j < searchResult.node_path.size(); j ++){
-
+                for(int j = 0; j < 2*searchResult.node_path.size(); j ++){
+                    int idx1 = amp::RNG::randi(0,path.waypoints.size());
+                    int idx2 = amp::RNG::randi(0,path.waypoints.size());
+                    if(idx1 < idx2 && !c.lineCollision2D(path.waypoints[idx1], path.waypoints[idx2], problem)){
+                        // LOG("i1: " << idx1 << " idx2 " << idx2);
+                        path.waypoints.erase(path.waypoints.begin() + idx1 + 1, path.waypoints.begin() + idx2);
+                        // LOG("ok :) len: " << path.waypoints.size());
+                    }
                 }
             }
             else{
+                LOG("sadge :(");
                 path.waypoints.push_back(problem.q_init);
                 path.waypoints.push_back(problem.q_goal);
             }

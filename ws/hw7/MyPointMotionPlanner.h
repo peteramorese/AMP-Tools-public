@@ -186,6 +186,7 @@ class MyGoalBiasRRT : public amp::GoalBiasRRT2D {
                         soln = true;
                     }
                 }
+                steps++;
             }
             std::list<Eigen::Vector2d> l;
             if(soln){
@@ -198,6 +199,9 @@ class MyGoalBiasRRT : public amp::GoalBiasRRT2D {
                 path.waypoints = { std::begin(l), std::end(l) };
             }
             else{
+                if(steps == numIterations){
+                    LOG("Ran outta steps buddy :(");
+                }
                 LOG("Couldn't find path :(");
                 path.waypoints.push_back(problem.q_init);
                 path.waypoints.push_back(problem.q_goal);
@@ -213,9 +217,9 @@ class MyGoalBiasRRT : public amp::GoalBiasRRT2D {
         double& getS(){return stepSize;};
         double& getE(){return eps;};
     private:
-        int numIterations = 10000;
-        double goalBiasP = 0.05;
+        int numIterations = 20000;
+        double goalBiasP = 0.1;
         double stepSize = 1;
-        double eps = 0.1;
+        double eps = 1;
 };
 

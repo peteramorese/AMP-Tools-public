@@ -45,6 +45,7 @@ class MyPRM : public amp::PRM2D {
             //2. Connect every sample within r radius with straight line (make graph?)
             //2.1. Check that each edge doesn't collide (line polygon check)
             //3. Search graph from start to goal, return node nums, convert to appropriate Eigen Vectors
+            auto start = std::chrono::high_resolution_clock::now();
             amp::Path2D path;
             std::vector<Eigen::Vector2d> samples;
             samples.push_back(problem.q_init);
@@ -53,7 +54,6 @@ class MyPRM : public amp::PRM2D {
             Eigen::Vector2d temp;
             int id = 2;
             checkPath c;
-            // auto start = std::chrono::high_resolution_clock::now();
             for(int j = 0; j < numSamples; j++){
                 temp(0) = amp::RNG::randd(problem.x_min, problem.x_max);
                 temp(1) = amp::RNG::randd(problem.y_min, problem.y_max);
@@ -91,18 +91,23 @@ class MyPRM : public amp::PRM2D {
                 }
             }
             else{
-                LOG("Can't find a path :(");
+                // LOG("Can't find a path :(");
                 path.waypoints.push_back(problem.q_init);
                 path.waypoints.push_back(problem.q_goal);
             }
-            if(web_slinger){
+            if(web_slinger && amp::HW7::check(path,problem,false)){
                 // makeMap(samples);
                 amp::Visualizer::makeFigure(problem, path);
                 amp::Visualizer::makeFigure(problem, *graph.get(), makeMap(samples));
                 amp::Visualizer::showFigures();
+                LOG("path length: " << path.length());
             }
             // LOG("length of nodePath: " << searchResult.node_path.size());
+            auto stop = std::chrono::high_resolution_clock::now();
+            auto duration = duration_cast<std::chrono::milliseconds>(stop - start);
+            time = duration.count();
             return path;
+            
         }
 
         void pathSmoother(const amp::Problem2D& problem, amp::Path2D& path){
@@ -145,9 +150,11 @@ class MyPRM : public amp::PRM2D {
         // virtual ~PRM() {}
         int& getN(){return numSamples;};
         double& getR(){return radius;};
+        int& getT(){return time;};
         bool& getS(){return smooth;};
         bool& getW(){return web_slinger;};
     private:
+        int time = 0;
         int numSamples = 300;
         double radius = 4;
         bool smooth = false;

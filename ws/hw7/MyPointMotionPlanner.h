@@ -93,9 +93,9 @@ class MyPRM : public amp::PRM2D {
             else{
                 // LOG("Can't find a path :(");
                 path.waypoints.push_back(problem.q_init);
-                path.waypoints.push_back(problem.q_goal);
+                // path.waypoints.push_back(problem.q_goal);
             }
-            if(web_slinger && amp::HW7::check(path,problem,false)){
+            if(web_slinger){
                 // makeMap(samples);
                 amp::Visualizer::makeFigure(problem, path);
                 amp::Visualizer::makeFigure(problem, *graph.get(), makeMap(samples));
@@ -178,22 +178,27 @@ class MyGoalBiasRRT : public amp::GoalBiasRRT2D {
 
         /// @brief Solve a motion planning problem. Create a derived class and override this method
         virtual amp::Path2D plan(const amp::Problem2D& problem) override{
+            auto start = std::chrono::high_resolution_clock::now();
             amp::Path2D path;
             std::vector<sampleS> samples;
             samples.push_back(sampleS(problem.q_init,-1));
             Eigen::Vector2d q_rand;
             bool soln = false;
             int minID = 0;
+            int nodeNum = 1;
             double tempMin = 0;
             checkPath c;
             int steps = 0;
+            auto graph = std::make_shared<amp::Graph<double>>();
             while(!soln && steps < numIterations){
                 //Generate q_rand
-                if(amp::RNG::randi(0,100) < goalBiasP*100){
+                int tst = amp::RNG::randi(0,100);
+                if(tst > int(goalBiasP*100)){
                     q_rand(0) = amp::RNG::randd(problem.x_min, problem.x_max);
                     q_rand(1) = amp::RNG::randd(problem.y_min, problem.y_max);
                 }
                 else{
+                    // LOG("choosing goal at step " << steps << " since tst = " << tst << " and cutoff is " << int(goalBiasP*100));
                     q_rand = problem.q_goal;
                 }
                 //Find closest node in tree to q_rand
@@ -207,8 +212,12 @@ class MyGoalBiasRRT : public amp::GoalBiasRRT2D {
                 }
                 q_rand = ((1 - stepSize/tempMin)*samples[minID].xy + (stepSize/tempMin)*q_rand);
                 if(!c.lineCollision2D(q_rand, samples[minID].xy, problem)){
+                    if(web_slinger){
+                        graph->connect(minID,nodeNum,0);
+                    }
                     sampleS q_randS(q_rand,minID);
                     samples.push_back(q_randS);
+                    nodeNum++;
                     if((q_rand - problem.q_goal).norm() < eps){
                         soln = true;
                     }
@@ -228,25 +237,51 @@ class MyGoalBiasRRT : public amp::GoalBiasRRT2D {
             else{
                 if(steps == numIterations){
                     LOG("Ran outta steps buddy :(");
+                }else{
+                    LOG("Couldn't find path :(");
                 }
-                LOG("Couldn't find path :(");
                 path.waypoints.push_back(problem.q_init);
-                path.waypoints.push_back(problem.q_goal);
+                // path.waypoints.push_back(problem.q_goal);
             }
-
+            if(web_slinger){
+                // makeMap(samples);
+                amp::Visualizer::makeFigure(problem, path);
+                std::vector<Eigen::Vector2d> samplesXY;
+                for(auto s : samples){
+                    samplesXY.push_back(s.xy);
+                }
+                amp::Visualizer::makeFigure(problem, *graph.get(), makeMap(samplesXY));
+                amp::Visualizer::showFigures();
+                LOG("path length: " << path.length());
+            }
+            auto stop = std::chrono::high_resolution_clock::now();
+            auto duration = duration_cast<std::chrono::milliseconds>(stop - start);
+            time = duration.count();
             return path;
 
 
         };
 
+        std::map<Node, Eigen::Vector2d> makeMap(std::vector<Eigen::Vector2d> samples){
+            std::map<Node, Eigen::Vector2d> mapOfSamples;
+            for (Node j = 0; j < samples.size(); j++){ 
+                mapOfSamples.insert({j, samples[j]}); 
+            }
+            return mapOfSamples;
+        }
+
         int& getN(){return numIterations;};
+        int& getT(){return time;};
         double& getG(){return goalBiasP;};
         double& getS(){return stepSize;};
         double& getE(){return eps;};
+        bool& getW(){return web_slinger;};
     private:
+        int time = 0;
         int numIterations = 20000;
         double goalBiasP = 0.1;
         double stepSize = 1;
         double eps = 1;
+        bool web_slinger = false;
 };
 

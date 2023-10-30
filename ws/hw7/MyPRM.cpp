@@ -30,8 +30,12 @@ amp::Path2D MyPRM::plan(const amp::Problem2D& problem) {
     SearchHeuristic heuristic;
     MyAStarAlgo aStar(true);
     MyAStarAlgo::GraphSearchResult results = aStar.search(searchProblem, heuristic);
-    for (const Node& node : results.node_path) {
-        path.waypoints.push_back(points[node]);
+
+    if (results.success) {
+        for (const Node& node : results.node_path) {
+            path.waypoints.push_back(points[node]);
+        }
+        if (smooth) smoothPath(path, problem.obstacles);
     }
     return path;
 }
@@ -65,6 +69,14 @@ void MyPRM::connectNieghbors(const vector<amp::Obstacle2D> obstacles) {
     }
 }
 
+std::shared_ptr<amp::Graph<double>> MyPRM::getGraph() {
+    return graphPtr;
+}
+
+std::map<uint32_t, Vector2d> MyPRM::getPoints() {
+    return points;
+};
+
 amp::Path2D MyRRT::plan(const amp::Problem2D& problem) {
     Path2D path;
     limits.push_back({problem.x_min, problem.x_max});
@@ -73,25 +85,31 @@ amp::Path2D MyRRT::plan(const amp::Problem2D& problem) {
     points[0] = problem.q_init;
     std::map<int, int> parents;
     int ind = 1;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<double> dist(0, 1);    
     bool success = false;
     while (points.size() < n) {
-        qRand = getRandomPoint();
-        // if (!isPointInCollision(qRand, problem.obstacles)) {
-            // path.waypoints.push_back(qRand);
-            pair<int, VectorXd> nearest = findNearest(qRand, problem.obstacles);
-            if (nearest.first != -1) {
-                graphPtr->connect(nearest.first, ind, (points[nearest.first] - nearest.second).norm());
-                points[ind] = nearest.second;
-                parents[ind] = nearest.first;
-                // cout << "Adding point: ( " << nearest.second(0) << ", " << nearest.second(1) << ")\n"; 
-                ind++;
-                if ((nearest.second - problem.q_goal).norm() < 1) {
-                    cout << "Goal found\n";
-                    success = true;
-                    break;
-                }
+        double goalBias = dist(gen);
+        if (goalBias > 0.95) {
+            cout << "Goal Bias\n";
+            qRand = problem.q_goal;
+        } else {
+            qRand = getRandomPoint();
+        }
+        pair<int, VectorXd> nearest = findNearest(qRand, problem.obstacles);
+        if (nearest.first != -1) {
+            graphPtr->connect(nearest.first, ind, (points[nearest.first] - nearest.second).norm());
+            points[ind] = nearest.second;
+            parents[ind] = nearest.first;
+            // cout << "Adding point: ( " << nearest.second(0) << ", " << nearest.second(1) << ")\n"; 
+            ind++;
+            if ((nearest.second - problem.q_goal).norm() < 0.1) {
+                cout << "Goal found\n";
+                success = true;
+                break;
             }
-        // }
+        }
     }
     ind--;
     int node = ind;
@@ -141,4 +159,3 @@ VectorXd MyRRT::getRandomPoint() {
     }
     return randomPoint;
 }
-

@@ -222,3 +222,17 @@ bool isLineInCollision(const Vector2d& point1, const Vector2d& point2, const vec
     }
     return false;
 }
+
+void smoothPath(amp::Path2D& path, const vector<amp::Obstacle2D> obstacles) {
+    int size, i, j;
+    for (int x = 0; x < 50; ++x) {
+        size = path.waypoints.size();
+        cout << size << "\n";
+        if (size == 0) break;
+        i = amp::RNG::randi(0, size - 1);
+        j = amp::RNG::randi(i + 1, size);
+        if ((j - i) > 1 && !isLineInCollision(path.waypoints[i], path.waypoints[j], obstacles)) {
+            path.waypoints.erase(path.waypoints.begin() + i + 1, path.waypoints.begin() + j);
+        }
+    }   
+}

@@ -43,3 +43,5 @@ Vector2d closestPointOnLine(const Vector2d& point, const Edge& edge);
 bool doesLineIntersectPolygon(const Vector2d& p1, const Vector2d& p2, const vector<Vector2d>& polygon);
 
 bool isLineInCollision(const Vector2d& point1, const Vector2d& point2, const vector<amp::Obstacle2D> obstacles);
+
+void smoothPath(amp::Path2D& path, const vector<amp::Obstacle2D> obstacles);

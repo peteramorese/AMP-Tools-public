@@ -198,7 +198,7 @@ class Visualizer {
         static void makeFigure(const Problem2D& prob, const Graph<double>& map, const FXN& getCoordinateFromNode) {}
         static void makeBoxPlot(const std::list<std::vector<double>>& data_sets, const std::vector<std::string>& labels, 
                                 const std::string& title = std::string(), const std::string& xlabel = std::string(), const std::string& ylabel = std::string()) {}
-        static void makeBarGraph(const std::vector<double>& values, const std::vector<std::string>& labels, 
+        static void makeBarGraph(const std::vector<`double>& values, const std::vector<std::string>& labels, 
                                 const std::string& title = std::string(), const std::string& xlabel = std::string(), const std::string& ylabel = std::string()) {}
         static void showFigures() {}
 };

@@ -19,17 +19,20 @@ struct MyPoint {
 
 class MyPRM : public amp::PRM2D {
     public:
-        MyPRM(int n, double r)
-        : n(n), r(r) {
+        MyPRM(int n, double r, bool smooth)
+        : n(n), r(r), smooth(smooth) {
             graphPtr = std::make_shared<amp::Graph<double>>();
         }
         virtual amp::Path2D plan(const amp::Problem2D& problem) override; 
         Eigen::VectorXd getRandomPoint();
         void connectNieghbors(const vector<amp::Obstacle2D> obstacles);
+        std::shared_ptr<amp::Graph<double>> getGraph();
+        std::map<uint32_t, Vector2d> getPoints();
     private:
         int n;
         double r;
-        std::map<int, Vector2d> points;
+        bool smooth;
+        std::map<uint32_t, Vector2d> points;
         vector<std::pair<double, double>> limits;
         std::shared_ptr<amp::Graph<double>> graphPtr;
         // Eigen::VectorXd init, goal;
@@ -46,7 +49,7 @@ class MyRRT : public amp::GoalBiasRRT2D {
     private:
         int n;
         double r;
-        std::map<int, Vector2d> points;
+        std::map<uint32_t, Vector2d> points;
         vector<std::pair<double, double>> limits;
         std::shared_ptr<amp::Graph<double>> graphPtr;
         // Eigen::VectorXd init, goal;

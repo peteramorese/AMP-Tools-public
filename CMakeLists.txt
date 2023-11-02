@@ -113,7 +113,6 @@ if (AMP_BUILD_LIB)
 
     # Use Grapefruit as header-only
     list(APPEND AMP_DEPENDENCY_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/grapefruit/grapefruit)
-    message("======== DEPENDENCY INCLUDE DIRS: ${AMP_DEPENDENCY_INCLUDE_DIRS}")
 
     # Native
     add_subdirectory(include/private)

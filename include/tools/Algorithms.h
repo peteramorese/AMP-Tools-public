@@ -38,15 +38,14 @@ class GeometricMotionPlanner2D {
         virtual ~GeometricMotionPlanner2D() {}
 };
 
-class CircleMotionPlanner2D {
+class MultiAgentCircleMotionPlanner2D {
     public:
         /// @brief Solve a motion planning problem. Derive class and override this method
-        /// @param circle_agent_radius Radius of the circular agent
-        /// @param problem Motion planning problem
-        /// @return Path solution of the circular agent
-        virtual amp::Path2D plan(double circle_agent_radius, const amp::Problem2D& problem) = 0;
+        /// @param problem Multi-agent motion planning problem
+        /// @return Array of paths that are ordered corresponding to the `agent_properties` field in `problem`.
+        virtual amp::MultiAgentPath2D plan(const amp::MultiAgentProblem2D& problem) = 0;
 
-        virtual ~CircleMotionPlanner2D() {}
+        virtual ~MultiAgentCircleMotionPlanner2D() {}
 };
 
 class LinkManipulatorMotionPlanner2D {

@@ -21,6 +21,10 @@ class Visualizer {
         /// @param prob Problem to display
         static void makeFigure(const Problem2D& prob);
 
+        /// @brief Visualize a multi-agent problem (environment and initial/goal states for each agent). 
+        /// @param prob Problem to display
+        static void makeFigure(const MultiAgentProblem2D& prob);
+
         /// @brief Visualize a problem and a path on the same figure. 
         /// @param prob Problem to display
         /// @param path Path to display
@@ -33,15 +37,18 @@ class Visualizer {
         static void makeFigure(const Problem2D& prob, const Path2D& path, const std::vector<Eigen::Vector2d>& collision_points);
 
         /// @brief Visualize a problem and a path on the same figure for a circular robot. 
-        /// @param prob Problem to display
+        /// @param env Environment to display
         /// @param path Path to display
-        static void makeFigure(const Problem2D& prob, double circular_agent_radius, const Path2D& path);
+        static void makeFigure(const Environment2D& env, const CircularAgentProperties& circular_agent_props, const Path2D& path);
 
         /// @brief Visualize a problem, path, and any collision states for a circular robot on the same figure. 
-        /// @param prob Problem to display
+        /// @param env Environment to display
         /// @param path Path to display
         /// @param collision_points Collision points to display
-        static void makeFigure(const Problem2D& prob, double circular_agent_radius, const Path2D& path, const std::vector<Eigen::Vector2d>& collision_states);
+        static void makeFigure(const Environment2D& env, const CircularAgentProperties& circular_agent_props, const Path2D& path, const std::vector<Eigen::Vector2d>& collision_states);
+
+        static void makeFigure(const MultiAgentProblem2D& prob, const amp::MultiAgentPath2D& ma_path);
+        static void makeFigure(const MultiAgentProblem2D& prob, const amp::MultiAgentPath2D& ma_path, const std::vector<std::vector<Eigen::Vector2d>>& ma_collision_states);
 
         /// @brief Visualize a set of polygons. Automatically adjusts axis bounds
         /// @param obstacles Obstacles to display, shown in order
@@ -172,11 +179,13 @@ class Visualizer {
 
     private:
         static void createAxes(const Environment2D& env);
+        static void createAxes(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal);
         static void createAxes(const Problem2D& prob);
+        static void createAxes(const MultiAgentProblem2D& prob);
         static void createAxes(const Path2D& path);
         static void createAxes(const Path2D& path, const std::vector<Eigen::Vector2d>& collision_points);
-        static void createAxes(double circular_agent_radius, const Path2D& path);
-        static void createAxes(double circular_agent_radius, const Path2D& path, const std::vector<Eigen::Vector2d>& collision_states);
+        static void createAxes(double circular_agent_radius, const Eigen::Vector2d& state, double* cmap_scale = nullptr, bool colliding = false);
+        static void createAxes(double circular_agent_radius, const Path2D& path, bool random_color = false, const std::vector<Eigen::Vector2d>* collision_states = nullptr);
         static void createAxes(const std::vector<Polygon>& polygons, bool filled);
         static void createAxes(const std::vector<Polygon>& polygons, const std::vector<std::string>& labels, bool filled);
         static void createAxes(const std::vector<Polygon>& polygons, const std::vector<double>& heights_3d);
@@ -199,6 +208,7 @@ class Visualizer {
     public:
         static void makeFigure(const Environment2D& env) {}
         static void makeFigure(const Problem2D& prob) {}
+        static void makeFigure(const MultiAgentProblem2D& prob) {}
         static void makeFigure(const Problem2D& prob, const Path2D& path) {}
         static void makeFigure(const Problem2D& prob, const Path2D& path, const std::vector<Eigen::Vector2d>& collision_points) {}
         static void makeFigure(const Problem2D& prob, double circular_agent_radius, const Path2D& path) {}

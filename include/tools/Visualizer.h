@@ -122,7 +122,17 @@ class Visualizer {
         /// @param getCoordinateFromNode Callable (lambda or object that has operator()) that returns the coordinate given a node. Signature:
         /// `Eigen::Vector2d getCoordinateFromNode(amp::Node node)`
         template <typename FXN>
-        static void makeFigure(const Problem2D& prob, const Graph<double>& map, const FXN& getCoordinateFromNode);
+        static void makeFigure(const Problem2D& prob, const Graph<double>& coordimate_map, const FXN& getCoordinateFromNode);
+
+        /// @brief Visualize a 2D problem with a map of coordinates
+        /// @tparam FXN Callable type [automatically deduced]
+        /// @param prob Problem to display
+        /// @param path Path to display
+        /// @param map Coordinate map where nodes represent points on the map with edges connecting them
+        /// @param getCoordinateFromNode Callable (lambda or object that has operator()) that returns the coordinate given a node. Signature:
+        /// `Eigen::Vector2d getCoordinateFromNode(amp::Node node)`
+        template <typename FXN>
+        static void makeFigure(const Problem2D& prob, const Path2D& path, const Graph<double>& coordinate_map, const FXN& getCoordinateFromNode);
 
         /// @brief Visualize a 2D problem with a map of coordinates
         /// @param prob Problem to display
@@ -130,6 +140,14 @@ class Visualizer {
         /// @param node_to_coordinate Container that maps each node in the graph to its corresponding coordinate
         /// `Eigen::Vector2d getCoordinateFromNode(amp::Node node)`
         static void makeFigure(const Problem2D& prob, const Graph<double>& coordinate_map, const std::map<amp::Node, Eigen::Vector2d>& node_to_coordinate);
+
+        /// @brief Visualize a 2D problem with a map of coordinates
+        /// @param prob Problem to display
+        /// @param path Path to display
+        /// @param map Coordinate map where nodes represent points on the map with edges connecting them
+        /// @param node_to_coordinate Container that maps each node in the graph to its corresponding coordinate
+        /// `Eigen::Vector2d getCoordinateFromNode(amp::Node node)`
+        static void makeFigure(const Problem2D& prob, const Path2D& path, const Graph<double>& coordinate_map, const std::map<amp::Node, Eigen::Vector2d>& node_to_coordinate);
 
         /// @brief Make a box plot figure to display benchmark results.
         /// @param data_sets List of data sets that each contain all the data for a single category (i.e. computation time)

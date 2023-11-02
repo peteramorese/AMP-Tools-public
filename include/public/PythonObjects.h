@@ -1,5 +1,7 @@
 #pragma once
 
+#ifndef AMP_EXCLUDE_VIS
+
 #include <Python.h>
 #include <string>
 #include <vector>
@@ -49,3 +51,5 @@ std::unique_ptr<PythonObject> makePair(std::pair<std::unique_ptr<PythonObject>, 
 
 }
 }
+
+#endif

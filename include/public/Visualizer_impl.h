@@ -12,6 +12,13 @@ void amp::Visualizer::makeFigure(const Problem2D& prob, const Graph<double>& coo
 }
 
 template <typename FXN>
+void amp::Visualizer::makeFigure(const Problem2D& prob, const Path2D& path, const Graph<double>& coordinate_map, const FXN& getCoordinateFromNode) {
+    createAxes(prob);
+    createAxes(coordinate_map, getCoordinateFromNode);
+    createAxes(path);
+}
+
+template <typename FXN>
 void amp::Visualizer::createAxes(const Graph<double>& map, const FXN& getCoordinateFromNode) {
     std::vector<amp::Node> nodes = map.nodes();
     

@@ -11,6 +11,7 @@ using Node = uint32_t;
 class checkPath {
     public:
         void hereIsAMethod();
+        
         double getT(Eigen::Vector2d bugXY, Eigen::Vector2d bugNext, Eigen::Vector2d v1, Eigen::Vector2d v2) const {
             Eigen::Matrix2d Tmat1;
             Eigen::Matrix2d Tmat2;

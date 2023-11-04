@@ -407,7 +407,7 @@ class MyBugAlgorithm : public amp::BugAlgorithm {
                             }
                             
                             /* old loop :))
-                        {
+                            {
                             int nextVert;
                             (endVert == 0) ? (nextVert = currentOb.verticesCCW().size() - 1) : nextVert = endVert - 1;
                             double phi = atan2(currentOb.verticesCCW()[nextVert](1) - currentOb.verticesCCW()[endVert](1), 
@@ -485,7 +485,7 @@ class MyBugAlgorithm : public amp::BugAlgorithm {
                                     }
                                 }
                             }
-                        }*/
+                            }*/
 
                         }
                         else{

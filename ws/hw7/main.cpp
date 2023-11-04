@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
         RRT.getG() = 0.05;
         RRT.getS() = 0.5;
         RRT.getE() = 0.25;
-        RRT.getW() = false;
+        RRT.getW() = true;
         collision_points.clear();
         path = RRT.plan(w1);
         HW7::check(path,w1,collision_points);
@@ -104,34 +104,36 @@ int main(int argc, char** argv) {
         HW7::check(path,w3,collision_points);
         // Visualizer::makeFigure(w3, path, collision_points);
         
-        std::list<std::vector<double>> pathTimes;
-        std::list<std::vector<double>> pathLens;
-        std::vector<double> tempT;
-        std::vector<double> tempL;
-        std::vector<amp::Problem2D> NR = {w1,w2,w3};
-        std::vector<std::string> NRLabels = {"W1","W2","W3"};
-        std::vector<double> solns(NR.size(),0);
-        for(int n = 0; n < NR.size(); n++){
-            MyGoalBiasRRT RRT;
-            tempT.clear();
-            tempL.clear();
-            for(int i = 0; i < 100; i++){
-                path = RRT.plan(NR[n]);
-                if(HW7::check(path,NR[n],false)){
-                    tempT.push_back(RRT.getT());
-                    tempL.push_back(path.length());
-                    solns[n] ++;
-                }
+        // std::list<std::vector<double>> pathTimes;
+        // std::list<std::vector<double>> pathLens;
+        // std::vector<double> tempT;
+        // std::vector<double> tempL;
+        // std::vector<amp::Problem2D> NR = {w1,w2,w3};
+        // std::vector<std::string> NRLabels = {"W1","W2","W3"};
+        // std::vector<double> solns(NR.size(),0);
+        // for(int n = 0; n < NR.size(); n++){
+        //     MyGoalBiasRRT RRT;
+        //     tempT.clear();
+        //     tempL.clear();
+        //     for(int i = 0; i < 100; i++){
+        //         path = RRT.plan(NR[n]);
+        //         if(HW7::check(path,NR[n],false)){
+        //             tempT.push_back(RRT.getT());
+        //             tempL.push_back(path.length());
+        //             solns[n] ++;
+        //         }
                 
-            }
-            pathTimes.push_back(tempT);
-            pathLens.push_back(tempL);
-        }
-        Visualizer::makeBoxPlot(pathTimes, NRLabels, std::string("RRT Runtimes"),std::string("Workspace"),std::string("Runtime (ms)"));
-        Visualizer::makeBoxPlot(pathLens, NRLabels,std::string("RRT Path lengths"), std::string("Workspace"),std::string("Path Length"));
-        Visualizer::makeBarGraph(solns, NRLabels,std::string("RRT Num Solutions"), std::string("Workspace"),std::string("#solutions"));
+        //     }
+        //     pathTimes.push_back(tempT);
+        //     pathLens.push_back(tempL);
+        // }
+        // Visualizer::makeBoxPlot(pathTimes, NRLabels, std::string("RRT Runtimes"),std::string("Workspace"),std::string("Runtime (ms)"));
+        // Visualizer::makeBoxPlot(pathLens, NRLabels,std::string("RRT Path lengths"), std::string("Workspace"),std::string("Path Length"));
+        // Visualizer::makeBarGraph(solns, NRLabels,std::string("RRT Num Solutions"), std::string("Workspace"),std::string("#solutions"));
     }
-    Visualizer::showFigures();
+    // Visualizer::showFigures();
+    // MyPRM prm;
+    // MyGoalBiasRRT RRT;
     // amp::HW7::grade(prm, RRT, "collin.hudson@colorado.edu", argc, argv);
 
     return 0;

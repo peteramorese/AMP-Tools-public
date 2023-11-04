@@ -1,12 +1,11 @@
 cmake_minimum_required(VERSION 3.8)
 
 project(amp-tools)
-#set(CMAKE_BUILD_TYPE Debug)
 if(DEFINED CMAKE_BUILD_TYPE)
-    message("Building type is DEBUG")
+    message("Build type is ${CMAKE_BUILD_TYPE}")
 else()
     set(CMAKE_BUILD_TYPE Release)
-    message("Building type is RELEASE")
+    message("No build type specified, defaulting to RELEASE")
 endif()
 
 # Flag for determining if the library should be built
@@ -32,9 +31,6 @@ endif()
 # Python stuff
 find_package(PythonInterp)
 find_package(PythonLibs 3.4 REQUIRED)
-message("Python Executable: ${Python_EXECUTABLE}")
-message("Python Include Directories: ${PythonLibs_INCLUDE_DIRS}")
-message("Python Libraries: ${PythonLibs_LIBRARIES}")
 set(AMP_PYTHONPATH "" CACHE STRING "Manually specify the PYTHONPATH")
 
 # Directory for input and output files

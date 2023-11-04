@@ -42,6 +42,7 @@ struct Path {
 
 struct MultiAgentPath2D {
     MultiAgentPath2D() = default;
+    MultiAgentPath2D(uint32_t n_agents) : agent_paths(n_agents) {}
     std::vector<Path2D> agent_paths;
 
     /// @brief `true` if a solution was found, `false` otherwise

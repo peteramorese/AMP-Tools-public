@@ -77,12 +77,28 @@ class checkPath {
 
                 temp1(1) = (b*cPrime - a*sqrt(discriminant))/(pow(a,2) + pow(b,2)) + state(1);
                 temp2(1) = (b*cPrime + a*sqrt(discriminant))/(pow(a,2) + pow(b,2)) + state(1);
-
-                return evalTU(getT(temp1,temp2,p1,p2),getU(temp1,temp2,p1,p2));
+                
+                // By necessity, the circle intersection points temp1 and temp2 are colinear with the edge p2, p1
+                if(pointLineEval(temp1,p1,p2) || pointLineEval(temp2,p1,p2)){
+                    // LOG("state to check: " << state << " with line " << p1 << " , " << p2 << " temp1: " << temp1 << " temp2: " << temp2);
+                    return true;
+                }
+                else{
+                    return false;
+                }
             }
             else{
                 return false;
             }
+        }
+        bool pointLineEval(const Eigen::Vector2d state, const Eigen::Vector2d p1, const Eigen::Vector2d p2){
+            //returns true if state is on line segment between p1 and p2 given that all three are colinear
+            Eigen::Vector2d AC = state - p1;
+            Eigen::Vector2d AB = p2 - p1;
+            if((AB.dot(AC) >= 0) && (AB.dot(AC) <= AB.dot(AB))){
+                return true;
+            }
+            return false;
         }
         bool pointCollision2D(const Eigen::Vector2d state, const amp::Environment2D& obs){
             bool hit = false;
@@ -129,7 +145,7 @@ class checkPath {
             }
             return hit;
         }
-        bool diskCollision2D(const Eigen::Vector2d state, amp::CircularAgentProperties& agent, const amp::Environment2D& obs){
+        bool diskCollision2D(const Eigen::Vector2d state,const amp::CircularAgentProperties& agent, const amp::Environment2D& obs){
             if(pointCollision2D(state,obs)){
                 return true;
             }
@@ -156,8 +172,13 @@ class checkPath {
                 testNext(0) = next(j);
                 testNext(1) = next(j + 1);
                 //Check for obstacle collisions TODO: FIX!!!
-                if(lineCollision2D(testState, testNext, problem)){
-                    return true;
+                // if(lineCollision2D(testState, testNext, problem)){
+                //     return true;
+                // }
+                for(int m = 0; m < 20; m++){
+                    if(diskCollision2D(((1 - 0.05*m)*testState + (0.05*m)*testNext),problem.agent_properties[j/2],problem)){
+                        return true;
+                    }
                 }
                 //Check for robot-to-robot collisions
                 for(int k = 0; k < 2*problem.numAgents(); k += 2){

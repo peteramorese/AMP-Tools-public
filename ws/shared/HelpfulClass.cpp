@@ -5,16 +5,18 @@ amp::MultiAgentPath2D MyGoalBiasRRTND::plan(const amp::MultiAgentProblem2D& prob
     amp::MultiAgentPath2D path;
     std::vector<sampleS> samples;
     // Construct init and goal super states
-    Eigen::VectorXd init;
-    Eigen::VectorXd goal;
+    Eigen::VectorXd init(2*problem.numAgents());
+    Eigen::VectorXd goal(2*problem.numAgents());
     for(int j = 0; j < 2*problem.numAgents(); j += 2){
         init(j) = problem.agent_properties[j/2].q_init(0);
         init(j + 1) = problem.agent_properties[j/2].q_init(1);
         goal(j) = problem.agent_properties[j/2].q_goal(0);
         goal(j + 1) = problem.agent_properties[j/2].q_goal(1);
     }
+    LOG(init);
+    LOG(goal);
     samples.push_back(sampleS(init,-1));
-    Eigen::VectorXd q_rand;
+    Eigen::VectorXd q_rand(2*problem.numAgents());
     bool soln = false;
     int minID = 0;
     int nodeNum = 1;
@@ -43,32 +45,37 @@ amp::MultiAgentPath2D MyGoalBiasRRTND::plan(const amp::MultiAgentProblem2D& prob
                 minID = k;
             }
         }
-        q_rand = ((1 - stepSize*problem.numAgents()/tempMin)*samples[minID].xy + (stepSize*problem.numAgents()/tempMin)*q_rand);
-        if(!c.multDiskCollision2D(q_rand, samples[minID].xy, problem)){
+        q_rand = ((1 - stepSize/tempMin)*samples[minID].xy + (stepSize/tempMin)*q_rand);
+        if(!c.multDiskCollision2D(samples[minID].xy, q_rand, problem)){
+            // LOG("Adding state: " << q_rand);
             sampleS q_randS(q_rand,minID);
             samples.push_back(q_randS);
             nodeNum++;
-            if((q_rand - goal).norm() < eps*problem.numAgents()){
+            if((q_rand - goal).norm() < eps){
                 soln = true;
             }
         }
         steps++;
     }
-    std::list<Eigen::Vector2d> l;
+    std::list<Eigen::VectorXd> l;
     if(soln){
         sampleS testS(goal,samples.size() - 1);
         while(testS.back != -1){
             l.push_front(testS.xy);
+            // LOG("Pushing to front state " << testS.xy);
             testS = samples[testS.back];
         }
         l.push_front(init);
         for(int j = 0; j < 2*problem.numAgents(); j += 2){
             amp::Path2D tempPath;
-            for (std::list<Eigen::Vector2d>::iterator it=l.begin(); it != l.end(); ++it){
-                Eigen::Vector2d tempListEle = *it;
+            for (std::list<Eigen::VectorXd>::iterator it=l.begin(); it != l.end(); ++it){
+                Eigen::VectorXd tempListEle = *it;
                 Eigen::Vector2d tempVec(tempListEle(j),tempListEle(j+1));
+                // LOG("Adding tempVec " << tempVec);
+                // LOG("From tempListEle " << tempListEle);
                 tempPath.waypoints.push_back(tempVec);
             }
+            // LOG("Adding tempPath");
             path.agent_paths.push_back(tempPath);
             
         }

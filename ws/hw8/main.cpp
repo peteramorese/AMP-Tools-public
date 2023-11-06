@@ -9,8 +9,11 @@ int main(int argc, char** argv) {
     amp::RNG::seed(amp::RNG::randiUnbounded());
 
     MyCentralizedMultiAgentRRT cenRRT;
-    amp::MultiAgentProblem2D cenProb = HW8::getWorkspace1();
+    amp::MultiAgentProblem2D cenProb = HW8::getWorkspace1(1);
     amp::MultiAgentPath2D cenPath = cenRRT.plan(cenProb);
-    HW8::check(cenPath, cenProb);
+    std::vector<std::vector<Eigen::Vector2d>> collision_states;
+    HW8::check(cenPath, cenProb, collision_states);
+    Visualizer::makeFigure(cenProb,cenPath, collision_states);
+    Visualizer::showFigures();
     return 0;
 }

@@ -10,9 +10,21 @@
 using Node = uint32_t;
 
 class checkPath {
-    public:
-        void hereIsAMethod();
-        
+    public:     
+        bool checkXY(const double x, const double y, const amp::Environment2D obs){
+            Eigen::Vector2d XY(x,y);
+            switch(checkMode){
+                case 0:
+                    return pointCollision2D(XY,obs);
+                    break;
+                case 1:
+                    return diskCollision2D(XY,tempAgent,obs);
+                    break;
+                default:
+                    return pointCollision2D(XY,obs);
+            }
+        }
+
         double getT(Eigen::Vector2d bugXY, Eigen::Vector2d bugNext, Eigen::Vector2d v1, Eigen::Vector2d v2) const {
             Eigen::Matrix2d Tmat1;
             Eigen::Matrix2d Tmat2;
@@ -143,12 +155,28 @@ class checkPath {
                 testState(1) = state(j + 1);
                 testNext(0) = next(j);
                 testNext(1) = next(j + 1);
+                //Check for obstacle collisions TODO: FIX!!!
                 if(lineCollision2D(testState, testNext, problem)){
                     return true;
+                }
+                //Check for robot-to-robot collisions
+                for(int k = 0; k < 2*problem.numAgents(); k += 2){
+                    if(j != k){
+                        Eigen::Vector2d testState2(state(k),state(k + 1));
+                        Eigen::Vector2d testNext2(next(k),next(k + 1));
+                        if(evalTU(getT(testState,testNext,testState2,testNext2),getU(testState,testNext,testState2,testNext2))){
+                            return true;
+                        }
+                    }
                 }
             }
             return false;
         }
+        amp::CircularAgentProperties& getAgent(){return tempAgent;};
+        int& getW(){return checkMode;};
+    private:
+        amp::CircularAgentProperties tempAgent;
+        int checkMode = 0;
 };
 
 class MyConfigurationSpace : public amp::ConfigurationSpace {
@@ -162,7 +190,7 @@ class MyConfigurationSpace : public amp::ConfigurationSpace {
 
 };
 
-class MyAStarAlgo : public amp::AStar {
+class MyAStarAlgoShared : public amp::AStar {
     public:
         //node struct
         struct NodeStr{

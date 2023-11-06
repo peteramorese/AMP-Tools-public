@@ -4,6 +4,7 @@
 #include "hw/HW4.h"
 #include <Eigen/LU>
 #include <math.h>
+#include "HelpfulClass.h"
 
 class MyGridCSpace2D: public amp::GridCSpace2D{
     public:
@@ -121,6 +122,25 @@ class MyGridCSpace2D: public amp::GridCSpace2D{
 
                         }
                     }
+                    dArr(i,j) =  hit;
+                    tempGrid(i,j) = hit;
+                }
+            }
+            return tempGrid;
+            
+        }
+        MyGridCSpace2D makeCSpace(const amp::Environment2D& obs, checkPath& c){
+            //fills DenseArray2D by posing manipulator and checking for collision
+            std::pair<std::size_t, std::size_t> siz = dArr.size();
+            MyGridCSpace2D tempGrid(siz.first,siz.second,x0Bounds().first, x0Bounds().second, x1Bounds().first, x1Bounds().second);
+            std::vector<double> state;
+            for(int i = 0; i < siz.first; i++){
+                for(int j = 0; j < siz.second; j++){
+                    state.clear();
+                    double x = ((i+0.5)*(x0Bounds().second - x0Bounds().first)/siz.first + x0Bounds().first);
+                    double y = ((j+0.5)*(x1Bounds().second - x1Bounds().first)/siz.second + x1Bounds().first);
+                    bool hit = false;
+                    hit = c.checkXY(x,y,obs);
                     dArr(i,j) =  hit;
                     tempGrid(i,j) = hit;
                 }

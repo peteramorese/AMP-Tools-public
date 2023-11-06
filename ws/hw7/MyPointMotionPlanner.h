@@ -75,7 +75,7 @@ class MyPRM : public amp::PRM2D {
             // LOG("# Valid samples: " << samples.size());
             // LOG("# Valid nodes: " << graph->nodes().size());
             MySearchHeuristic sh(problem.q_goal,samples);
-            MyAStarAlgo As;
+            MyAStarAlgoShared As;
             amp::ShortestPathProblem spp;
             spp.graph = graph;
             spp.init_node = 0;

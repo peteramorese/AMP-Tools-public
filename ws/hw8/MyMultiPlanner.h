@@ -14,8 +14,8 @@ class MyCentralizedMultiAgentRRT : public amp::CentralizedMultiAgentRRT {
         /// @param problem Multi-agent motion planning problem
         /// @return Array of paths that are ordered corresponding to the `agent_properties` field in `problem`.
         virtual amp::MultiAgentPath2D plan(const amp::MultiAgentProblem2D& problem) override{
-            amp::MultiAgentPath2D PathMA2D;
-            return PathMA2D;
+            MyGoalBiasRRTND RRT;
+            return RRT.plan(problem);
         };
 };
 

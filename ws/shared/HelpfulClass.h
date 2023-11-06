@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AMPCore.h"
+#include "hw/HW7.h"
 #include <Eigen/LU>
 #include <queue>
 #include <algorithm>
@@ -134,6 +135,20 @@ class checkPath {
                 return false;
             }
         }
+        bool multDiskCollision2D(const Eigen::VectorXd state, const Eigen::VectorXd next, const amp::MultiAgentProblem2D& problem){
+            Eigen::Vector2d testState;
+            Eigen::Vector2d testNext;
+            for(int j = 0; j < 2*problem.numAgents(); j += 2){
+                testState(0) = state(j);
+                testState(1) = state(j + 1);
+                testNext(0) = next(j);
+                testNext(1) = next(j + 1);
+                if(lineCollision2D(testState, testNext, problem)){
+                    return true;
+                }
+            }
+            return false;
+        }
 };
 
 class MyConfigurationSpace : public amp::ConfigurationSpace {
@@ -252,4 +267,42 @@ class MyAStarAlgo : public amp::AStar {
 
             return GSR;
         }
+};
+
+class MyGoalBiasRRTND : public amp::GoalBiasRRT2D {
+    public:
+
+
+        struct sampleS{
+            Eigen::VectorXd xy;
+            int back = 0;
+            sampleS(const Eigen::VectorXd& inXY, int inBack){
+                xy = inXY;
+                back = inBack;
+            }
+        };
+
+        /// @brief Solve a motion planning problem. Create a derived class and override this method
+        virtual amp::Path2D plan(const amp::Problem2D& problem) override{
+            amp::Path2D path;
+            return path;
+        };
+
+        amp::MultiAgentPath2D plan(const amp::MultiAgentProblem2D& problem);
+
+        std::map<Node, Eigen::Vector2d> makeMap(std::vector<Eigen::Vector2d> samples);
+
+        int& getN(){return numIterations;};
+        int& getT(){return time;};
+        double& getG(){return goalBiasP;};
+        double& getS(){return stepSize;};
+        double& getE(){return eps;};
+        bool& getW(){return web_slinger;};
+    private:
+        int time = 0;
+        int numIterations = 20000;
+        double goalBiasP = 0.1;
+        double stepSize = 1;
+        double eps = 1;
+        bool web_slinger = false;
 };

@@ -83,11 +83,17 @@ amp::MultiAgentPath2D MyGoalBiasRRTND::plan(const amp::MultiAgentProblem2D& prob
     else{
         if(steps == numIterations){
             LOG("Ran outta steps buddy :(");
+            for(int j = 0; j < 2*problem.numAgents(); j += 2){
+                amp::Path2D tempPath;
+                Eigen::Vector2d tempVec(init(j),init(j+1));
+                tempPath.waypoints.push_back(tempVec);
+                tempVec << goal(j),goal(j+1);
+                tempPath.waypoints.push_back(tempVec);
+                path.agent_paths.push_back(tempPath);
+            }
         }else{
             LOG("Couldn't find path :(");
         }
-        // path.waypoints.push_back(init);
-        // path.waypoints.push_back(problem.q_goal);
     }
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = duration_cast<std::chrono::milliseconds>(stop - start);

@@ -15,5 +15,8 @@ int main(int argc, char** argv) {
     HW8::check(cenPath, cenProb, collision_states);
     Visualizer::makeFigure(cenProb,cenPath, collision_states);
     Visualizer::showFigures();
+
+    MyDecentralizedMultiAgentRRT decRRT;
+    HW8::grade(cenRRT, decRRT, "collin.hudson@colorado.edu", argc, argv);
     return 0;
 }

@@ -48,6 +48,29 @@ class checkPath {
             }
             return false;
         }
+        bool circleLineEval(const Eigen::Vector2d state, double radius, const Eigen::Vector2d p1, const Eigen::Vector2d p2){
+            double a = p2(1) - p1(1); //delta y
+            double b = p1(0) - p2(0); //-delta x
+            double c = p2(1)*p1(0) - p2(0)*p1(1); // y2*x1 - x2*y1
+            // Based on Erich Hartmann: Geometry and Algorithms for COMPUTER AIDED DESIGN. Lecture notes, Technische Universität Darmstadt, October 2003, p. 17
+            double cPrime = c - a*state(0) - b*state(1);
+            double discriminant = pow(radius,2)*(pow(a,2) + pow(b,2)) - pow(cPrime,2);
+            if(discriminant > 0){
+                // Check if secant line is within line segment (edge)
+                Eigen::Vector2d temp1;
+                Eigen::Vector2d temp2;
+                temp1(0) = (a*cPrime + b*sqrt(discriminant))/(pow(a,2) + pow(b,2)) + state(0);
+                temp2(0) = (a*cPrime - b*sqrt(discriminant))/(pow(a,2) + pow(b,2)) + state(0);
+
+                temp1(1) = (b*cPrime - a*sqrt(discriminant))/(pow(a,2) + pow(b,2)) + state(1);
+                temp2(1) = (b*cPrime + a*sqrt(discriminant))/(pow(a,2) + pow(b,2)) + state(1);
+
+                return evalTU(getT(temp1,temp2,p1,p2),getU(temp1,temp2,p1,p2));
+            }
+            else{
+                return false;
+            }
+        }
         bool pointCollision2D(const Eigen::Vector2d state, const amp::Environment2D& obs){
             bool hit = false;
             Eigen::Vector2d nextVertex;
@@ -92,6 +115,24 @@ class checkPath {
                 }
             }
             return hit;
+        }
+        bool diskCollision2D(const Eigen::Vector2d state, amp::CircularAgentProperties& agent, const amp::Environment2D& obs){
+            if(pointCollision2D(state,obs)){
+                return true;
+            }
+            else{
+                // Determine if disk intersects obstacle edge
+                bool hit = false;
+                for(auto Ob : obs.obstacles){
+                        int numV = Ob.verticesCCW().size();
+                        for(int j = 0; j < numV; j++){
+                            if(circleLineEval(state, agent.radius, Ob.verticesCCW()[j], Ob.verticesCCW()[(j + 1) % numV])){
+                                return true;
+                            }
+                        }
+                }
+                return false;
+            }
         }
 };
 

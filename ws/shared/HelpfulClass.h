@@ -95,6 +95,9 @@ class checkPath {
             }
             return false;
         }
+        bool diskDiskEval(const Eigen::Vector2d state0, const amp::CircularAgentProperties& agent0, const Eigen::Vector2d state1, const amp::CircularAgentProperties& agent1){
+            return ((state0 - state1).norm() < agent0.radius + agent1.radius);
+        }
         bool pointCollision2D(const Eigen::Vector2d state, const amp::Environment2D& obs){
             bool hit = false;
             Eigen::Vector2d nextVertex;
@@ -166,10 +169,7 @@ class checkPath {
                 testState(1) = state(j + 1);
                 testNext(0) = next(j);
                 testNext(1) = next(j + 1);
-                //Check for obstacle collisions TODO: FIX!!!
-                // if(lineCollision2D(testState, testNext, problem)){
-                //     return true;
-                // }
+                //Check for obstacle collisions
                 for(int m = 0; m < 20; m++){
                     if(diskCollision2D(((1 - 0.05*m)*testState + (0.05*m)*testNext),problem.agent_properties[j/2],problem)){
                         return true;
@@ -180,8 +180,16 @@ class checkPath {
                     if(j != k){
                         Eigen::Vector2d testState2(state(k),state(k + 1));
                         Eigen::Vector2d testNext2(next(k),next(k + 1));
-                        if(evalTU(getT(testState,testNext,testState2,testNext2),getU(testState,testNext,testState2,testNext2))){
+                        //Check if two robots next positions collide
+                        if(diskDiskEval(testNext, problem.agent_properties[j/2], testNext2, problem.agent_properties[k/2])){
                             return true;
+                        }
+                        //Check if two robots paths collide
+                        for(int m = 0; m < 20; m++){
+                            if(diskDiskEval(((1 - 0.05*m)*testState + (0.05*m)*testNext),problem.agent_properties[j/2],
+                            ((1 - 0.05*m)*testState2 + (0.05*m)*testNext2),problem.agent_properties[k/2])){
+                                return true;
+                            }
                         }
                     }
                 }

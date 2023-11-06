@@ -13,8 +13,8 @@ amp::MultiAgentPath2D MyGoalBiasRRTND::plan(const amp::MultiAgentProblem2D& prob
         goal(j) = problem.agent_properties[j/2].q_goal(0);
         goal(j + 1) = problem.agent_properties[j/2].q_goal(1);
     }
-    LOG(init);
-    LOG(goal);
+    // LOG(init);
+    // LOG(goal);
     samples.push_back(sampleS(init,-1));
     Eigen::VectorXd q_rand(2*problem.numAgents());
     bool soln = false;

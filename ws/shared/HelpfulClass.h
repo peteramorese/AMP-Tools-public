@@ -83,13 +83,8 @@ class checkPath {
                     // LOG("state to check: " << state << " with line " << p1 << " , " << p2 << " temp1: " << temp1 << " temp2: " << temp2);
                     return true;
                 }
-                else{
-                    return false;
-                }
             }
-            else{
-                return false;
-            }
+            return false;
         }
         bool pointLineEval(const Eigen::Vector2d state, const Eigen::Vector2d p1, const Eigen::Vector2d p2){
             //returns true if state is on line segment between p1 and p2 given that all three are colinear

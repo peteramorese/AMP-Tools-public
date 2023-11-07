@@ -37,7 +37,11 @@ class RandomAccessList {
         T& operator[](uint32_t i) {return *m_access_ptrs[i];}
         const T& operator[](uint32_t i) const {return *m_access_ptrs[i];}
 
-        void clear() {m_list.clear(); m_access_ptrs.clear();}
+        void clear() {
+            m_list.clear();
+            m_access_ptrs.clear(); 
+            m_access_ptrs.shrink_to_fit();
+        }
         void resize(std::size_t count) {
             auto list_it = std::prev(m_list.end());
             m_list.resize(count);

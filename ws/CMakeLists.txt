@@ -15,8 +15,9 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/shared")
         ${AMP_DEPENDENCY_INCLUDE_DIRS}
     )
 endif()
+
 foreach(SUBDIR ${HW_SUBDIRECTORIES})
-    if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${SUBDIR} AND NOT SUBDIR STREQUAL "shared")
+    if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${SUBDIR} AND NOT SUBDIR STREQUAL "shared" AND NOT EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${SUBDIR}/IGNORE")
         file(GLOB_RECURSE USER_SOURCES "${SUBDIR}/*.cpp")
         set(TARGET_NAME "main-${SUBDIR}")
         add_executable(${TARGET_NAME} ${USER_SOURCES})
@@ -37,6 +38,9 @@ foreach(SUBDIR ${HW_SUBDIRECTORIES})
 
         if(AMP_EXCLUDE_VIS)
             target_compile_definitions(${TARGET_NAME} PRIVATE AMP_EXCLUDE_VIS)
+            if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+                target_compile_options(${TARGET_NAME} PRIVATE -g)
+            endif()
         endif()
 
         if (AMP_EXCLUDE_LOGS)

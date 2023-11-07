@@ -19,7 +19,6 @@ amp::MultiAgentPath2D MyGoalBiasRRTND::plan(const amp::MultiAgentProblem2D& prob
     Eigen::VectorXd q_rand(2*problem.numAgents());
     bool soln = false;
     int minID = 0;
-    int nodeNum = 1;
     double tempMin = 0;
     checkPath c;
     int steps = 0;
@@ -50,7 +49,6 @@ amp::MultiAgentPath2D MyGoalBiasRRTND::plan(const amp::MultiAgentProblem2D& prob
             // LOG("Adding state: " << q_rand);
             sampleS q_randS(q_rand,minID);
             samples.push_back(q_randS);
-            nodeNum++;
             if((q_rand - goal).norm() < eps){
                 soln = true;
             }
@@ -99,9 +97,88 @@ amp::MultiAgentPath2D MyGoalBiasRRTND::plan(const amp::MultiAgentProblem2D& prob
     auto duration = duration_cast<std::chrono::milliseconds>(stop - start);
     time = duration.count();
     return path;
+}
 
+void plan(const amp::MultiAgentProblem2D& problem, amp::MultiAgentPath2D& PathMA2D, int agentIdx){
+    auto start = std::chrono::high_resolution_clock::now();
+    std::vector<sampleS> samples;
+    // Construct init and goal super states
+    Eigen::Vector2d init(problem.agent_properties[agentIdx].q_init(0), problem.agent_properties[agentIdx].q_init(1));
+    Eigen::Vector2d goal(problem.agent_properties[agentIdx].q_goal(0), problem.agent_properties[agentIdx].q_goal(1));
+
+    samples.push_back(sampleS(init,-1));
+    Eigen::Vector2d q_rand;
+    bool soln = false;
+    int minID = 0;
+    double tempMin = 0;
+    checkPath c;
+    int steps = 0;
+    while(!soln && steps < numIterations){
+        //Generate q_rand
+        int tst = amp::RNG::randi(0,100);
+        if(tst > int(goalBiasP*100)){
+            q_rand(0) = amp::RNG::randd(problem.x_min, problem.x_max);
+            q_rand(1) = amp::RNG::randd(problem.y_min, problem.y_max);
+        }
+        else{
+            // LOG("choosing goal at step " << steps << " since tst = " << tst << " and cutoff is " << int(goalBiasP*100));
+            q_rand = goal;
+        }
+        //Find closest node in tree to q_rand
+        minID = 0;
+        tempMin = (samples[0].xy - q_rand).norm();
+        for(int k = 1; k < samples.size(); k++){
+            if((samples[k].xy - q_rand).norm() < tempMin){
+                tempMin = (samples[k].xy - q_rand).norm();
+                minID = k;
+            }
+        }
+        q_rand = ((1 - stepSize/tempMin)*samples[minID].xy + (stepSize/tempMin)*q_rand);
+        if(!c.pathsDiskCollision2D(samples[minID].xy, q_rand, problem, PathMA2D, agentIdx, steps)){
+            // LOG("Adding state: " << q_rand);
+            sampleS q_randS(q_rand,minID);
+            samples.push_back(q_randS);
+            if((q_rand - goal).norm() < eps){
+                soln = true;
+            }
+        }
+        steps++;
+    }
+    if(soln){
+        std::list<Eigen::VectorXd> l;
+        amp::Path2D tempPath;
+        sampleS testS(goal,samples.size() - 1);
+        while(testS.back != -1){
+            l.push_front(testS.xy);
+            testS = samples[testS.back];
+        }
+        l.push_front(problem.q_init);
+        tempPath.waypoints = { std::begin(l), std::end(l) };
+        PathMA2D.push_back(tempPath);
+
+    }
+    else{
+        if(steps == numIterations){
+            LOG("Ran outta steps buddy :(");
+            amp::Path2D tempPath;
+            tempPath.waypoints.push_back(init);
+            tempPath.waypoints.push_back(goal);
+            PathMA2D.agent_paths.push_back(tempPath);
+        }else{
+            LOG("Couldn't find path :(");
+        }
+    }
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = duration_cast<std::chrono::milliseconds>(stop - start);
+    time = duration.count();
+    return path;
 
 }
+
+
+
+
+
 
 std::map<Node, Eigen::Vector2d> MyGoalBiasRRTND::makeMap(std::vector<Eigen::Vector2d> samples){
     std::map<Node, Eigen::Vector2d> mapOfSamples;

@@ -161,7 +161,34 @@ class checkPath {
                 return false;
             }
         }
+        bool pathsDiskCollision2D(const Eigen::Vector2d state, const Eigen::Vector2d next, const amp::MultiAgentProblem2D& problem, const amp::MultiAgentPath2D& PathMA2D, int agentIdx, int timestep){
+            // Path checking for disk agent at timestep
+            for(int m = 0; m < interp; m++){
+                Eigen::Vector2d tempState = (1 - (1/interp)*m)*state + ((1/interp)*m)*next;
+                // Obstacle collision
+                if(diskCollision2D(tempState, problem.agent_properties[agentIdx],problem)){
+                    return true;
+                }
+                // Agent collision
+                int testAgentIdx = 0;
+                for(auto path : PathMA2D){
+                    if((path.length() > 0) && (timestep < path.length())){
+                        if(diskDiskEval(tempState, problem.agent_properties[agentIdx], path[timestep], problem.agent_properties[testAgentIdx])){
+                            return true;
+                        }
+                    }
+                    else{
+                        if(diskDiskEval(tempState, problem.agent_properties[agentIdx], path[path.length() - 1], problem.agent_properties[testAgentIdx])){
+                            return true;
+                        }
+                    }
+                    testAgentIdx++;
+                }
+            }
+            return false; 
+        }
         bool multDiskCollision2D(const Eigen::VectorXd state, const Eigen::VectorXd next, const amp::MultiAgentProblem2D& problem){
+            // Centralized planner collision checker for disk agents
             Eigen::Vector2d testState;
             Eigen::Vector2d testNext;
             for(int j = 0; j < 2*problem.numAgents(); j += 2){
@@ -170,8 +197,8 @@ class checkPath {
                 testNext(0) = next(j);
                 testNext(1) = next(j + 1);
                 //Check for obstacle collisions
-                for(int m = 0; m < 20; m++){
-                    if(diskCollision2D(((1 - 0.05*m)*testState + (0.05*m)*testNext),problem.agent_properties[j/2],problem)){
+                for(int m = 0; m <= interp; m++){
+                    if(diskCollision2D(((1 - (1/interp)*m)*testState + ((1/interp)*m)*testNext),problem.agent_properties[j/2],problem)){
                         return true;
                     }
                 }
@@ -185,9 +212,9 @@ class checkPath {
                             return true;
                         }
                         //Check if two robots paths collide
-                        for(int m = 0; m < 20; m++){
-                            if(diskDiskEval(((1 - 0.05*m)*testState + (0.05*m)*testNext),problem.agent_properties[j/2],
-                            ((1 - 0.05*m)*testState2 + (0.05*m)*testNext2),problem.agent_properties[k/2])){
+                        for(int m = 0; m <= interp; m++){
+                            if(diskDiskEval(((1 - (1/interp)*m)*testState + ((1/interp)*m)*testNext),problem.agent_properties[j/2],
+                            ((1 - (1/interp)*m)*testState2 + ((1/interp)*m)*testNext2),problem.agent_properties[k/2])){
                                 return true;
                             }
                         }
@@ -198,9 +225,11 @@ class checkPath {
         }
         amp::CircularAgentProperties& getAgent(){return tempAgent;};
         int& getW(){return checkMode;};
+        int& getI(){return interp;};
     private:
         amp::CircularAgentProperties tempAgent;
         int checkMode = 0;
+        int interp = 20;
 };
 
 class MyConfigurationSpace : public amp::ConfigurationSpace {
@@ -341,6 +370,8 @@ class MyGoalBiasRRTND : public amp::GoalBiasRRT2D {
         };
 
         amp::MultiAgentPath2D plan(const amp::MultiAgentProblem2D& problem);
+
+        void plan(const amp::MultiAgentProblem2D& problem, amp::MultiAgentPath2D& PathMA2D, int agentIdx);
 
         std::map<Node, Eigen::Vector2d> makeMap(std::vector<Eigen::Vector2d> samples);
 

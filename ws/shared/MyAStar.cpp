@@ -5,7 +5,7 @@ using namespace amp;
 MyAStarAlgo::GraphSearchResult MyAStarAlgo::search(const amp::ShortestPathProblem& problem, const amp::SearchHeuristic& heuristic) {
         init = problem.init_node;
         goal = problem.goal_node;
-        cout << "Init->goal: " << init << " --> " << goal <<"\n";
+        cout << "\nInit->goal: " << init << " --> " << goal <<"\n";
         ANode currNode, node;
         currNode.ind = init;
         std::list<ANode> queue = {currNode};
@@ -23,14 +23,7 @@ MyAStarAlgo::GraphSearchResult MyAStarAlgo::search(const amp::ShortestPathProble
             currNode = queue.back();
             queue.pop_back();
             openList.erase(currNode.ind);
-            // if (processed.count(currNode.ind) > 0) {
-            //     if (currNode.cost < processed[currNode.ind].cost) {
-            //         cout << currNode.ind << " <-- found better path \n";
-            //     }
-            //     continue;
-            // }
             processed[currNode.ind] = currNode;
-            // cout << currNode.ind << " <- Current Node\n";
             children = problem.graph->children(currNode.ind);
             edges = problem.graph->outgoingEdges(currNode.ind);
             for (int i = 0; i < edges.size(); ++i) {
@@ -47,7 +40,7 @@ MyAStarAlgo::GraphSearchResult MyAStarAlgo::search(const amp::ShortestPathProble
                         if (openList[index].cost > currNode.cost + edges[i]) {
                             queue.remove_if([index](const ANode& aNode) {
                                 return aNode.ind == index;
-                            });   
+                            });
                             // openList.erase(index);
                             queue.push_back(node);
                             openList[index] = node;

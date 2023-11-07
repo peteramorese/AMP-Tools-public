@@ -225,10 +225,9 @@ bool isLineInCollision(const Vector2d& point1, const Vector2d& point2, const vec
 
 void smoothPath(amp::Path2D& path, const vector<amp::Obstacle2D> obstacles) {
     int size, i, j;
-    for (int x = 0; x < 50; ++x) {
+    for (int x = 0; x < 100; ++x) {
         size = path.waypoints.size();
-        cout << size << "\n";
-        if (size == 0) break;
+        if (size < 3) break;
         i = amp::RNG::randi(0, size - 1);
         j = amp::RNG::randi(i + 1, size);
         if ((j - i) > 1 && !isLineInCollision(path.waypoints[i], path.waypoints[j], obstacles)) {

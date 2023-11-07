@@ -10,8 +10,11 @@ using std::vector, Eigen::VectorXd, Eigen::Vector2d, std::pair, std::size_t;
 
 amp::Path2D MyPRM::plan(const amp::Problem2D& problem) {
     Path2D path;
+    return path;
     limits.push_back({problem.x_min, problem.x_max});
     limits.push_back({problem.y_min, problem.y_max});
+    // limits.push_back({-3, 3});
+
     VectorXd qRand;
     points[0] = problem.q_init;
     points[1] = problem.q_goal;
@@ -78,7 +81,6 @@ std::map<uint32_t, Vector2d> MyPRM::getPoints() {
 };
 
 amp::Path2D MyRRT::plan(const amp::Problem2D& problem) {
-    Path2D path;
     limits.push_back({problem.x_min, problem.x_max});
     limits.push_back({problem.y_min, problem.y_max});
     VectorXd qRand, nearest;
@@ -91,21 +93,16 @@ amp::Path2D MyRRT::plan(const amp::Problem2D& problem) {
     bool success = false;
     while (points.size() < n) {
         double goalBias = dist(gen);
-        if (goalBias > 0.95) {
-            cout << "Goal Bias\n";
-            qRand = problem.q_goal;
-        } else {
-            qRand = getRandomPoint();
-        }
+        if (goalBias > 0.95) qRand = problem.q_goal;
+        else qRand = getRandomPoint();
         pair<int, VectorXd> nearest = findNearest(qRand, problem.obstacles);
         if (nearest.first != -1) {
             graphPtr->connect(nearest.first, ind, (points[nearest.first] - nearest.second).norm());
             points[ind] = nearest.second;
             parents[ind] = nearest.first;
-            // cout << "Adding point: ( " << nearest.second(0) << ", " << nearest.second(1) << ")\n"; 
             ind++;
-            if ((nearest.second - problem.q_goal).norm() < 0.1) {
-                cout << "Goal found\n";
+            if ((nearest.second - problem.q_goal).norm() < 0.25) {
+                cout << "Goal found in "<< ind << " steps\n";
                 success = true;
                 break;
             }
@@ -113,13 +110,16 @@ amp::Path2D MyRRT::plan(const amp::Problem2D& problem) {
     }
     ind--;
     int node = ind;
-    while (node != 0) {
-        // cout << "Adding node " << node << " at ( " << points[node](0) << ", " << points[node](1) << ")\n"; 
-        path.waypoints.insert(path.waypoints.begin(), points[node]);
-        node = parents[node];
-    }
-    path.waypoints.insert(path.waypoints.begin(), problem.q_init);
-    if (success) path.waypoints.push_back(problem.q_goal);
+    Path2D path;
+    if (success) {
+        while (node != 0) {
+            path.waypoints.insert(path.waypoints.begin(), points[node]);
+            node = parents[node];
+        }
+        path.waypoints.insert(path.waypoints.begin(), problem.q_init);
+        path.waypoints.push_back(problem.q_goal);
+    } 
+    if (smooth) smoothPath(path, problem.obstacles);
     return path;
 }
 
@@ -159,3 +159,15 @@ VectorXd MyRRT::getRandomPoint() {
     }
     return randomPoint;
 }
+
+std::shared_ptr<amp::Graph<double>> MyRRT::getGraph() {
+    // for (int i = 0; i < points.size(); i++) {
+    //     graphPtr->connect(i, parents[i], 0);
+    //     cout << "Connected " << i << " to " << parents[i] << "\n"; 
+    // }
+    return graphPtr;
+};
+
+std::map<uint32_t, Vector2d> MyRRT::getPoints() {
+    return points;
+};

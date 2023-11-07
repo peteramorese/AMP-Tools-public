@@ -170,19 +170,17 @@ class checkPath {
                     return true;
                 }
                 // Agent collision
-                int testAgentIdx = 0;
-                for(auto path : PathMA2D){
-                    if((path.length() > 0) && (timestep < path.length())){
-                        if(diskDiskEval(tempState, problem.agent_properties[agentIdx], path[timestep], problem.agent_properties[testAgentIdx])){
+                for(int j = 0; j < agentIdx; j++){
+                    if((PathMA2D.agent_paths[j].length() > 0) && (timestep < PathMA2D.agent_paths[j].length())){
+                        if(diskDiskEval(tempState, problem.agent_properties[agentIdx], PathMA2D.agent_paths[j].waypoints[timestep], problem.agent_properties[j])){
                             return true;
                         }
                     }
                     else{
-                        if(diskDiskEval(tempState, problem.agent_properties[agentIdx], path[path.length() - 1], problem.agent_properties[testAgentIdx])){
+                        if(diskDiskEval(tempState, problem.agent_properties[agentIdx], PathMA2D.agent_paths[j].waypoints[PathMA2D.agent_paths[j].length() - 1], problem.agent_properties[j])){
                             return true;
                         }
                     }
-                    testAgentIdx++;
                 }
             }
             return false; 

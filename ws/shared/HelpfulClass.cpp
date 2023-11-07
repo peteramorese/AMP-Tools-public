@@ -99,7 +99,7 @@ amp::MultiAgentPath2D MyGoalBiasRRTND::plan(const amp::MultiAgentProblem2D& prob
     return path;
 }
 
-void plan(const amp::MultiAgentProblem2D& problem, amp::MultiAgentPath2D& PathMA2D, int agentIdx){
+void MyGoalBiasRRTND::plan(const amp::MultiAgentProblem2D& problem, amp::MultiAgentPath2D& PathMA2D, int agentIdx){
     auto start = std::chrono::high_resolution_clock::now();
     std::vector<sampleS> samples;
     // Construct init and goal super states
@@ -152,9 +152,9 @@ void plan(const amp::MultiAgentProblem2D& problem, amp::MultiAgentPath2D& PathMA
             l.push_front(testS.xy);
             testS = samples[testS.back];
         }
-        l.push_front(problem.q_init);
+        l.push_front(init);
         tempPath.waypoints = { std::begin(l), std::end(l) };
-        PathMA2D.push_back(tempPath);
+        PathMA2D.agent_paths.push_back(tempPath);
 
     }
     else{
@@ -171,8 +171,6 @@ void plan(const amp::MultiAgentProblem2D& problem, amp::MultiAgentPath2D& PathMA
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = duration_cast<std::chrono::milliseconds>(stop - start);
     time = duration.count();
-    return path;
-
 }
 
 

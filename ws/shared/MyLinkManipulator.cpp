@@ -76,5 +76,5 @@ ManipulatorState MyLinkManipulator::getConfigurationFromIK(const Eigen::Vector2d
         state << acos(cosTheta1), acos(cosTheta2);
         return state;
     }
-    // return ManipulatorState();
+    return ManipulatorState();
 };

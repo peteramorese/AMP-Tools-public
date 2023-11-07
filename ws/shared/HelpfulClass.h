@@ -105,7 +105,7 @@ class checkPath {
             return false;
         }
         bool diskDiskEval(const Eigen::Vector2d state0, const amp::CircularAgentProperties& agent0, const Eigen::Vector2d state1, const amp::CircularAgentProperties& agent1){
-            return ((state0 - state1).norm() < (agent0.radius + agent1.radius));
+            return ((state0 - state1).norm() < 1.05*(agent0.radius + agent1.radius));
         }
         bool diskDiskPathEval(const Eigen::Vector2d state0, const Eigen::Vector2d next0, const amp::CircularAgentProperties& agent0, const Eigen::Vector2d state1, const Eigen::Vector2d next1, const amp::CircularAgentProperties& agent1){
             Eigen::Vector2d unitV0 = (next0 - state0)/(next0 - state0).norm();
@@ -193,36 +193,30 @@ class checkPath {
             if(diskPathEval(state, next, problem.agent_properties[agentIdx], problem) || diskCollision2D(next, problem.agent_properties[agentIdx], problem)){
                 return true;
             }
-            // for(int m = 0; m < interp; m++){
-                // Eigen::Vector2d tempState = (1 - (1/interp)*m)*state + ((1/interp)*m)*next;
-                // Obstacle collision
-                // if(diskCollision2D(tempState, problem.agent_properties[agentIdx], problem)){
-                //     return true;
-                // }
+            for(int m = 0; m < interp; m++){
+                Eigen::Vector2d tempState = (1 - (1/interp)*m)*state + ((1/interp)*m)*next;
                 // Agent collision
                 for(int j = 0; j < agentIdx; j++){
                     // LOG("checking timestep " << timestep);
                     if((PathMA2D.agent_paths[j].waypoints.size() > 0) && (timestep < PathMA2D.agent_paths[j].waypoints.size())){
-                        // if(diskDiskEval(tempState, problem.agent_properties[agentIdx], PathMA2D.agent_paths[j].waypoints[timestep], problem.agent_properties[j])){
-                        //     return true;
-                        // }
-                        // else if(diskDiskEval(tempState, problem.agent_properties[agentIdx], PathMA2D.agent_paths[j].waypoints[timestep + 1], problem.agent_properties[j])){
-                        //     return true;
-                        // }
-                        if(diskDiskPathEval(state, next, problem.agent_properties[agentIdx], PathMA2D.agent_paths[j].waypoints[timestep], PathMA2D.agent_paths[j].waypoints[timestep + 1], problem.agent_properties[j])){
-                            return true;
-                        }
-                    }
-                    else{
-                        for(int m = 0; m < interp; m++){
-                            Eigen::Vector2d tempState = (1 - (1/interp)*m)*state + ((1/interp)*m)*next;
-                            if(diskDiskEval(tempState, problem.agent_properties[agentIdx], PathMA2D.agent_paths[j].waypoints[PathMA2D.agent_paths[j].waypoints.size() - 1], problem.agent_properties[j])){
+                        for(int n = 0; n < interp; n++){
+                            Eigen::Vector2d tempObs = (1 - (1/interp)*n)*PathMA2D.agent_paths[j].waypoints[timestep] + ((1/interp)*n)*PathMA2D.agent_paths[j].waypoints[timestep + 1];
+                            if(diskDiskEval(tempState, problem.agent_properties[agentIdx], tempObs, problem.agent_properties[j])){
                                 return true;
                             }
                         }
+                        // else if(diskDiskEval(tempState, problem.agent_properties[agentIdx], PathMA2D.agent_paths[j].waypoints[timestep + 1], problem.agent_properties[j])){
+                        //     return true;
+                        // }
+                    }
+                    else{
+                        // LOG("timestep " << timestep << " , with agent " << j << " since len j = " << PathMA2D.agent_paths[j].waypoints.size());
+                        if(diskDiskEval(tempState, problem.agent_properties[agentIdx], PathMA2D.agent_paths[j].waypoints[PathMA2D.agent_paths[j].waypoints.size() - 1], problem.agent_properties[j])){
+                            return true;
+                        }
                     }
                 }
-            // }
+            }
             return false; 
         }
         bool multDiskCollision2D(const Eigen::VectorXd state, const Eigen::VectorXd next, const amp::MultiAgentProblem2D& problem){

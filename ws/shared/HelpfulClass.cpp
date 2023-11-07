@@ -105,7 +105,7 @@ void MyGoalBiasRRTND::plan(const amp::MultiAgentProblem2D& problem, amp::MultiAg
     // Construct init and goal super states
     Eigen::Vector2d init(problem.agent_properties[agentIdx].q_init(0), problem.agent_properties[agentIdx].q_init(1));
     Eigen::Vector2d goal(problem.agent_properties[agentIdx].q_goal(0), problem.agent_properties[agentIdx].q_goal(1));
-    LOG("planning for " << agentIdx << " with init " << init);
+    // LOG("planning for " << agentIdx << " with init " << init);
     samples.push_back(sampleS(init,-1,-1));
     Eigen::Vector2d q_rand;
     bool soln = false;

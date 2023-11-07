@@ -29,15 +29,15 @@ class ConfigurationSpace {
 
         /// @brief Get the lower bounds for each configuration dimension
         /// @return Lower bounds
-        inline const Eigen::VectorXd& lowerBounds() {return m_lower_bounds;}
+        inline const Eigen::VectorXd& lowerBounds() const {return m_lower_bounds;}
 
         /// @brief Get the upper bounds for each configuration dimension
         /// @return Lower bounds
-        inline const Eigen::VectorXd& upperBounds() {return m_upper_bounds;}
+        inline const Eigen::VectorXd& upperBounds() const {return m_upper_bounds;}
 
         /// @brief Get the dimension of the configuration space
         /// @return Dimension
-        inline std::size_t dimension() {return m_lower_bounds.size();}
+        inline std::size_t dimension() const {return m_lower_bounds.size();}
 
     protected:
         Eigen::VectorXd m_lower_bounds;

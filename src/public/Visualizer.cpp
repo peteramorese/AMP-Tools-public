@@ -65,6 +65,11 @@ void amp::Visualizer::makeFigure(const Problem2D& prob) {
     createAxes(prob);
 }
 
+void amp::Visualizer::makeFigure(const MultiAgentProblem2D& prob) {
+    newFigure();
+    createAxes(prob);
+}
+
 void amp::Visualizer::makeFigure(const Problem2D& prob, const Path2D& path) {
     newFigure();
     createAxes(prob);
@@ -77,16 +82,41 @@ void amp::Visualizer::makeFigure(const Problem2D& prob, const Path2D& path, cons
     createAxes(path, collision_points);
 }
 
-void amp::Visualizer::makeFigure(const Problem2D& prob, double circular_agent_radius, const Path2D& path) {
+void amp::Visualizer::makeFigure(const Environment2D& env, const CircularAgentProperties& circular_agent_props, const Path2D& path) {
     newFigure();
-    createAxes(prob);
-
+    createAxes(circular_agent_props.radius, path, true);
+    createAxes(env);
+    createAxes(circular_agent_props.q_init, circular_agent_props.q_goal);
 }
 
-void amp::Visualizer::makeFigure(const Problem2D& prob, double circular_agent_radius, const Path2D& path, const std::vector<Eigen::Vector2d>& collision_states) {
+void amp::Visualizer::makeFigure(const Environment2D& env, const CircularAgentProperties& circular_agent_props, const Path2D& path, const std::vector<Eigen::Vector2d>& collision_states) {
     newFigure();
-    createAxes(prob);
+    createAxes(circular_agent_props.radius, path, true);
+    createAxes(env);
+    createAxes(circular_agent_props.q_init, circular_agent_props.q_goal);
+}
 
+void amp::Visualizer::makeFigure(const MultiAgentProblem2D& prob, const amp::MultiAgentPath2D& ma_path) {
+    newFigure();
+    ASSERT(prob.numAgents() == ma_path.numAgents(), "Number of paths does not match number of agents");
+    for (uint32_t i = 0; i < prob.numAgents(); ++i) {
+        const CircularAgentProperties& props = prob.agent_properties[i];
+        createAxes(props.radius, ma_path.agent_paths[i], true);
+        createAxes(props.q_init, props.q_goal);
+    }
+    createAxes(static_cast<const Environment2D&>(prob));
+}
+
+void amp::Visualizer::makeFigure(const MultiAgentProblem2D& prob, const amp::MultiAgentPath2D& ma_path, const std::vector<std::vector<Eigen::Vector2d>>& ma_collision_states) {
+    newFigure();
+    ASSERT(prob.numAgents() == ma_path.numAgents(), "Number of paths does not match number of agents");
+    ASSERT(prob.numAgents() == ma_collision_states.size(), "Number of collision state sets does not match number of agents");
+    for (uint32_t i = 0; i < prob.numAgents(); ++i) {
+        const CircularAgentProperties& props = prob.agent_properties[i];
+        createAxes(props.radius, ma_path.agent_paths[i], true, &ma_collision_states[i]);
+        createAxes(props.q_init, props.q_goal);
+    }
+    createAxes(static_cast<const Environment2D&>(prob));
 }
 
 void amp::Visualizer::makeFigure(const std::vector<Polygon>& polygons, bool filled) {
@@ -184,6 +214,12 @@ void amp::Visualizer::makeFigure(const Problem2D& prob, const Graph<double>& coo
     createAxes(coordinate_map, [&](amp::Node node) -> Eigen::Vector2d {return node_to_coordinate.at(node);});
 }
 
+void amp::Visualizer::makeFigure(const Problem2D& prob, const Path2D& path, const Graph<double>& coordinate_map, const std::map<amp::Node, Eigen::Vector2d>& node_to_coordinate) {
+    createAxes(prob);
+    createAxes(coordinate_map, [&](amp::Node node) -> Eigen::Vector2d {return node_to_coordinate.at(node);});
+    createAxes(path);
+}
+
 void amp::Visualizer::showFigures() {
     ampprivate::pybridge::ScriptCaller::call("FigureHandler", "show_figure", std::make_tuple());
 }
@@ -197,12 +233,27 @@ void amp::Visualizer::createAxes(const Environment2D& env) {
     std::unique_ptr<ampprivate::pybridge::PythonObject> obstacles_arg = polygonsToPythonObject(env.obstacles);
     ampprivate::pybridge::ScriptCaller::call("VisualizeEnvironment", "visualize_environment", std::make_tuple(bounds_arg->get(), obstacles_arg->get()));
 }
+
+void amp::Visualizer::createAxes(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal) {
+    std::unique_ptr<ampprivate::pybridge::PythonObject> q_init_arg = pointToPythonObject(q_init);
+    std::unique_ptr<ampprivate::pybridge::PythonObject> q_goal_arg = pointToPythonObject(q_goal);
+    ampprivate::pybridge::ScriptCaller::call("VisualizeEnvironment", "show_endpoints", std::make_tuple(q_init_arg->get(), q_goal_arg->get()));
+}
+
 void amp::Visualizer::createAxes(const Problem2D& prob) {
-    std::unique_ptr<ampprivate::pybridge::PythonObject> bounds_arg = workspaceBoundsToPythonObject(prob.x_min, prob.x_max, prob.y_min, prob.y_max);
-    std::unique_ptr<ampprivate::pybridge::PythonObject> obstacles_arg = polygonsToPythonObject(prob.obstacles);
-    std::unique_ptr<ampprivate::pybridge::PythonObject> q_init_arg = pointToPythonObject(prob.q_init);
-    std::unique_ptr<ampprivate::pybridge::PythonObject> q_goal_arg = pointToPythonObject(prob.q_goal);
-    ampprivate::pybridge::ScriptCaller::call("VisualizeEnvironment", "visualize_environment", std::make_tuple(bounds_arg->get(), obstacles_arg->get(), q_init_arg->get(), q_goal_arg->get()));
+    createAxes(static_cast<const Environment2D&>(prob));
+    createAxes(prob.q_init, prob.q_goal);
+}
+
+void amp::Visualizer::createAxes(const MultiAgentProblem2D& prob) {
+    createAxes(static_cast<const Environment2D&>(prob));
+
+    for (const amp::CircularAgentProperties& props : prob.agent_properties) {
+        std::unique_ptr<ampprivate::pybridge::PythonObject> q_init_arg = pointToPythonObject(props.q_init);
+        std::unique_ptr<ampprivate::pybridge::PythonObject> q_goal_arg = pointToPythonObject(props.q_goal);
+        std::unique_ptr<ampprivate::pybridge::PythonObject> random_color_arg = ampprivate::pybridge::makeBool(true);
+        ampprivate::pybridge::ScriptCaller::call("VisualizeEnvironment", "show_endpoints", std::make_tuple(q_init_arg->get(), q_goal_arg->get(), random_color_arg->get()));
+    }
 }
 
 void amp::Visualizer::createAxes(const Path2D& path) {
@@ -216,14 +267,30 @@ void amp::Visualizer::createAxes(const Path2D& path, const std::vector<Eigen::Ve
     ampprivate::pybridge::ScriptCaller::call("VisualizeEnvironment", "visualize_path", std::make_tuple(path_arg->get(), collison_points_arg->get()));
 }
 
-void amp::Visualizer::createAxes(double circular_agent_radius, const Path2D& path) {
-    //std::unique_ptr<ampprivate::pybridge::PythonObject> polygons_arg = polygonsToPythonObject(polygons);
-    //std::unique_ptr<ampprivate::pybridge::PythonObject> filled_arg = ampprivate::pybridge::makeBool(filled);
-    //ampprivate::pybridge::ScriptCaller::call("VisualizeCircleAgent", "visualize_circle_agent", std::make_tuple(polygons_arg->get(), filled_arg->get()));
+void amp::Visualizer::createAxes(double circular_agent_radius, const Eigen::Vector2d& state, double* cmap_scale, bool colliding) {
+    std::unique_ptr<ampprivate::pybridge::PythonObject> radius_arg = ampprivate::pybridge::makeScalar(circular_agent_radius);
+    std::unique_ptr<ampprivate::pybridge::PythonObject> centerpoint_arg = pointToPythonObject(state);
+    std::unique_ptr<ampprivate::pybridge::PythonObject> colliding_arg = ampprivate::pybridge::makeBool(colliding);
+
+    if (cmap_scale) {
+        std::unique_ptr<ampprivate::pybridge::PythonObject> cmap_scale_arg = ampprivate::pybridge::makeScalar(*cmap_scale);
+        ampprivate::pybridge::ScriptCaller::call("VisualizeCircleAgent", "visualize_circle_agent", std::make_tuple(radius_arg->get(), centerpoint_arg->get(), colliding_arg->get(), cmap_scale_arg->get()));
+    } else {
+        ampprivate::pybridge::ScriptCaller::call("VisualizeCircleAgent", "visualize_circle_agent", std::make_tuple(radius_arg->get(), centerpoint_arg->get(), colliding_arg->get()));
+    }
 }
 
-void amp::Visualizer::createAxes(double circular_agent_radius, const Path2D& path, const std::vector<Eigen::Vector2d>& collision_states) {
+void amp::Visualizer::createAxes(double circular_agent_radius, const Path2D& path, bool random_color, const std::vector<Eigen::Vector2d>* collision_states) {
+    std::unique_ptr<ampprivate::pybridge::PythonObject> radius_arg = ampprivate::pybridge::makeScalar(circular_agent_radius);
+    std::unique_ptr<ampprivate::pybridge::PythonObject> path_arg = listOfPointsToPythonObject(path.waypoints);
+    std::unique_ptr<ampprivate::pybridge::PythonObject> random_color_arg = ampprivate::pybridge::makeBool(random_color);
 
+    if (collision_states) {
+        std::unique_ptr<ampprivate::pybridge::PythonObject> collision_states_arg = listOfPointsToPythonObject(*collision_states);
+        ampprivate::pybridge::ScriptCaller::call("VisualizeCircleAgent", "visualize_path", std::make_tuple(radius_arg->get(), path_arg->get(), random_color_arg->get(), collision_states_arg->get()));
+    } else {
+        ampprivate::pybridge::ScriptCaller::call("VisualizeCircleAgent", "visualize_path", std::make_tuple(radius_arg->get(), path_arg->get(), random_color_arg->get()));
+    }
 }
 
 void amp::Visualizer::createAxes(const std::vector<Polygon>& polygons, bool filled) {
@@ -278,7 +345,7 @@ void amp::Visualizer::createAxes(const LinkManipulator2D& link_manipulator, cons
     std::unique_ptr<ampprivate::pybridge::PythonObject> vertices_arg = listOfPointsToPythonObject(vertices);
 
     // Colliding arg
-    std::unique_ptr<ampprivate::pybridge::PythonObject> colliding_arg = ampprivate::pybridge::makeLong(colliding);
+    std::unique_ptr<ampprivate::pybridge::PythonObject> colliding_arg = ampprivate::pybridge::makeBool(colliding);
 
     if (cmap_scale) {
         std::unique_ptr<ampprivate::pybridge::PythonObject> alpha_arg = ampprivate::pybridge::makeScalar(*cmap_scale);

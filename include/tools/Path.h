@@ -40,6 +40,17 @@ struct Path {
     void print(const std::string& heading = "Path") const;
 };
 
+struct MultiAgentPath2D {
+    MultiAgentPath2D() = default;
+    MultiAgentPath2D(uint32_t n_agents) : agent_paths(n_agents) {}
+    std::vector<Path2D> agent_paths;
+
+    /// @brief `true` if a solution was found, `false` otherwise
+    bool valid;
+
+    inline std::size_t numAgents() const {return agent_paths.size();}
+};
+
 /// @brief Given a path that has waypoints wrapped within a hyper-cube from `wrapped_lower_bounds` to `wrapped_upper_bounds`, unwrap the waypoints to
 /// extend outside of the hypercube and remove discontinuities. Uses L1-norm between consecutive waypoints
 /// @param path Path object (either 2D or ND) that will be edited
@@ -52,5 +63,6 @@ template <class WAYPOINT_T>
 static void unwrapWaypoints(std::vector<WAYPOINT_T>& waypoints, const WAYPOINT_T& wrapped_lower_bounds, const WAYPOINT_T& wrapped_upper_bounds);
 
 }
+
 
 #include "public/Path_impl.h"

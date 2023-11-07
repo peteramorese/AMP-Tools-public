@@ -21,7 +21,7 @@ int main(int argc, char** argv) {
     //     path = decRRT.plan(prob);
     //     collision_states.clear();
     // }while(HW8::check(path, prob, collision_states));
-    // // HW8::check(path, prob, collision_states);
+    // HW8::check(path, prob, collision_states);
     // Visualizer::makeFigure(prob,path, collision_states);
     // Visualizer::makeFigure(prob,path);
     // Visualizer::showFigures();

@@ -105,7 +105,7 @@ class checkPath {
             return false;
         }
         bool diskDiskEval(const Eigen::Vector2d state0, const amp::CircularAgentProperties& agent0, const Eigen::Vector2d state1, const amp::CircularAgentProperties& agent1){
-            return ((state0 - state1).norm() < 1.05*(agent0.radius + agent1.radius));
+            return ((state0 - state1).norm() <= 1.5*(agent0.radius + agent1.radius));
         }
         bool diskDiskPathEval(const Eigen::Vector2d state0, const Eigen::Vector2d next0, const amp::CircularAgentProperties& agent0, const Eigen::Vector2d state1, const Eigen::Vector2d next1, const amp::CircularAgentProperties& agent1){
             Eigen::Vector2d unitV0 = (next0 - state0)/(next0 - state0).norm();
@@ -201,6 +201,7 @@ class checkPath {
                     if((PathMA2D.agent_paths[j].waypoints.size() > 0) && (timestep < PathMA2D.agent_paths[j].waypoints.size())){
                         for(int n = 0; n < interp; n++){
                             Eigen::Vector2d tempObs = (1 - (1/interp)*n)*PathMA2D.agent_paths[j].waypoints[timestep] + ((1/interp)*n)*PathMA2D.agent_paths[j].waypoints[timestep + 1];
+                            // LOG( "timeStep: " << timestep << " Checking " << tempState << " with " << tempObs);
                             if(diskDiskEval(tempState, problem.agent_properties[agentIdx], tempObs, problem.agent_properties[j])){
                                 return true;
                             }

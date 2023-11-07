@@ -86,6 +86,15 @@ class checkPath {
             }
             return false;
         }
+        bool diskPathEval(const Eigen::Vector2d state, const Eigen::Vector2d next, const amp::CircularAgentProperties& agent, const amp::Environment2D& obs){
+            
+            Eigen::Vector2d unitV = (next - state)/(next - state).norm();
+            Eigen::Vector2d unitUp(-unitV(1),unitV(0));
+            if(lineCollision2D(state + agent.radius*unitUp, next + agent.radius*unitUp, obs) || lineCollision2D(state - agent.radius*unitUp, next - agent.radius*unitUp, obs)){
+                return true;
+            }
+            return false;
+        }
         bool pointLineEval(const Eigen::Vector2d state, const Eigen::Vector2d p1, const Eigen::Vector2d p2){
             //returns true if state is on line segment between p1 and p2 given that all three are colinear
             Eigen::Vector2d AC = state - p1;
@@ -96,7 +105,24 @@ class checkPath {
             return false;
         }
         bool diskDiskEval(const Eigen::Vector2d state0, const amp::CircularAgentProperties& agent0, const Eigen::Vector2d state1, const amp::CircularAgentProperties& agent1){
-            return ((state0 - state1).norm() < agent0.radius + agent1.radius);
+            return ((state0 - state1).norm() < (agent0.radius + agent1.radius));
+        }
+        bool diskDiskPathEval(const Eigen::Vector2d state0, const Eigen::Vector2d next0, const amp::CircularAgentProperties& agent0, const Eigen::Vector2d state1, const Eigen::Vector2d next1, const amp::CircularAgentProperties& agent1){
+            Eigen::Vector2d unitV0 = (next0 - state0)/(next0 - state0).norm();
+            Eigen::Vector2d unitUp0(-unitV0(1),unitV0(0));
+
+            Eigen::Vector2d unitV1 = (next1 - state1)/(next1 - state1).norm();
+            Eigen::Vector2d unitUp1(-unitV1(1),unitV1(0));
+
+            if(evalTU(getT(state0 + agent0.radius*unitUp0, next0 + agent0.radius*unitUp0, state1 + agent1.radius*unitUp1, next1 + agent1.radius*unitUp1), 
+            getU(state0 + agent0.radius*unitUp0, next0 + agent0.radius*unitUp0, state1 + agent1.radius*unitUp1, next1 + agent1.radius*unitUp1))){
+                return true;
+            }
+            else if(evalTU(getT(state0 - agent0.radius*unitUp0, next0 - agent0.radius*unitUp0, state1 - agent1.radius*unitUp1, next1 - agent1.radius*unitUp1), 
+            getU(state0 - agent0.radius*unitUp0, next0 - agent0.radius*unitUp0, state1 - agent1.radius*unitUp1, next1 - agent1.radius*unitUp1))){
+                return true;
+            }
+            return false;
         }
         bool pointCollision2D(const Eigen::Vector2d state, const amp::Environment2D& obs){
             bool hit = false;
@@ -163,26 +189,40 @@ class checkPath {
         }
         bool pathsDiskCollision2D(const Eigen::Vector2d state, const Eigen::Vector2d next, const amp::MultiAgentProblem2D& problem, const amp::MultiAgentPath2D& PathMA2D, int agentIdx, int timestep){
             // Path checking for disk agent at timestep
-            for(int m = 0; m < interp; m++){
-                Eigen::Vector2d tempState = (1 - (1/interp)*m)*state + ((1/interp)*m)*next;
+            // Obstacle collision
+            if(diskPathEval(state, next, problem.agent_properties[agentIdx], problem) || diskCollision2D(next, problem.agent_properties[agentIdx], problem)){
+                return true;
+            }
+            // for(int m = 0; m < interp; m++){
+                // Eigen::Vector2d tempState = (1 - (1/interp)*m)*state + ((1/interp)*m)*next;
                 // Obstacle collision
-                if(diskCollision2D(tempState, problem.agent_properties[agentIdx],problem)){
-                    return true;
-                }
+                // if(diskCollision2D(tempState, problem.agent_properties[agentIdx], problem)){
+                //     return true;
+                // }
                 // Agent collision
                 for(int j = 0; j < agentIdx; j++){
-                    if((PathMA2D.agent_paths[j].length() > 0) && (timestep < PathMA2D.agent_paths[j].length())){
-                        if(diskDiskEval(tempState, problem.agent_properties[agentIdx], PathMA2D.agent_paths[j].waypoints[timestep], problem.agent_properties[j])){
+                    // LOG("checking timestep " << timestep);
+                    if((PathMA2D.agent_paths[j].waypoints.size() > 0) && (timestep < PathMA2D.agent_paths[j].waypoints.size())){
+                        // if(diskDiskEval(tempState, problem.agent_properties[agentIdx], PathMA2D.agent_paths[j].waypoints[timestep], problem.agent_properties[j])){
+                        //     return true;
+                        // }
+                        // else if(diskDiskEval(tempState, problem.agent_properties[agentIdx], PathMA2D.agent_paths[j].waypoints[timestep + 1], problem.agent_properties[j])){
+                        //     return true;
+                        // }
+                        if(diskDiskPathEval(state, next, problem.agent_properties[agentIdx], PathMA2D.agent_paths[j].waypoints[timestep], PathMA2D.agent_paths[j].waypoints[timestep + 1], problem.agent_properties[j])){
                             return true;
                         }
                     }
                     else{
-                        if(diskDiskEval(tempState, problem.agent_properties[agentIdx], PathMA2D.agent_paths[j].waypoints[PathMA2D.agent_paths[j].length() - 1], problem.agent_properties[j])){
-                            return true;
+                        for(int m = 0; m < interp; m++){
+                            Eigen::Vector2d tempState = (1 - (1/interp)*m)*state + ((1/interp)*m)*next;
+                            if(diskDiskEval(tempState, problem.agent_properties[agentIdx], PathMA2D.agent_paths[j].waypoints[PathMA2D.agent_paths[j].waypoints.size() - 1], problem.agent_properties[j])){
+                                return true;
+                            }
                         }
                     }
                 }
-            }
+            // }
             return false; 
         }
         bool multDiskCollision2D(const Eigen::VectorXd state, const Eigen::VectorXd next, const amp::MultiAgentProblem2D& problem){
@@ -195,10 +235,14 @@ class checkPath {
                 testNext(0) = next(j);
                 testNext(1) = next(j + 1);
                 //Check for obstacle collisions
-                for(int m = 0; m <= interp; m++){
-                    if(diskCollision2D(((1 - (1/interp)*m)*testState + ((1/interp)*m)*testNext),problem.agent_properties[j/2],problem)){
-                        return true;
-                    }
+                // for(int m = 0; m <= interp; m++){
+                //     if(diskCollision2D(((1 - (1/interp)*m)*testState + ((1/interp)*m)*testNext),problem.agent_properties[j/2],problem)){
+                //         return true;
+                //     }
+                // }
+                // Obstacle collision
+                if(diskPathEval(testState, testNext, problem.agent_properties[j/2], problem) || diskCollision2D(testNext, problem.agent_properties[j/2], problem)){
+                    return true;
                 }
                 //Check for robot-to-robot collisions
                 for(int k = 0; k < 2*problem.numAgents(); k += 2){
@@ -355,9 +399,15 @@ class MyGoalBiasRRTND : public amp::GoalBiasRRT2D {
         struct sampleS{
             Eigen::VectorXd xy;
             int back = 0;
+            int tFromInit = 0;
             sampleS(const Eigen::VectorXd& inXY, int inBack){
                 xy = inXY;
                 back = inBack;
+            }
+            sampleS(const Eigen::VectorXd& inXY, int inBack, int inTime){
+                xy = inXY;
+                back = inBack;
+                tFromInit = inTime;
             }
         };
 

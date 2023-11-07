@@ -105,14 +105,15 @@ void MyGoalBiasRRTND::plan(const amp::MultiAgentProblem2D& problem, amp::MultiAg
     // Construct init and goal super states
     Eigen::Vector2d init(problem.agent_properties[agentIdx].q_init(0), problem.agent_properties[agentIdx].q_init(1));
     Eigen::Vector2d goal(problem.agent_properties[agentIdx].q_goal(0), problem.agent_properties[agentIdx].q_goal(1));
-
-    samples.push_back(sampleS(init,-1));
+    LOG("planning for " << agentIdx << " with init " << init);
+    samples.push_back(sampleS(init,-1,-1));
     Eigen::Vector2d q_rand;
     bool soln = false;
     int minID = 0;
     double tempMin = 0;
     checkPath c;
     int steps = 0;
+    int timestep = 0;
     while(!soln && steps < numIterations){
         //Generate q_rand
         int tst = amp::RNG::randi(0,100);
@@ -134,13 +135,15 @@ void MyGoalBiasRRTND::plan(const amp::MultiAgentProblem2D& problem, amp::MultiAg
             }
         }
         q_rand = ((1 - stepSize/tempMin)*samples[minID].xy + (stepSize/tempMin)*q_rand);
-        if(!c.pathsDiskCollision2D(samples[minID].xy, q_rand, problem, PathMA2D, agentIdx, steps)){
+        // LOG("checking against timestep " << samples[minID].tFromInit + 1);
+        if(!c.pathsDiskCollision2D(samples[minID].xy, q_rand, problem, PathMA2D, agentIdx, samples[minID].tFromInit + 1)){
             // LOG("Adding state: " << q_rand);
-            sampleS q_randS(q_rand,minID);
+            sampleS q_randS(q_rand,minID, samples[minID].tFromInit + 1);
             samples.push_back(q_randS);
             if((q_rand - goal).norm() < eps){
                 soln = true;
             }
+            timestep++;
         }
         steps++;
     }

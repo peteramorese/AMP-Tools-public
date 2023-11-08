@@ -15,12 +15,12 @@ class MyCentralizedMultiAgentRRT : public amp::CentralizedMultiAgentRRT {
         /// @return Array of paths that are ordered corresponding to the `agent_properties` field in `problem`.
         virtual amp::MultiAgentPath2D plan(const amp::MultiAgentProblem2D& problem) override{
             MyGoalBiasRRTND RRT;
-            // RRT.getN() = 50000;
-            // RRT.getS() = 0.5;
-            RRT.getN() = 7500;
+            RRT.getN() = 10000;
             RRT.getS() = 0.5;
-            RRT.getG() = 0.05;
-            RRT.getE() = 0.25;
+            // RRT.getN() = 7500;
+            // RRT.getS() = 0.5;
+            // RRT.getG() = 0.05;
+            // RRT.getE() = 0.25;
             auto start = std::chrono::high_resolution_clock::now();
             amp::MultiAgentPath2D soln = RRT.plan(problem);
             auto stop = std::chrono::high_resolution_clock::now();
@@ -45,12 +45,12 @@ class MyDecentralizedMultiAgentRRT : public amp::DecentralizedMultiAgentRRT {
         virtual amp::MultiAgentPath2D plan(const amp::MultiAgentProblem2D& problem) override{
             amp::MultiAgentPath2D PathMA2D;
             MyGoalBiasRRTND RRT;
-            // RRT.getN() = 50000;
-            // RRT.getS() = 0.5;
-            RRT.getN() = 7500;
+            RRT.getN() = 50000;
             RRT.getS() = 0.5;
-            RRT.getG() = 0.05;
-            RRT.getE() = 0.25;
+            // RRT.getN() = 7500;
+            // RRT.getS() = 0.5;
+            // RRT.getG() = 0.05;
+            // RRT.getE() = 0.25;
             auto start = std::chrono::high_resolution_clock::now();
             for(int j = 0; j < problem.numAgents(); j++){
                 RRT.plan(problem, PathMA2D, j);

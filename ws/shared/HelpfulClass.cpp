@@ -1,7 +1,7 @@
 #include "HelpfulClass.h"
 
 amp::MultiAgentPath2D MyGoalBiasRRTND::plan(const amp::MultiAgentProblem2D& problem){
-    auto start = std::chrono::high_resolution_clock::now();
+    // auto start = std::chrono::high_resolution_clock::now();
     amp::MultiAgentPath2D path;
     std::vector<sampleS> samples;
     // Construct init and goal super states
@@ -22,6 +22,7 @@ amp::MultiAgentPath2D MyGoalBiasRRTND::plan(const amp::MultiAgentProblem2D& prob
     double tempMin = 0;
     checkPath c;
     int steps = 0;
+    int numNodes = 1;
     while(!soln && steps < numIterations){
         //Generate q_rand
         int tst = amp::RNG::randi(0,100);
@@ -44,9 +45,11 @@ amp::MultiAgentPath2D MyGoalBiasRRTND::plan(const amp::MultiAgentProblem2D& prob
                 minID = k;
             }
         }
-        q_rand = ((1 - stepSize/tempMin)*samples[minID].xy + (stepSize/tempMin)*q_rand);
+        splitAndStep2D(samples[minID].xy, q_rand, stepSize);
+        // q_rand = ((1 - stepSize/tempMin)*samples[minID].xy + (stepSize/tempMin)*q_rand);
         if(!c.multDiskCollision2D(samples[minID].xy, q_rand, problem)){
             // LOG("Adding state: " << q_rand);
+            numNodes++;
             sampleS q_randS(q_rand,minID);
             samples.push_back(q_randS);
             if((q_rand - goal).norm() < eps){
@@ -80,7 +83,7 @@ amp::MultiAgentPath2D MyGoalBiasRRTND::plan(const amp::MultiAgentProblem2D& prob
     }
     else{
         if(steps == numIterations){
-            LOG("Ran outta steps buddy :(");
+            // LOG("Ran outta steps buddy :(");
             for(int j = 0; j < 2*problem.numAgents(); j += 2){
                 amp::Path2D tempPath;
                 Eigen::Vector2d tempVec(init(j),init(j+1));
@@ -93,14 +96,26 @@ amp::MultiAgentPath2D MyGoalBiasRRTND::plan(const amp::MultiAgentProblem2D& prob
             LOG("Couldn't find path :(");
         }
     }
-    auto stop = std::chrono::high_resolution_clock::now();
-    auto duration = duration_cast<std::chrono::milliseconds>(stop - start);
-    time = duration.count();
+    // auto stop = std::chrono::high_resolution_clock::now();
+    // auto duration = duration_cast<std::chrono::milliseconds>(stop - start);
+    // time = duration.count();
+    numIterations = numNodes;
     return path;
 }
 
+void MyGoalBiasRRTND::splitAndStep2D(Eigen::VectorXd state, Eigen::VectorXd& next, double stepSize){
+    for(int j = 0; j < state.size(); j += 2){
+        Eigen::Vector2i subIdx(j,j+1);
+        Eigen::Vector2d temp = ((1 - stepSize/(state - next).norm()))*state(subIdx) + (stepSize/(state - next).norm())*next(subIdx);
+        next(j) = temp(0);
+        next(j + 1) = temp(1);
+    }
+}
+
+
+
 void MyGoalBiasRRTND::plan(const amp::MultiAgentProblem2D& problem, amp::MultiAgentPath2D& PathMA2D, int agentIdx){
-    auto start = std::chrono::high_resolution_clock::now();
+    // auto start = std::chrono::high_resolution_clock::now();
     std::vector<sampleS> samples;
     // Construct init and goal super states
     Eigen::Vector2d init(problem.agent_properties[agentIdx].q_init(0), problem.agent_properties[agentIdx].q_init(1));
@@ -113,7 +128,6 @@ void MyGoalBiasRRTND::plan(const amp::MultiAgentProblem2D& problem, amp::MultiAg
     double tempMin = 0;
     checkPath c;
     int steps = 0;
-    int timestep = 0;
     while(!soln && steps < numIterations){
         //Generate q_rand
         int tst = amp::RNG::randi(0,100);
@@ -135,15 +149,28 @@ void MyGoalBiasRRTND::plan(const amp::MultiAgentProblem2D& problem, amp::MultiAg
             }
         }
         q_rand = ((1 - stepSize/tempMin)*samples[minID].xy + (stepSize/tempMin)*q_rand);
-        // LOG("checking against timestep " << samples[minID].tFromInit + 1);
         if(!c.pathsDiskCollision2D(samples[minID].xy, q_rand, problem, PathMA2D, agentIdx, samples[minID].tFromInit + 1)){
             // LOG("Adding state: " << q_rand);
             sampleS q_randS(q_rand,minID, samples[minID].tFromInit + 1);
             samples.push_back(q_randS);
             if((q_rand - goal).norm() < eps){
                 soln = true;
+                // LOG("testing path to goal: " << c.pathsDiskCollision2D(q_randS.xy, goal, problem, PathMA2D, agentIdx, q_randS.tFromInit + 1));
+                if(agentIdx > 0){
+                    int maxLen = PathMA2D.agent_paths[0].waypoints.size();
+                    for(int j = 0; j < agentIdx; j++){
+                        if(PathMA2D.agent_paths[j].waypoints.size() > maxLen){
+                            maxLen = PathMA2D.agent_paths[j].waypoints.size();
+                        }
+                    }
+                    while(samples.back().tFromInit < maxLen && steps < numIterations){
+                        // LOG("testing haha, " << samples.back().tFromInit << " not < " << maxLen << " xy = " << samples.back().xy << " with back " << samples.back().back);
+                        sampleS q_randS(q_rand,samples.size() - 1, samples.back().tFromInit + 1);
+                        samples.push_back(q_randS);
+                        steps++;
+                    }
+                }
             }
-            timestep++;
         }
         steps++;
     }
@@ -162,7 +189,7 @@ void MyGoalBiasRRTND::plan(const amp::MultiAgentProblem2D& problem, amp::MultiAg
     }
     else{
         if(steps == numIterations){
-            LOG("Ran outta steps buddy :(");
+            // LOG("Ran outta steps buddy :(");
             amp::Path2D tempPath;
             tempPath.waypoints.push_back(init);
             tempPath.waypoints.push_back(goal);
@@ -171,9 +198,9 @@ void MyGoalBiasRRTND::plan(const amp::MultiAgentProblem2D& problem, amp::MultiAg
             LOG("Couldn't find path :(");
         }
     }
-    auto stop = std::chrono::high_resolution_clock::now();
-    auto duration = duration_cast<std::chrono::milliseconds>(stop - start);
-    time = duration.count();
+    // auto stop = std::chrono::high_resolution_clock::now();
+    // auto duration = duration_cast<std::chrono::milliseconds>(stop - start);
+    // time = duration.count();
 }
 
 

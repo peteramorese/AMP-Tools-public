@@ -105,7 +105,7 @@ class checkPath {
             return false;
         }
         bool diskDiskEval(const Eigen::Vector2d state0, const amp::CircularAgentProperties& agent0, const Eigen::Vector2d state1, const amp::CircularAgentProperties& agent1){
-            return ((state0 - state1).norm() <= 1.5*(agent0.radius + agent1.radius));
+            return ((state0 - state1).norm() <= 1.2*(agent0.radius + agent1.radius));
         }
         bool diskDiskPathEval(const Eigen::Vector2d state0, const Eigen::Vector2d next0, const amp::CircularAgentProperties& agent0, const Eigen::Vector2d state1, const Eigen::Vector2d next1, const amp::CircularAgentProperties& agent1){
             Eigen::Vector2d unitV0 = (next0 - state0)/(next0 - state0).norm();
@@ -266,7 +266,7 @@ class checkPath {
     private:
         amp::CircularAgentProperties tempAgent;
         int checkMode = 0;
-        int interp = 20;
+        int interp = 30;
 };
 
 class MyConfigurationSpace : public amp::ConfigurationSpace {
@@ -411,9 +411,11 @@ class MyGoalBiasRRTND : public amp::GoalBiasRRT2D {
             amp::Path2D path;
             return path;
         };
-
+        //Centralized
         amp::MultiAgentPath2D plan(const amp::MultiAgentProblem2D& problem);
+        void splitAndStep2D(Eigen::VectorXd state, Eigen::VectorXd& next, double stepSize);
 
+        //Decentralized
         void plan(const amp::MultiAgentProblem2D& problem, amp::MultiAgentPath2D& PathMA2D, int agentIdx);
 
         std::map<Node, Eigen::Vector2d> makeMap(std::vector<Eigen::Vector2d> samples);

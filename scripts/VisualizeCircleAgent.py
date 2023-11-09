@@ -35,10 +35,11 @@ def visualize_path(radius : float, path : list, random_color = False, collision_
     y_pts = list()
     x_col_pts = list()
     y_col_pts = list()
+
     for waypt in path:
         x_pts.append(waypt[0])
         y_pts.append(waypt[1])
-    
+
     scale = 0.0
     agent_color = np.random.rand(3) if random_color else None
     for state in path:
@@ -48,3 +49,6 @@ def visualize_path(radius : float, path : list, random_color = False, collision_
     if collision_states is not None:
         for state in collision_states:
             visualize_circle_agent(radius, state, True, None, agent_color)
+    
+    ax.scatter(x_pts, y_pts, marker="*", color="seagreen", zorder=2)
+    ax.plot(x_pts, y_pts)  

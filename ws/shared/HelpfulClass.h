@@ -32,7 +32,7 @@ double distanceBetweenPoints(const Vector2d& point1, const Vector2d& point2);
 
 Edge findLineEquation(const Vector2d& point1,const Vector2d& point2);
 
-vector<vector<Edge>> findEdges(const amp::Problem2D& problem);
+vector<vector<Edge>> findEdges(const vector<amp::Obstacle2D>& obstacles);
 
 bool checkLine(const Vector2d& point, const Edge& edge, bool left);
 
@@ -45,3 +45,11 @@ bool doesLineIntersectPolygon(const Vector2d& p1, const Vector2d& p2, const vect
 bool isLineInCollision(const Vector2d& point1, const Vector2d& point2, const vector<amp::Obstacle2D> obstacles);
 
 void smoothPath(amp::Path2D& path, const vector<amp::Obstacle2D> obstacles);
+
+// HW 8 Functions
+
+vector<vector<vector<Edge>>> findRegions(const vector<vector<Edge>>& allEdges);
+
+double findClosestDistance(const Vector2d state, const vector<vector<Edge>>& polyRegions);
+
+bool checkRobotOverlap(const Eigen::VectorXd state, const vector<double> radii);

@@ -72,9 +72,9 @@ void problem1b() {
 }
 
 void problem2() {
-    // Problem2D problem = HW5::getWorkspace1();
+    Problem2D problem = HW5::getWorkspace1();
     // Problem2D problem = HW2::getWorkspace1();
-    Problem2D problem = HW2::getWorkspace2();
+    // Problem2D problem = HW2::getWorkspace2();
     MyRRT algo(500, 1, false);
     Path2D path = algo.plan(problem);
     cout << "Path length: " << path.length() << "\n";
@@ -89,11 +89,11 @@ void problem2() {
 
 
 int main(int argc, char** argv) {
-    // HW7::hint();
+    HW7::hint();
     // problem1a();
     // problem1b();
-    // problem2();
-    // Visualizer::showFigures();
-    HW7::grade<MyPRM, MyRRT>("yusif.razzaq@colorado.edu", argc, argv, std::make_tuple(500, 2, true), std::make_tuple(1000, 2, true));
+    problem2();
+    Visualizer::showFigures();
+    // HW7::grade<MyPRM, MyRRT>("yusif.razzaq@colorado.edu", argc, argv, std::make_tuple(500, 2, true), std::make_tuple(1000, 2, true));
     return 0;
 }

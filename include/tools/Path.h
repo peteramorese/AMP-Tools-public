@@ -40,6 +40,7 @@ struct Path {
     void print(const std::string& heading = "Path") const;
 };
 
+
 struct MultiAgentPath2D {
     MultiAgentPath2D() = default;
     MultiAgentPath2D(uint32_t n_agents) : agent_paths(n_agents) {}

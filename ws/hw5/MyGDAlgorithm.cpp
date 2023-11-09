@@ -3,31 +3,6 @@
 
 using std::vector, std::string, Eigen::Vector2d, std::cout;
 
-vector<vector<vector<Edge>>> findRegions(const vector<vector<Edge>>& allEdges) {
-    vector<vector<vector<Edge>>> regions;
-    for (const vector<Edge>& polyEdges : allEdges) {
-        bool first = true;
-        vector<vector<Edge>> polyRegions;
-        Edge line1, line2, line3, firstLine;
-        for (const Edge& edge : polyEdges) {
-            Vector2d pointA = {edge.points.second.y() - edge.points.first.y(), edge.points.first.x() - edge.points.second.x()};
-            Vector2d pointB = {edge.points.first.y() - edge.points.second.y(), edge.points.second.x() - edge.points.first.x()};
-            line1 = findLineEquation(edge.points.first, pointA + edge.points.first);
-            if (!first) {
-                polyRegions.push_back({line3, line1});
-            } else {
-                firstLine = line1;
-                first = false;
-            }
-            line2 = findLineEquation(edge.points.second, edge.points.first);
-            line3 = findLineEquation(edge.points.second, pointB + edge.points.second);
-            polyRegions.push_back({line1, line2, line3});
-        }
-        polyRegions.push_back({line3, firstLine});
-        regions.push_back(polyRegions);
-    }
-    return regions;
-}
 // Implement your methods in the `.cpp` file, for example:
 amp::Path2D MyGDAlgorithm::plan(const amp::Problem2D& problem) {
     int maxSteps = 2000;

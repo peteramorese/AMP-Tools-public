@@ -4,7 +4,6 @@
 
 using namespace amp;
 using std::vector, Eigen::VectorXd, std::pair, std::size_t;
-using Regions = vector<vector<double>>;
 
 class MyCentralPlanner : public CentralizedMultiAgentRRT {
     public:
@@ -12,10 +11,20 @@ class MyCentralPlanner : public CentralizedMultiAgentRRT {
         : n(n), r(r), p(p) {}
         virtual amp::MultiAgentPath2D plan(const amp::MultiAgentProblem2D& problem) override; 
     private:
+        int n;
+        double r, p;
+};
+
+
+
+class MyDecentralPlanner : public DecentralizedMultiAgentRRT {
+    public:
+        MyDecentralPlanner(int n, double r, double p) 
+        : n(n), r(r), p(p) {}
+        virtual amp::MultiAgentPath2D plan(const amp::MultiAgentProblem2D& problem) override;
+    private:
         int n, m;
         double r, p;
-        VectorXd init, goal;
         vector<double> radii;
-        vector<Regions> allRegions;
-
+        vector<std::pair<double, double>> limits;
 };

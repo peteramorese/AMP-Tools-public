@@ -22,15 +22,16 @@ class MyCentralChecker : amp::ConfigurationSpace {
         bool inCollisionDecentral(const Eigen::VectorXd& state) const;
         bool checkWithPrior(const Eigen::Vector2d& state) const;
         bool checkK0condtion(const Eigen::Vector2d& state) const;
+        bool avoidGoals(const Eigen::Vector2d& state) const;
 
         void addPath(const Path& path);
         pair<int, VectorXd> nearest;
+        bool central;
     private:
         MultiAgentProblem2D problem;
         vector<Path> computedPaths;
         vector<Regions> regions;
         vector<double> radii;
-        bool central;
 };
 
 // class MyDecentralChecker : amp::ConfigurationSpace {
@@ -55,17 +56,16 @@ class MyCentralChecker : amp::ConfigurationSpace {
 
 class MyGenericRRT {
     public:
-        MyGenericRRT(int n, double r, double p, vector<std::pair<double, double>> limits)
-        : n(n), r(r), p(p), limits(limits) {}
+        MyGenericRRT(int n, double r, double p, double eps, vector<std::pair<double, double>> limits)
+        : n(n), r(r), p(p), eps(eps), limits(limits) {}
         amp::Path plan(const VectorXd& init_state, const VectorXd& goal_state, MyCentralChecker& collision_checker); 
-        
         Eigen::VectorXd getRandomPoint();
         int findStepsToRoot(int node);
         pair<int, Eigen::VectorXd> findNearest(const Eigen::VectorXd& point, MyCentralChecker& collision_checker);
         int treeSize;
     private:
         int n, m;
-        double r, p;
+        double r, p, eps;
         bool smooth;
         std::map<uint32_t, VectorXd> points;
         std::map<uint32_t, uint32_t> parents;

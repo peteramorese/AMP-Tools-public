@@ -10,6 +10,7 @@ class MyCentralPlanner : public CentralizedMultiAgentRRT {
         MyCentralPlanner(int n, double r, double p)
         : n(n), r(r), p(p) {}
         virtual amp::MultiAgentPath2D plan(const amp::MultiAgentProblem2D& problem) override; 
+        int treeSize;
     private:
         int n;
         double r, p;
@@ -25,6 +26,4 @@ class MyDecentralPlanner : public DecentralizedMultiAgentRRT {
     private:
         int n, m;
         double r, p;
-        vector<double> radii;
-        vector<std::pair<double, double>> limits;
 };

@@ -34,7 +34,7 @@ int amp::HW8::grade(const std::string& email, int argc, char** argv) {
 /// @brief With ctor params
 template <class C_MA_ALGO, class DC_MA_ALGO, class _C_MA_CTOR_ARGS_TUP, class _DC_MA_CTOR_ARGS_TUP>
 int amp::HW8::grade(const std::string& email, int argc, char** argv, const _C_MA_CTOR_ARGS_TUP& c_ma_ctor_args_tuple, const _DC_MA_CTOR_ARGS_TUP& dc_ma_ctor_args_tuple) {
-    ampprivate_hw8::_Reconstructor<C_MA_ALGO, amp::CentralizedMultiAgentRRT, std::tuple<>> reconstructor_c_algo(c_ma_ctor_args_tuple);
-    ampprivate_hw8::_Reconstructor<DC_MA_ALGO, amp::DecentralizedMultiAgentRRT, std::tuple<>> reconstructor_dc_algo(dc_ma_ctor_args_tuple);
+    ampprivate_hw8::_Reconstructor<C_MA_ALGO, amp::CentralizedMultiAgentRRT, _C_MA_CTOR_ARGS_TUP> reconstructor_c_algo(c_ma_ctor_args_tuple);
+    ampprivate_hw8::_Reconstructor<DC_MA_ALGO, amp::DecentralizedMultiAgentRRT, _C_MA_CTOR_ARGS_TUP> reconstructor_dc_algo(dc_ma_ctor_args_tuple);
     return grade(reconstructor_c_algo, reconstructor_dc_algo, email, argc, argv);
 }

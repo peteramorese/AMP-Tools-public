@@ -9,7 +9,6 @@ using Regions = vector<vector<Edge>>;
 
 MultiAgentPath2D MyCentralPlanner::plan(const MultiAgentProblem2D& problem) {
     MultiAgentPath2D path;
-
     int i = 0;
     int m = problem.numAgents();
     VectorXd init(2*m), goal(2*m);
@@ -23,29 +22,34 @@ MultiAgentPath2D MyCentralPlanner::plan(const MultiAgentProblem2D& problem) {
         limits.push_back({problem.y_min, problem.y_max});
         i++;
     }
-    MyCentralChecker collisionChecker(problem);
+    MyCentralChecker collisionChecker(problem, true);
     MyGenericRRT RRTplanner(n, r, p, limits);
     Path statePath = RRTplanner.plan(init, goal, collisionChecker);
+    treeSize = RRTplanner.treeSize;
     for (int i = 0; i < m; i++) path.agent_paths.push_back(Path2D());
-    for (const VectorXd& state : statePath.waypoints) {
-        for (int i = 0; i < m; i++) path.agent_paths[i].waypoints.push_back({state(2*i), state(2*i+1)});
-    }
-    cout << "State Path Size: "<<statePath.waypoints.size() << std::endl;
+    for (const VectorXd& state : statePath.waypoints) for (int i = 0; i < m; i++) path.agent_paths[i].waypoints.push_back({state(2*i), state(2*i+1)});
+    cout << "State Path Size: "<< statePath.waypoints.size() << std::endl;
+    // Visualizer::makeFigure(problem, path);
     return path;
 }
 
-
-// bool checkRobotOverlap(const VectorXd state, const VectorXd radii) {
-//     int m = radii.size();
-//     double norm;
-//     Vector2d center1, center2;
-//     for (int i = 0; i < m; i++) {
-//         for (int j = i + 1; j < m; j++) { 
-//             center1 = {state(2*i), state(2*i + 1)};
-//             center2 = {state(2*j), state(2*j + 1)};
-//             norm = (center1 - center2).norm();
-//             if (norm < (radii(i) + radii(j))) return true;
-//         }
-//     }
-//     return false;
-// }
+MultiAgentPath2D MyDecentralPlanner::plan(const MultiAgentProblem2D& problem) {
+    MultiAgentPath2D path;
+    int i = 0;
+    int m = problem.numAgents();
+    VectorXd init(2*m), goal(2*m);
+    vector<std::pair<double, double>> limits;
+    limits.push_back({problem.y_min, problem.y_max});
+    limits.push_back({problem.y_min, problem.y_max});
+    MyCentralChecker collisionChecker(problem, false);
+    for (const CircularAgentProperties& agent : problem.agent_properties) {
+        MyGenericRRT RRTplanner(n, r, p, limits);
+        Path agentPath = RRTplanner.plan(agent.q_init, agent.q_goal, collisionChecker);
+        Path2D path2d;
+        for (const VectorXd point : agentPath.waypoints) path2d.waypoints.push_back(point);
+        path.agent_paths.push_back(path2d);
+        collisionChecker.addPath(agentPath);
+    }
+    // Visualizer::makeFigure(problem, path);
+    return path;
+}

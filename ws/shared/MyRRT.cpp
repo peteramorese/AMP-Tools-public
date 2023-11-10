@@ -23,10 +23,8 @@ amp::Path MyGenericRRT::plan(const VectorXd& init_state, const VectorXd& goal_st
         if (goalBias > (1 - p)) qRand = goal_state;
         else qRand = getRandomPoint();
         pair<int, VectorXd> nearest = findNearest(qRand, collision_checker);
-
-        if (nearest.second == init_state) breaker++;
-        else breaker = 0;
-        if (breaker > 20) break; 
+        breaker++;
+        if (breaker > 2*n) break; 
 
         if (nearest.first != -1) {
             parents[ind] = nearest.first;

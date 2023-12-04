@@ -7,7 +7,7 @@
 using namespace amp;
 using std::vector, Eigen::VectorXd, Eigen::Vector2d, std::pair, std::size_t;
 
-amp::Path KinoRRT::plan(const VectorXd& init_state, const VectorXd& goal_state, MyCentralChecker& collision_checker) {
+amp::Path KinoRRT::plan(const VectorXd& init_state, const VectorXd& goal_state, MyKinoChecker& collision_checker) {
     Path path;
     path.valid = false;
     VectorXd qRand, uRand, nearest;
@@ -27,7 +27,7 @@ amp::Path KinoRRT::plan(const VectorXd& init_state, const VectorXd& goal_state, 
         VectorXd x_best = x_near;
         bool validPath = false;
         for (int i = 0; i < 5; ++i) {
-            uRand = getRandomPoint(controlLimits());
+            uRand = getRandomPoint(controlLimits);
             VectorXd x_new = propagateState(nearest.second, uRand, 1);
             if (distanceMetric(qRand, x_new) < distanceMetric(qRand, x_best)) {
                 x_best = x_new;
@@ -59,7 +59,7 @@ amp::Path KinoRRT::plan(const VectorXd& init_state, const VectorXd& goal_state, 
     return path;
 }
 
-pair<int, VectorXd> KinoRRT::findNearest(const VectorXd& point, MyCentralChecker& collision_checker) {
+pair<int, VectorXd> KinoRRT::findNearest(const VectorXd& point, MyKinoChecker& collision_checker) {
     VectorXd nearest = points[0];
     int ind = 0;
     for (int i = 1; i < points.size(); i++) {

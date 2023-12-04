@@ -59,3 +59,5 @@ vector<vector<vector<Edge>>> findRegions(const vector<vector<Edge>>& allEdges);
 double findClosestDistance(const Vector2d state, const vector<vector<Edge>>& polyRegions);
 
 bool checkRobotOverlap(const Eigen::VectorXd state, const vector<double> radii);
+
+vector<polygon> ampToBoostObstacles(const vector<amp::Obstacle2D>& obstacles);

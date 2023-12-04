@@ -1,6 +1,7 @@
 #include "AMPCore.h"
 #include "MyCollisionCheckers.h"
 #include <random>
+#include <set>
 #include <Eigen/Dense>
 #include "HelpfulClass.h"
 
@@ -8,7 +9,6 @@ using std::vector, std::pair, Eigen::VectorXd;
 
 bool MyCentralChecker::inCollision(const Eigen::VectorXd& state) const {
     if (radius !=0) return inCollisionSingle(state);
-    if (w !=0) return inCollisionRectangle(state);
     if (central) return inCollisionCentral(state);
     else return inCollisionDecentral(state);
 };
@@ -173,11 +173,11 @@ bool MyKinoChecker::inCollisionRectangle(const Eigen::VectorXd& state) const {
     std::string points = "POLYGON((" + bottom_left + "," + bottom_right + "," + top_right + "," + top_left + "," + bottom_left + "))";
     polygon agent;
     boost::geometry::read_wkt(points, agent);
-    for (Obstacle obs: boostObs) {
+    for (polygon obs: obstacles) {
         if (! boost::geometry::disjoint(agent, obs)) return true;
     }
     return false;
-};
+}
 
 vector<pair<double, double>> MyKinoChecker::getLimits() {
     return stateLimits;

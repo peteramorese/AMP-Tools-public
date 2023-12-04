@@ -1,6 +1,12 @@
 #pragma once
 #include "AMPCore.h"
+#include <boost/geometry/io/io.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/geometries/geometries.hpp>
+
 using std::vector, std::string, std::cout, Eigen::Vector2d;
+typedef boost::geometry::model::d2::point_xy<double> point;
+typedef boost::geometry::model::polygon<point> polygon; 
 
 struct Coefficients {
 	double a;

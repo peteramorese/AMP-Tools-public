@@ -40,12 +40,12 @@ void problem2() {
     MyLinkManipulator manipulator({1, 1});
     ManipulatorState initState = manipulator.getConfigurationFromIK(problem.q_init);
     ManipulatorState goalState = manipulator.getConfigurationFromIK(problem.q_goal);
-    // MyManipWFAlgo algo;
-    // std::unique_ptr<amp::GridCSpace2D> cSpace = algo.constructDiscretizedWorkspace(manipulator, problem);
-    // amp::Path2D path = algo.planInCSpace({initState[0], initState[1]}, {goalState[0], goalState[1]}, *cSpace);
+    MyManipWFAlgo algo;
+    std::unique_ptr<amp::GridCSpace2D> cSpace = algo.constructDiscretizedWorkspace(manipulator, problem);
+    amp::Path2D path = algo.planInCSpace({initState[0], initState[1]}, {goalState[0], goalState[1]}, *cSpace);
 
-    // Visualizer::makeFigure(problem, manipulator, path);
-    // Visualizer::makeFigure(*cSpace, path);
+    Visualizer::makeFigure(problem, manipulator, path);
+    Visualizer::makeFigure(*cSpace, path);
 }
 
 void problem3a() {
@@ -65,7 +65,7 @@ void problem3b() {
 int main(int argc, char** argv) {
     // problem1a();
     // problem1b();
-    // problem2();
+    problem2();
     // problem3a();
     // problem3b();
     Visualizer::showFigures();

@@ -301,3 +301,21 @@ bool checkRobotOverlap(const VectorXd state, const vector<double> radii) {
     }
     return false;
 }
+
+vector<polygon> ampToBoostObstacles(const vector<amp::Obstacle2D>& obstacles) {
+	vector<polygon> polypons;
+	for (const amp::Obstacle2D& obstacle : obstacles) {
+		std::string points = "POLYGON((";
+		vector<Vector2d> vertices = obstacle.verticesCCW();
+		vertices.push_back(vertices[0]);
+		for (int j = 0; j < vertices.size(); ++j) {
+			points += std::to_string(vertices[j](0)) + " " + std::to_string(vertices[j](0));
+            if j (== vertices.size() - 1) points += "))";
+            else points += ",";
+		}
+        polygon poly;
+        boost::geometry::read_wkt(points, poly);
+		polygons.push_back(polygon);
+	}
+	return polygons;
+}

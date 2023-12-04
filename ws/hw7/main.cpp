@@ -55,7 +55,8 @@ void problem1b() {
     Problem2D problem = HW2::getWorkspace1();
     // Problem2D problem = HW2::getWorkspace2();
 
-    MyPRM algo(500, 2, false);
+    // MyRRT algo(5000, 2, false);
+    MyPRM algo(5000, 2, false);
     path = algo.plan(problem);
     if (path.waypoints.size() !=0) {
         Visualizer::makeFigure(problem, path);
@@ -72,24 +73,25 @@ void problem1b() {
 }
 
 void problem2() {
-    Problem2D problem = HW5::getWorkspace1();
-    // Problem2D problem = HW2::getWorkspace1();
+    // Problem2D problem = HW5::getWorkspace1();
+    Problem2D problem = HW2::getWorkspace1();
     // Problem2D problem = HW2::getWorkspace2();
-    MyRRT algo(500, 1, false);
-    Path2D path = algo.plan(problem);
-    cout << "Path length: " << path.length() << "\n";
-    Visualizer::makeFigure(problem, path);
-    Visualizer::makeFigure(problem, *algo.getGraph(), algo.getPoints());
-    smoothPath(path, problem.obstacles);
-    cout << "Path length: " << path.length() << "\n";
-    Visualizer::makeFigure(problem, path);
+    MyRRT algo(1000, 1, false);
+    HW7::generateAndCheck(algo);
+    // Path2D path = algo.plan(problem);
+    // cout << "Path length: " << path.length() << "\n";
+    // Visualizer::makeFigure(problem, path);
+    // Visualizer::makeFigure(problem, *algo.getGraph(), algo.getPoints());
+    // smoothPath(path, problem.obstacles);
+    // cout << "Path length: " << path.length() << "\n";
+    // Visualizer::makeFigure(problem, path);
     
 
 }
 
 
 int main(int argc, char** argv) {
-    HW7::hint();
+    // HW7::hint();
     // problem1a();
     // problem1b();
     problem2();

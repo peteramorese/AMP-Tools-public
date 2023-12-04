@@ -46,48 +46,50 @@ class MyPointWFAlgo : public amp::PointWaveFrontAlgorithm {
         // DenseArray2D<int> waveGrid;
 };
 
-// class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
-//     public:
-//         // Default ctor
-//         MyManipWFAlgo() {}
-//             : amp::ManipulatorWaveFrontAlgorithm(std::make_shared<MyManipConstructor>()) {}
+class MyManipWFAlgo : public amp::ManipulatorWaveFrontAlgorithm {
+    public:
+        // Default ctor
+        MyManipWFAlgo() {}
+            : amp::ManipulatorWaveFrontAlgorithm(std::make_shared<MyManipConstructor>()) {}
+            // : amp::ManipulatorWaveFrontAlgorithm(std::make_shared<CSpaceConstructor>(40, 40, 0, 10, 0, 10)) {  } 
+            
 
-//         // You can have custom ctor params for all of these classes
-//         // MyManipWFAlgo(const amp::Environment2D& env) 
-//         //     : amp::ManipulatorWaveFrontAlgorithm(std::make_shared<CSpaceConstructor>(40, 40, 0, 10, 0, 10)) {   
-//         // }
+        // You can have custom ctor params for all of these classes
+        // MyManipWFAlgo(const amp::Environment2D& env) 
+        //     : amp::ManipulatorWaveFrontAlgorithm(std::make_shared<CSpaceConstructor>(40, 40, 0, 10, 0, 10)) {   
+        // }
 
-//         virtual std::unique_ptr<amp::GridCSpace2D> constructDiscretizedWorkspace(const LinkManipulator2D& manipulator, const amp::Environment2D& env) {
-//             double cellWidth = 2*M_PI/50;
-//             double min = 0;
-//             double max = 2 * M_PI;
-//             x0lim = x1lim = {min, max};
-//             int cells = static_cast<int>(std::floor((max - min) / cellWidth));
-//             gridSize = {cells, cells};
-//             std::unique_ptr<CSpaceConstructor> cSpace = std::make_unique<CSpaceConstructor>(cells, cells, min, max, min, max);
-//             cSpace->populateGrid(manipulator.getLinkLengths(), env.obstacles);
-//             return cSpace;
-//         }
+        virtual std::unique_ptr<amp::GridCSpace2D> constructDiscretizedWorkspace(const LinkManipulator2D& manipulator, const amp::Environment2D& env) {
+            double cellWidth = 2*M_PI/50;
+            double min = 0;
+            double max = 2 * M_PI;
+            x0lim = x1lim = {min, max};
+            int cells = static_cast<int>(std::floor((max - min) / cellWidth));
+            gridSize = {cells, cells};
+            std::unique_ptr<CSpaceConstructor> cSpace = std::make_unique<CSpaceConstructor>(cells, cells, min, max, min, max);
+            cSpace->populateGrid(manipulator.getLinkLengths(), env.obstacles);
+            return cSpace;
+        }
 
-//         // This is just to get grade to work, you DO NOT need to override this method
-//         virtual amp::ManipulatorTrajectory2Link plan(const LinkManipulator2D& link_manipulator_agent, const amp::Problem2D& problem) override {
-//             return amp::ManipulatorTrajectory2Link();
-//         }
+        // This is just to get grade to work, you DO NOT need to override this method
+        virtual amp::ManipulatorTrajectory2Link plan(const LinkManipulator2D& link_manipulator_agent, const amp::Problem2D& problem) override {
+            return amp::ManipulatorTrajectory2Link();
+        }
         
-//         // You need to implement here
-//         virtual amp::Path2D planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const GridCSpace2D& grid_cspace) override;
-//         void extendWave(const MyNode& cell, DenseArray2D<MyNode>& waveGrid);
-//         void findPath(const MyNode& finalCell, const DenseArray2D<MyNode>& waveGrid, amp::Path2D& path);
-//         void defineObstacles(const amp::GridCSpace2D& grid_cspace, DenseArray2D<MyNode>& waveGrid);
-//         Vector2d getPointFromCell(const std::pair<int, int>& cell);
-//     private:
-//         vector<MyNode> cellQueue;
-//         bool initReached;
-//         pair<size_t, size_t> initCell;
-//         pair<size_t, size_t> goalCell;
-//         pair<size_t, size_t> gridSize;
-//         pair<double, double> x0lim;
-//         pair<double, double> x1lim;
-// };
+        // You need to implement here
+        virtual amp::Path2D planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const GridCSpace2D& grid_cspace) override;
+        void extendWave(const MyNode& cell, DenseArray2D<MyNode>& waveGrid);
+        void findPath(const MyNode& finalCell, const DenseArray2D<MyNode>& waveGrid, amp::Path2D& path);
+        void defineObstacles(const amp::GridCSpace2D& grid_cspace, DenseArray2D<MyNode>& waveGrid);
+        Vector2d getPointFromCell(const std::pair<int, int>& cell);
+    private:
+        vector<MyNode> cellQueue;
+        bool initReached;
+        pair<size_t, size_t> initCell;
+        pair<size_t, size_t> goalCell;
+        pair<size_t, size_t> gridSize;
+        pair<double, double> x0lim;
+        pair<double, double> x1lim;
+};
 
 

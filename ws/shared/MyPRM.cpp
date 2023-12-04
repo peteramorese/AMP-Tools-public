@@ -10,7 +10,6 @@ using std::vector, Eigen::VectorXd, Eigen::Vector2d, std::pair, std::size_t;
 
 amp::Path2D MyPRM::plan(const amp::Problem2D& problem) {
     Path2D path;
-    return path;
     limits.push_back({problem.x_min, problem.x_max});
     limits.push_back({problem.y_min, problem.y_max});
     // limits.push_back({-3, 3});
@@ -120,6 +119,8 @@ amp::Path2D MyRRT::plan(const amp::Problem2D& problem) {
         path.waypoints.push_back(problem.q_goal);
     } 
     if (smooth) smoothPath(path, problem.obstacles);
+    Visualizer::makeFigure(problem, path);
+    Visualizer::makeFigure(problem, *getGraph(), getPoints());
     return path;
 }
 

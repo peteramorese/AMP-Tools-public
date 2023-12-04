@@ -20,15 +20,11 @@ void problem1() {
 void problem2() {
     MyDecentralPlanner planner(5000, 0.25, 0.05);
     std::vector<std::vector<Eigen::Vector2d>> collision_states;
-    MultiAgentProblem2D problem;
-    // MultiAgentPath2D path = planner.plan(problem);
+    MultiAgentProblem2D problem = HW8::getWorkspace1(1);
     amp::Timer timer("t");
-    startTime = timer.now(TimeUnit::ms);
-
-    MultiAgentPath2D path;
-    bool isValid = HW8::generateAndCheck(planner, path, problem, collision_states);
-    // Visualizer::makeFigure(problem, path, collision_states);
-    Visualizer::showFigures();
+    double startTime = timer.now(TimeUnit::ms);
+    MultiAgentPath2D path = planner.plan(problem);
+    cout << timer.now(TimeUnit::ms) - startTime << "\n";
 }
 
 void testing() {
@@ -70,8 +66,8 @@ void testing() {
 
 int main(int argc, char** argv) {
     // problem1();
-    // problem2();
-    testing();
+    problem2();
+    // testing();
     // Visualizer::showFigures();
     // HW8::grade<MyCentralPlanner, MyDecentralPlanner>("yusif.razzaq@colorado.edu", argc, argv, std::make_tuple(10000, 0.5, 0.05), std::make_tuple(5000, 0.10, 0.05));
     return 0;

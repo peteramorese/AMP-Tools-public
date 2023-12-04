@@ -3,6 +3,7 @@
 #include <random>
 #include <Eigen/Dense>
 #include "HelpfulClass.h"
+#include <boost/numeric/odeint.hpp>
 
 using namespace amp;
 using std::vector, Eigen::VectorXd, Eigen::Vector2d, std::pair, std::size_t;
@@ -22,13 +23,13 @@ amp::Path KinoRRT::plan(const VectorXd& init_state, const VectorXd& goal_state, 
         double goalBias = dist(gen);
         if (goalBias > (1 - p)) qRand = goal_state;
         else qRand = getRandomPoint(collision_checker.getLimits());
-        pair<int, VectorXd> nearest = findNearest(qRand, collision_checker);
+        pair<int, VectorXd> nearest = findNearest(qRand);
         VectorXd x_near = nearest.second;
         VectorXd x_best = x_near;
         bool validPath = false;
         for (int i = 0; i < 5; ++i) {
             uRand = getRandomPoint(controlLimits);
-            VectorXd x_new = propagateState(nearest.second, uRand, 1);
+            VectorXd x_new = propagateState(x_near, uRand, 2, collision_checker);
             if (distanceMetric(qRand, x_new) < distanceMetric(qRand, x_best)) {
                 x_best = x_new;
                 validPath = true;
@@ -44,7 +45,6 @@ amp::Path KinoRRT::plan(const VectorXd& init_state, const VectorXd& goal_state, 
                 break;
             }
         }
-
     }
     ind--;
     int node = ind;
@@ -59,7 +59,7 @@ amp::Path KinoRRT::plan(const VectorXd& init_state, const VectorXd& goal_state, 
     return path;
 }
 
-pair<int, VectorXd> KinoRRT::findNearest(const VectorXd& point, MyKinoChecker& collision_checker) {
+pair<int, VectorXd> KinoRRT::findNearest(const VectorXd& point) {
     VectorXd nearest = points[0];
     int ind = 0;
     for (int i = 1; i < points.size(); i++) {
@@ -85,9 +85,48 @@ VectorXd KinoRRT::getRandomPoint(const vector<pair<double, double>>& limits) {
 }
 
 double KinoRRT::distanceMetric(const VectorXd& state1, const VectorXd& state2) {
-    return sqrt(pow(state1[0] - state2[0], 2) + pow(state1[1] - state2[1], 2));
+    return sqrt(pow(state1(0) - state2(0), 2) + pow(state1(1) - state2(1), 2));
 }
 
-VectorXd KinoRRT::propagateState(const VectorXd& x_start, const VectorXd& u, double deltaT) {
-    return x_start;
+// Euler integration method
+void integrateEuler(const std::function<void(const VectorXd&, const VectorXd&, VectorXd&)>& dynamics,
+                    VectorXd& state,
+                    const VectorXd& control,
+                    double dt) {
+    VectorXd state_dot(state.size());
+    dynamics(state, control, state_dot);
+    state += state_dot * dt;
+}
+
+void dynamics(const std::vector<double>& state, std::vector<double>& state_dot, const double /* time */) {
+    double theta = state[2];
+    double v = state[3];
+    double phi = state[4];
+    state_dot[0] = v * cos(theta);
+    state_dot[1] = v * sin(theta);
+    state_dot[2] = (v / 0.5) * tan(phi);
+    state_dot[3] = state[5];
+    state_dot[4] = state[6];
+    state_dot[5] = 0;
+    state_dot[6] = 0;
+}
+
+VectorXd KinoRRT::propagateState(const VectorXd& x_start, const VectorXd& u, double deltaT, MyKinoChecker& collision_checker) {
+    // cout << "\nStart\n" << x_start;
+    double dt = 0.1;
+    std::vector<double> state = convertEigenToStd(x_start);
+    state.push_back(u(0));
+    state.push_back(u(1));
+    boost::numeric::odeint::runge_kutta_dopri5<std::vector<double>> stepper;
+    double time = 0.0;
+    while (time < deltaT) {
+        // integrateEuler(dynamics, state, u, dt);
+        stepper.do_step(dynamics, state, time, dt);
+        if (!collision_checker.isValid(state)) return x_start;
+        // Do something with the updated state
+        time += dt;
+    }
+    state.pop_back();
+    state.pop_back();
+    return convertStdToEigen(state);
 }

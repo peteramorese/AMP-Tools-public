@@ -319,3 +319,19 @@ vector<polygon> ampToBoostObstacles(const vector<amp::Obstacle2D>& obstacles) {
 	}
 	return polygons;
 }
+
+std::vector<double> convertEigenToStd(const Eigen::VectorXd& eigenVec) {
+    std::vector<double> stdVec(eigenVec.size());
+    for (int i = 0; i < eigenVec.size(); ++i) {
+        stdVec[i] = eigenVec(i);
+    }
+    return stdVec;
+}
+
+Eigen::VectorXd convertStdToEigen(const std::vector<double>& stdVec) {
+    Eigen::VectorXd eigenVec(stdVec.size());
+    for (int i = 0; i < stdVec.size(); ++i) {
+        eigenVec(i) = stdVec[i];
+    }
+    return eigenVec;
+}

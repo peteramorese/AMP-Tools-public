@@ -61,3 +61,7 @@ double findClosestDistance(const Vector2d state, const vector<vector<Edge>>& pol
 bool checkRobotOverlap(const Eigen::VectorXd state, const vector<double> radii);
 
 vector<polygon> ampToBoostObstacles(const vector<amp::Obstacle2D>& obstacles);
+
+std::vector<double> convertEigenToStd(const Eigen::VectorXd& eigenVec);
+
+Eigen::VectorXd convertStdToEigen(const std::vector<double>& stdVec);

@@ -44,11 +44,14 @@ class MyKinoChecker {
         MyKinoChecker(const amp::Problem2D& problem, vector<pair<double, double>> stateLimits, double w, double l) :
         stateLimits(stateLimits), w(w), l(l) {
             obstacles = ampToBoostObstacles(problem.obstacles);
+            ampObstacles = problem.obstacles;
         }
-        bool inCollisionRectangle(const Eigen::VectorXd& state) const;
+        bool inCollisionRectangle(const vector<double>& state) const;
+        bool isValid(const vector<double>& state) const;
         vector<pair<double, double>> getLimits();
 
     private:
+        vector<amp::Obstacle2D> ampObstacles;
         vector<polygon> obstacles;
         vector<pair<double, double>> stateLimits;
         double w, l;

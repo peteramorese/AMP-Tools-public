@@ -4,6 +4,7 @@
 #include <set>
 #include <Eigen/Dense>
 #include "HelpfulClass.h"
+#include <boost/geometry.hpp>
 
 using std::vector, std::pair, Eigen::VectorXd;
 
@@ -149,10 +150,20 @@ pair<VectorXd, VectorXd> MyCentralChecker::getLimits() {
     return limits;
 }
 
-bool MyKinoChecker::inCollisionRectangle(const Eigen::VectorXd& state) const {
-    double cx = state(0);
-    double cy = state(1);
-    double theta = state(2);
+bool MyKinoChecker::isValid(const vector<double>& state) const {
+    for (int i = 0; i < state.size() - 2; ++i) {
+        if (state[i] < stateLimits[i].first || state[i] > stateLimits[i].second) return false;
+    }
+    if (isPointInCollision({state[0], state[1]}, ampObstacles)) return false;
+    // if (inCollisionRectangle(state)) return false;
+    return true;
+}
+
+
+bool MyKinoChecker::inCollisionRectangle(const vector<double>& state) const {
+    double cx = state[0];
+    double cy = state[1];
+    double theta = state[2];
     const double TR_x = cx + ((w / 2) * cos(theta)) - ((l / 2) * sin(theta));
     const double TR_y = cy + ((w / 2) * sin(theta)) + ((l / 2) * cos(theta));
     std::string top_right = std::to_string(TR_x) + " " + std::to_string(TR_y);

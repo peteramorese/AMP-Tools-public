@@ -309,10 +309,11 @@ vector<polygon> ampToBoostObstacles(const vector<amp::Obstacle2D>& obstacles) {
 		vector<Vector2d> vertices = obstacle.verticesCCW();
 		vertices.push_back(vertices[0]);
 		for (int j = 0; j < vertices.size(); ++j) {
-			points += std::to_string(vertices[j](0)) + " " + std::to_string(vertices[j](0));
+			points += std::to_string(vertices[j](0)) + " " + std::to_string(vertices[j](1));
             if (j == vertices.size() - 1) points += "))";
             else points += ",";
 		}
+        cout << points << "\n";
         polygon poly;
         boost::geometry::read_wkt(points, poly);
 		polygons.push_back(poly);
@@ -334,4 +335,25 @@ Eigen::VectorXd convertStdToEigen(const std::vector<double>& stdVec) {
         eigenVec(i) = stdVec[i];
     }
     return eigenVec;
+}
+
+vector<std::pair<double, double>> getRectangleVertices(const std::vector<double>& state, double w, double l) {
+    double cx = state[0];
+    double cy = state[1];
+    double theta = state[2];
+    const double TR_x = cx + ((w / 2) * cos(theta)) - ((l / 2) * sin(theta));
+    const double TR_y = cy + ((w / 2) * sin(theta)) + ((l / 2) * cos(theta));
+    std::string top_right = std::to_string(TR_x) + " " + std::to_string(TR_y);
+    // TOP LEFT VERTEX:
+    const double TL_x = cx - ((w / 2) * cos(theta)) - ((l / 2) * sin(theta));
+    const double TL_y = cy - ((w / 2) * sin(theta)) + ((l / 2) * cos(theta));
+    std::string top_left = std::to_string(TL_x) + " " + std::to_string(TL_y);
+    // BOTTOM LEFT VERTEX:
+    const double BL_x = cx - ((w / 2) * cos(theta)) + ((l / 2) * sin(theta));
+    const double BL_y = cy - ((w / 2) * sin(theta)) - ((l / 2) * cos(theta));
+    std::string bottom_left = std::to_string(BL_x) + " " + std::to_string(BL_y);
+    // BOTTOM RIGHT VERTEX:
+    const double BR_x = cx + ((w / 2) * cos(theta)) + ((l / 2) * sin(theta));
+    const double BR_y = cy + ((w / 2) * sin(theta)) - ((l / 2) * cos(theta));
+    return {{BR_x, BR_y}, {BL_x, BL_y}, {TL_x, TL_y}, {TR_x, TR_y}, {BR_x, BR_y}};
 }

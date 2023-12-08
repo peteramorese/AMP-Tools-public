@@ -65,3 +65,5 @@ vector<polygon> ampToBoostObstacles(const vector<amp::Obstacle2D>& obstacles);
 std::vector<double> convertEigenToStd(const Eigen::VectorXd& eigenVec);
 
 Eigen::VectorXd convertStdToEigen(const std::vector<double>& stdVec);
+
+vector<std::pair<double, double>> getRectangleVertices(const std::vector<double>& state, double w, double l);

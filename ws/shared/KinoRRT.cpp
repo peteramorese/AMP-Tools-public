@@ -19,6 +19,7 @@ amp::Path KinoRRT::plan(const VectorXd& init_state, const VectorXd& goal_state, 
     std::mt19937 gen(rd());
     std::uniform_real_distribution<double> dist(0, 1);    
     bool success = false;
+    VectorXd u_best(3);
     while (points.size() < n) {
         double goalBias = dist(gen);
         if (goalBias > (1 - p)) qRand = goal_state;
@@ -27,17 +28,20 @@ amp::Path KinoRRT::plan(const VectorXd& init_state, const VectorXd& goal_state, 
         VectorXd x_near = nearest.second;
         VectorXd x_best = x_near;
         bool validPath = false;
+        double duration;
         for (int i = 0; i < 5; ++i) {
             uRand = getRandomPoint(controlLimits);
-            VectorXd x_new = propagateState(x_near, uRand, 2, collision_checker);
+            VectorXd x_new = propagateState(x_near, uRand, duration, collision_checker);
             if (distanceMetric(qRand, x_new) < distanceMetric(qRand, x_best)) {
                 x_best = x_new;
+                u_best << uRand(0), uRand(1), duration;
                 validPath = true;
             }
         }
         if (validPath) {
             parents[ind] = nearest.first;
-            points[ind] = x_best;           
+            points[ind] = x_best;    
+            controls[ind] = u_best;    
             ind++;
             if (distanceMetric(x_best, goal_state) < eps) {
                 cout << "Goal found in "<< ind << " steps\n";
@@ -50,11 +54,15 @@ amp::Path KinoRRT::plan(const VectorXd& init_state, const VectorXd& goal_state, 
     int node = ind;
     if (path.valid) {
         while (node != 0) {
-            path.waypoints.insert(path.waypoints.begin(), points[node]);
+            VectorXd vector1 = points[node];
+            VectorXd vector2 = controls[node];
+            vector1.conservativeResize(vector1.size() + vector2.size());
+            vector1.tail(vector2.size()) = vector2;
+            path.waypoints.insert(path.waypoints.begin(), vector1);
             node = parents[node];
         }
         path.waypoints.insert(path.waypoints.begin(), init_state);
-        path.waypoints.push_back(goal_state);
+        // path.waypoints.push_back(goal_state);
     } else cout << "Failed to find path\n";
     return path;
 }
@@ -111,20 +119,20 @@ void dynamics(const std::vector<double>& state, std::vector<double>& state_dot, 
     state_dot[6] = 0;
 }
 
-VectorXd KinoRRT::propagateState(const VectorXd& x_start, const VectorXd& u, double deltaT, MyKinoChecker& collision_checker) {
+VectorXd KinoRRT::propagateState(const VectorXd& x_start, const VectorXd& u, double& duration, MyKinoChecker& collision_checker) {
     // cout << "\nStart\n" << x_start;
     double dt = 0.1;
     std::vector<double> state = convertEigenToStd(x_start);
     state.push_back(u(0));
     state.push_back(u(1));
     boost::numeric::odeint::runge_kutta_dopri5<std::vector<double>> stepper;
-    double time = 0.0;
-    while (time < deltaT) {
+    duration = 0.0;
+    while (duration < 2) {
         // integrateEuler(dynamics, state, u, dt);
-        stepper.do_step(dynamics, state, time, dt);
+        stepper.do_step(dynamics, state, duration, dt);
         if (!collision_checker.isValid(state)) return x_start;
         // Do something with the updated state
-        time += dt;
+        duration += dt;
     }
     state.pop_back();
     state.pop_back();

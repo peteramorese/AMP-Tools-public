@@ -85,23 +85,23 @@ int main(int argc, char** argv) {
         // // Visualizer::makeFigure(w3, path, collision_points);
     }
     {LOG("RRT");
-        MyGoalBiasRRT RRT;
-        RRT.getN() = 5000;
-        RRT.getG() = 0.05;
-        RRT.getS() = 0.5;
-        RRT.getE() = 0.25;
-        RRT.getW() = true;
-        collision_points.clear();
-        path = RRT.plan(w1);
-        HW7::check(path,w1,collision_points);
-        // Visualizer::makeFigure(w1, path, collision_points);
-        collision_points.clear();
-        path = RRT.plan(w2);
-        HW7::check(path,w2,collision_points);
-        // Visualizer::makeFigure(w2, path, collision_points);
-        collision_points.clear();
-        path = RRT.plan(w3);
-        HW7::check(path,w3,collision_points);
+        // MyGoalBiasRRT RRT;
+        // RRT.getN() = 5000;
+        // RRT.getG() = 0.05;
+        // RRT.getS() = 0.5;
+        // RRT.getE() = 0.25;
+        // RRT.getW() = true;
+        // collision_points.clear();
+        // path = RRT.plan(w1);
+        // HW7::check(path,w1,collision_points);
+        // // Visualizer::makeFigure(w1, path, collision_points);
+        // collision_points.clear();
+        // path = RRT.plan(w2);
+        // HW7::check(path,w2,collision_points);
+        // // Visualizer::makeFigure(w2, path, collision_points);
+        // collision_points.clear();
+        // path = RRT.plan(w3);
+        // HW7::check(path,w3,collision_points);
         // Visualizer::makeFigure(w3, path, collision_points);
         
         // std::list<std::vector<double>> pathTimes;
@@ -132,9 +132,9 @@ int main(int argc, char** argv) {
         // Visualizer::makeBarGraph(solns, NRLabels,std::string("RRT Num Solutions"), std::string("Workspace"),std::string("#solutions"));
     }
     // Visualizer::showFigures();
-    // MyPRM prm;
-    // MyGoalBiasRRT RRT;
-    // amp::HW7::grade(prm, RRT, "collin.hudson@colorado.edu", argc, argv);
+    MyPRM prm;
+    MyGoalBiasRRT RRT;
+    amp::HW7::grade(prm, RRT, "collin.hudson@colorado.edu", argc, argv);
 
     return 0;
 }

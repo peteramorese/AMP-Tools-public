@@ -203,11 +203,6 @@ void MyGoalBiasRRTND::plan(const amp::MultiAgentProblem2D& problem, amp::MultiAg
     // time = duration.count();
 }
 
-
-
-
-
-
 std::map<Node, Eigen::Vector2d> MyGoalBiasRRTND::makeMap(std::vector<Eigen::Vector2d> samples){
     std::map<Node, Eigen::Vector2d> mapOfSamples;
     for (Node j = 0; j < samples.size(); j++){ 

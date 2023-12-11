@@ -8,22 +8,20 @@
 
 using Node = uint32_t;
 
-struct UASProblem : public amp::Environment2D {
+struct UASProblem : public amp::MultiAgentProblem2D {
 
     //Function for GA positions given time
 
     std::vector<Eigen::Vector2d> initGA; //vector of initial ground agent positions
-    inline int numGA(){return initGA.size();};
-    int numUAS = 1; // number of UAS for problem
-
+    inline int numGA() const {return initGA.size();};
 };
 
-class MyFlightPlanner : public amp::CentralizedMultiAgentRRT {
+class MyFlightPlanner{
     public:
         /// @brief Solve a motion planning problem. Derive class and override this method
         /// @param problem Multi-agent motion planning problem
         /// @return Array of paths that are ordered corresponding to the `agent_properties` field in `problem`.
-        virtual amp::MultiAgentPath2D plan(const amp::MultiAgentProblem2D& problem) override;
+        amp::MultiAgentPath2D plan(const UASProblem& problem);
 
     int& getT(){return time;};
     int& getN(){return numIterations;};

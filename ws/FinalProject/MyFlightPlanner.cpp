@@ -14,29 +14,7 @@ amp::MultiAgentPath2D MyFlightPlanner::plan(const UASProblem& problem){
     auto start = std::chrono::high_resolution_clock::now();
 
     // initialize LOS graph with empty edge sets for each Ground Agent and UAS
-    for(int j = 0; j < (problem.numGA() + problem.numAgents()); j++){
-        std::set<int> temp;
-        for(int k = 0; k < (problem.numGA() + problem.numAgents()); k++){
-            Eigen::Vector2d posj;
-            Eigen::Vector2d posk;
-            if(j < problem.numGA()){
-                posj = problem.initGA[j];
-            }
-            else{
-                posj = problem.agent_properties[j].q_init;
-            }
-            if(k < problem.numGA()){
-                posk = problem.initGA[k];
-            }
-            else{
-                posk = problem.agent_properties[k].q_init;
-            }
-            if(c.inLOS(posj,posk,problem)){
-                temp.insert(k);
-            }
-        }
-        c.losGraph.push_back(temp);
-    }
+    c.makeLOS(problem);
 
     //{
         amp::MultiAgentPath2D path;

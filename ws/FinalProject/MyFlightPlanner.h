@@ -42,35 +42,68 @@ class FlightChecker : public checkPath{
             return !lineCollision2D(state0, state1, obs);
         }
 
-        void updateLOS( Eigen::VectorXd state, const UASProblem& problem, int time){
+        void makeLOS(const UASProblem& problem){
+            for(int j = 0; j < (problem.numGA() + problem.numAgents()); j++){
+                std::set<int> temp;
+                for(int k = 0; k < (problem.numGA() + problem.numAgents()); k++){
+                    if(j != k){
+                        Eigen::Vector2d posj;
+                        Eigen::Vector2d posk;
+                        if(j < problem.numGA()){
+                            posj = problem.initGA[j];
+                        }
+                        else{
+                            posj = problem.agent_properties[j].q_init;
+                        }
+                        if(k < problem.numGA()){
+                            posk = problem.initGA[k];
+                        }
+                        else{
+                            posk = problem.agent_properties[k].q_init;
+                        }
+                        if(inLOS(posj,posk,problem)){
+                            temp.insert(k);
+                        }
+                    }
+                }
+                losGraph.push_back(temp);
+            }
+        }
+
+        void updateLOS(Eigen::VectorXd state, const UASProblem& problem, int time){
 
             for(int j = 0; j < (problem.numGA() + problem.numAgents()); j++){
                 std::set<int> temp;
                 for(int k = 0; k < (problem.numGA() + problem.numAgents()); k++){
-                    Eigen::Vector2d posj;
-                    Eigen::Vector2d posk;
-                    if(j < problem.numGA()){
-                        posj = problem.initGA[j];
-                    }
-                    else{
-                        posj = problem.agent_properties[j].q_init;
-                    }
-                    if(k < problem.numGA()){
-                        posk = problem.initGA[k];
-                    }
-                    else{
-                        posk = problem.agent_properties[k].q_init;
-                    }
-                    if(inLOS(posj,posk,problem)){
-                        temp.insert(k);
+                    if(j != k){
+                        Eigen::Vector2d posj;
+                        Eigen::Vector2d posk;
+                        if(j < problem.numGA()){
+                            posj = problem.GApos(time, j);
+                        }
+                        else{
+                            posj(0) = state((j - problem.numGA())*3);
+                            posj(1) = state((j - problem.numGA())*3 + 1);
+                        }
+                        if(k < problem.numGA()){
+                            posk = problem.GApos(time, k);
+                        }
+                        else{
+                            posk(0) = state((k - problem.numGA())*3);
+                            posk(1) = state((k - problem.numGA())*3 + 1);
+                        }
+                        if(inLOS(posj,posk,problem)){
+                            temp.insert(k);
+                        }
                     }
                 }
                 losGraph.push_back(temp);
             }
 
-
         }
 
+
+    private:
         std::vector<std::set<int>> losGraph;
 
 };

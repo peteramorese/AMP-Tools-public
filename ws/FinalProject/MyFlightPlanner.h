@@ -71,7 +71,7 @@ class FlightChecker : public checkPath{
         }
 
         void updateLOS(Eigen::VectorXd state, const UASProblem& problem, int time){
-
+            // Checks LOS between all ground agents and UAS, and ipdates connections stored in losGraph
             for(int j = 0; j < (problem.numGA() + problem.numAgents()); j++){
                 std::set<int> temp;
                 for(int k = 0; k < (problem.numGA() + problem.numAgents()); k++){
@@ -100,6 +100,27 @@ class FlightChecker : public checkPath{
                 losGraph.push_back(temp);
             }
 
+        }
+
+        bool checkLOS(int numGA){
+            std::set<int> openSet;
+            std::set<int> closedSet;
+            openSet.insert(0);
+            while(!openSet.empty()){
+                //add top element of open set to closed set, and erase from open set
+                int top = *openSet.begin();
+                closedSet.insert(top);
+                openSet.erase(openSet.begin());
+                //Add children of top to open set if not in closed set
+                for (std::set<int>::iterator it=losGraph[top].begin(); it!=losGraph[top].end(); ++it){
+                    if(closedSet.find(*it) == closedSet.end()){
+                        openSet.insert(*it);
+                    }
+                }
+            }
+            // check if closed set has numGA ground agents connected
+            auto it = next(closedSet.begin(), numGA - 1);
+            return *it == (numGA - 1);
         }
 
 

@@ -4,11 +4,9 @@
 using Node = uint32_t;
 
 amp::MultiAgentPath2D MyFlightPlanner::plan(const UASProblem& problem){
-    MyGoalBiasRRTND RRT;
     // Centralized Planner parameters
-    RRT.getN() = 50000;
-    RRT.getS() = 0.5;
-    RRT.getG() = 0.15;
+    getN() = 50000; // number of tries
+    getS() = 0.5;   // step size
     FlightChecker c;
 
     auto start = std::chrono::high_resolution_clock::now();
@@ -19,7 +17,7 @@ amp::MultiAgentPath2D MyFlightPlanner::plan(const UASProblem& problem){
     //{
         amp::MultiAgentPath2D path;
         std::vector<sampleS> samples;
-        // Construct init and goal super states
+        // Construct init super state
         Eigen::VectorXd init(2*problem.numAgents());
         for(int j = 0; j < 2*problem.numAgents(); j += 2){
             init(j) = problem.agent_properties[j/2].q_init(0);

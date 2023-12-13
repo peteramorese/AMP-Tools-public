@@ -45,6 +45,7 @@ struct UASProblem : public amp::MultiAgentProblem2D {
         RRT.getS() = 0.5;
         for(int j = 0; j < this->numAgents(); j++){
             RRT.plan(randGen, tempPaths, j);
+            endGAt.push_back(tempPaths.agent_paths[j].waypoints.size());
         }
         GApaths = tempPaths;
 

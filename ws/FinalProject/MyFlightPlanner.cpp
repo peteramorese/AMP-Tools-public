@@ -71,7 +71,7 @@ amp::MultiAgentPath2D MyFlightPlanner::plan(const UASProblem& problem){
                 testS = samples[testS.back];
             }
             l.push_front(init);
-            for(int j = 0; j < 2*problem.numAgents(); j += 2){
+            for(int j = 0; j < 3*problem.numAgents(); j += 3){
                 amp::Path2D tempPath;
                 for (std::list<Eigen::VectorXd>::iterator it=l.begin(); it != l.end(); ++it){
                     Eigen::VectorXd tempListEle = *it;

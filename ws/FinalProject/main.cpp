@@ -12,6 +12,9 @@ int main(int argc, char** argv) {
 
     MyFlightPlanner fPlanner;
     Visualizer::makeFigure(prob,prob.GApaths);
+    for(auto ln : prob.endGAt){
+        LOG(ln);
+    }
     Visualizer::showFigures();
     // MultiAgentPath2D soln =  fPlanner.plan(prob);
 

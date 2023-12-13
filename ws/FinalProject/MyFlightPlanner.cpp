@@ -49,8 +49,9 @@ amp::MultiAgentPath2D MyFlightPlanner::plan(const UASProblem& problem){
                 }
             }
             splitAndStep2D(samples[minID].xy, q_rand, getS());
+            c.updateLOS(samples[minID].xy, problem, numNodes);
             // q_rand = ((1 - stepSize/tempMin)*samples[minID].xy + (stepSize/tempMin)*q_rand);
-            if(!c.multDiskCollision2D(samples[minID].xy, q_rand, problem)){
+            if(!c.multDiskCollision2D(samples[minID].xy, q_rand, problem) && c.checkLOS(problem.numGA())){
                 // LOG("Adding state: " << q_rand);
                 numNodes++;
                 sampleS q_randS(q_rand,minID);

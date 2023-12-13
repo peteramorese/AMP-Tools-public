@@ -11,11 +11,11 @@ using Node = uint32_t;
 struct UASProblem : public amp::MultiAgentProblem2D {
 
     //Function for GA positions given time
-
-    const std::vector<Eigen::Vector2d> initGA; //vector of initial ground agent positions
-    const std::vector<Eigen::Vector2d> finalGA; //vector of final ground agent positions
-    const std::vector<int> endGAt; //vector of times (number of steps) for each GA to reach finalGA
-    const int maxTime; //Largest element in endGAt
+    std::vector<Eigen::Vector2d> initGA; //vector of initial ground agent positions
+    std::vector<Eigen::Vector2d> finalGA; //vector of final ground agent positions
+    amp::MultiAgentPath2D GApaths;
+    std::vector<int> endGAt; //vector of times (number of steps) for each GA to reach finalGA
+    int maxTime = 1; //Largest element in endGAt
     inline int numGA() const {return initGA.size();};
     //Function that returns position of a GA at time t (straight line)
     Eigen::Vector2d GApos(int time, int idxGA) const {
@@ -25,6 +25,30 @@ struct UASProblem : public amp::MultiAgentProblem2D {
         else{
             return finalGA[idxGA];
         }
+    };
+    UASProblem(uint32_t n_GA = 3, uint32_t n_Obs = 10, double min_Obs = 1.0, double max_Obs = 2.0){
+
+        amp::Random2DEnvironmentSpecification eSpec;
+        eSpec.n_obstacles = n_Obs;
+        eSpec.min_obstacle_region_radius = min_Obs;
+        eSpec.max_obstacle_region_radius = max_Obs;
+        amp::RandomCircularAgentsSpecification cSpec;
+        cSpec.n_agents = n_GA;
+        amp::EnvironmentTools envGen;
+        amp::MultiAgentProblem2D randGen = envGen.generateRandomMultiAgentProblem(eSpec, cSpec);
+        this->obstacles = randGen.obstacles;
+        this->agent_properties = randGen.agent_properties;
+
+        amp::MultiAgentPath2D tempPaths;
+        MyGoalBiasRRTND RRT;
+        RRT.getN() = 50000;
+        RRT.getS() = 0.5;
+        for(int j = 0; j < this->numAgents(); j++){
+            RRT.plan(randGen, tempPaths, j);
+        }
+        GApaths = tempPaths;
+
+
     };
 };
 

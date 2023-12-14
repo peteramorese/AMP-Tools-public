@@ -11,11 +11,11 @@ int main(int argc, char** argv) {
     
 
     MyFlightPlanner fPlanner;
-    // MultiAgentPath2D soln =  fPlanner.plan(prob);
+    MultiAgentPath2D soln =  fPlanner.plan(prob);
     // LOG("Now in main, len = " << soln.agent_paths[0].waypoints.size());
     // Visualizer::makeFigure(prob,soln);
-    LOG("Figure made");
-    Visualizer::showFigures();
-    LOG("Figure shown");
+    // LOG("Figure made");
+    // Visualizer::showFigures();
+    // LOG("Figure shown");
     // return 0;
 }

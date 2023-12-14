@@ -40,7 +40,7 @@ amp::MultiAgentPath2D MyFlightPlanner::plan(const UASProblem& problem){
                 q_rand(j+1) = amp::RNG::randd(problem.y_min, problem.y_max); //y
                 q_rand(j+2) = amp::RNG::randd(0, 2*M_PI); //heading angle (velocity i.e. groundspeed is constant)
             }
-            // LOG("Got a sample");
+            LOG("Got a sample");
             //Find closest node in tree to q_rand
             minID = 0;
             tempMin = (samples[0].xy - q_rand).norm();
@@ -142,7 +142,7 @@ UASProblem::UASProblem(uint32_t n_GA, uint32_t n_UAV, uint32_t n_Obs, double min
         
     }
     GApaths = tempPaths;
-    amp::Visualizer::makeFigure(*this,GApaths);
+    // amp::Visualizer::makeFigure(*this,GApaths);
     for(int j = 0; j < numGA; j++){
         LOG("GA[" << j << "], init: (" << GApaths.agent_paths[j].waypoints[0](0) << ","<< GApaths.agent_paths[j].waypoints[0](1) << "), path length: " << endGAt[j]);
     }
@@ -152,25 +152,31 @@ UASProblem::UASProblem(uint32_t n_GA, uint32_t n_UAV, uint32_t n_Obs, double min
     this->agent_properties = randGen.agent_properties;
     FlightChecker c;
     c.makeLOS(*this);
-    for(int j = 0; j < n_UAV; j++){
-        Eigen::VectorXd tempInit = Eigen::VectorXd::Zero(3*n_UAV);
-        bool collision = false;
-        do{
-            collision = false;
-            for(int j = 0; j < 3*n_UAV; j += 3){
-                
-                tempInit(j) = amp::RNG::randd(this->x_min, this->x_max); //x
-                tempInit(j+1) = amp::RNG::randd(this->y_min, this->y_max); //y
-                Eigen::Vector2d tempXY(tempInit(j),tempInit(j+1));
-                if(c.pointCollision2D(tempXY, *this)){
-                    collision = true;
-                }
-                tempInit(j+2) = amp::RNG::randd(0, 2*M_PI); //heading angle (velocity i.e. groundspeed is constant)
+    Eigen::VectorXd tempInit = Eigen::VectorXd::Zero(3*n_UAV);
+    Eigen::Vector2d tempXY = Eigen::Vector2d::Zero();
+    bool collision = false;
+    //Generate safe meta state that is free from collisions and allows LOS communication between all GAs
+    do{
+        collision = false;
+        for(int j = 0; j < 3*n_UAV; j += 3){
+            
+            tempInit(j) = amp::RNG::randd(this->x_min, this->x_max); //x
+            tempInit(j+1) = amp::RNG::randd(this->y_min, this->y_max); //y
+            tempXY(0) = tempInit(j);
+            tempXY(1) = tempInit(j+1);
+            if(c.pointCollision2D(tempXY, *this)){
+                collision = true;
             }
-            c.updateLOS(tempInit, *this, 0);
-        }while(!c.checkLOS(n_UAV) || collision);
+            tempInit(j+2) = amp::RNG::randd(0, 2*M_PI); //heading angle (velocity i.e. groundspeed is constant)
+        }
+        c.updateLOS(tempInit, *this, 0);
+    }while(!c.checkLOS(n_UAV) || collision);
+    //Split up meta state into each UAV's initial xy.
+    for(int j = 0; j < n_UAV; j++){
         this->agent_properties[j].radius = size_UAV;
-        this->agent_properties[j].q_init = tempInit;
+        tempXY(0) = tempInit(3*j);
+        tempXY(1) = tempInit(3*j+1);
+        this->agent_properties[j].q_init = tempXY;
         LOG("init for UAV " << j << ": " << this->agent_properties[j].q_init);
     }
 

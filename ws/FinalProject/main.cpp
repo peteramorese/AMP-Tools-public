@@ -7,7 +7,7 @@ using namespace amp;
 
 int main(int argc, char** argv) {
     amp::RNG::seed(amp::RNG::randiUnbounded());
-    UASProblem prob;
+    UASProblem prob(5,3,10,2.0,4.0);
     
 
     MyFlightPlanner fPlanner;
@@ -15,8 +15,8 @@ int main(int argc, char** argv) {
     // for(auto ln : prob.endGAt){
     //     LOG(ln);
     // }
+    MultiAgentPath2D soln =  fPlanner.plan(prob);
+    Visualizer::makeFigure(prob,soln);
     Visualizer::showFigures();
-    // MultiAgentPath2D soln =  fPlanner.plan(prob);
-
     return 0;
 }

@@ -18,12 +18,13 @@ amp::MultiAgentPath2D MyFlightPlanner::plan(const UASProblem& problem){
         amp::MultiAgentPath2D path;
         std::vector<sampleS> samples;
         // Construct init super state
-        Eigen::VectorXd init(2*problem.numAgents());
-        for(int j = 0; j < 2*problem.numAgents(); j += 2){
+        Eigen::VectorXd init(3*problem.numAgents());
+        for(int j = 0; j < 3*problem.numAgents(); j += 3){
             init(j) = problem.agent_properties[j/2].q_init(0);
             init(j + 1) = problem.agent_properties[j/2].q_init(1);
+            init(j + 2) = 0;
         }
-        // LOG(init);
+        LOG(init);
         samples.push_back(sampleS(init,-1));
         Eigen::VectorXd q_rand(3*problem.numAgents());
         bool soln = false;
@@ -67,7 +68,7 @@ amp::MultiAgentPath2D MyFlightPlanner::plan(const UASProblem& problem){
             sampleS testS = samples.back();
             while(testS.back != -1){
                 l.push_front(testS.xy);
-                // LOG("Pushing to front state " << testS.xy);
+                LOG("Pushing to front state " << testS.xy);
                 testS = samples[testS.back];
             }
             l.push_front(init);
@@ -151,9 +152,7 @@ UASProblem::UASProblem(uint32_t n_GA, uint32_t n_UAV, uint32_t n_Obs, double min
         }while(!c.checkLOS(n_UAV));
         this->agent_properties[j].radius = size_UAV;
         this->agent_properties[j].q_init = tempInit;
-
     }
-
 
 }
 

@@ -7,16 +7,15 @@ using namespace amp;
 
 int main(int argc, char** argv) {
     amp::RNG::seed(amp::RNG::randiUnbounded());
-    UASProblem prob(5,3,10,2.0,4.0);
+    UASProblem prob(3,1,30,0.5,4.0);
     
 
     MyFlightPlanner fPlanner;
-    // Visualizer::makeFigure(prob,prob.GApaths);
-    // for(auto ln : prob.endGAt){
-    //     LOG(ln);
-    // }
-    MultiAgentPath2D soln =  fPlanner.plan(prob);
-    Visualizer::makeFigure(prob,soln);
+    // MultiAgentPath2D soln =  fPlanner.plan(prob);
+    // LOG("Now in main, len = " << soln.agent_paths[0].waypoints.size());
+    // Visualizer::makeFigure(prob,soln);
+    LOG("Figure made");
     Visualizer::showFigures();
-    return 0;
+    LOG("Figure shown");
+    // return 0;
 }

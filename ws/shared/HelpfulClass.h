@@ -230,12 +230,6 @@ class checkPath {
                 testNext(0) = next(j);
                 testNext(1) = next(j + 1);
                 //Check for obstacle collisions
-                // for(int m = 0; m <= interp; m++){
-                //     if(diskCollision2D(((1 - (1/interp)*m)*testState + ((1/interp)*m)*testNext),problem.agent_properties[j/2],problem)){
-                //         return true;
-                //     }
-                // }
-                // Obstacle collision
                 if(diskPathEval(testState, testNext, problem.agent_properties[j/2], problem) || diskCollision2D(testNext, problem.agent_properties[j/2], problem)){
                     return true;
                 }

@@ -407,7 +407,7 @@ class MyGoalBiasRRTND : public amp::GoalBiasRRT2D {
         };
         //Centralized
         amp::MultiAgentPath2D plan(const amp::MultiAgentProblem2D& problem);
-        void splitAndStep2D(Eigen::VectorXd state, Eigen::VectorXd& next, double stepSize);
+        virtual void splitAndStep2D(Eigen::VectorXd state, Eigen::VectorXd& next, double stepSize);
 
         //Decentralized
         void plan(const amp::MultiAgentProblem2D& problem, amp::MultiAgentPath2D& PathMA2D, int agentIdx);

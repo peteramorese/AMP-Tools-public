@@ -3,10 +3,17 @@
 
 using Node = uint32_t;
 // MyFlightPlanner member functions
+void MyFlightPlanner::splitAndStep2D(Eigen::VectorXd state, Eigen::VectorXd& next, double stepSize){
+    for(int j = 0; j < state.size(); j += 3){
+        Eigen::Vector2i subIdx(j,j+1);
+        Eigen::Vector2d temp = ((1 - stepSize/(state - next).norm()))*state(subIdx) + (stepSize/(state - next).norm())*next(subIdx);
+        next(j) = temp(0);
+        next(j + 1) = temp(1);
+    }
+}
+
 amp::MultiAgentPath2D MyFlightPlanner::plan(const UASProblem& problem){
     // Centralized Planner parameters
-    getN() = 50000; // number of tries
-    getS() = 0.5;   // step size
     FlightChecker c;
 
     auto start = std::chrono::high_resolution_clock::now();
@@ -16,6 +23,9 @@ amp::MultiAgentPath2D MyFlightPlanner::plan(const UASProblem& problem){
 
     //{
         amp::MultiAgentPath2D path;
+        if(!problem.initCond){
+            return path;
+        }
         std::vector<sampleS> samples;
         // Construct init super state
         Eigen::VectorXd init(3*problem.numAgents());
@@ -30,9 +40,11 @@ amp::MultiAgentPath2D MyFlightPlanner::plan(const UASProblem& problem){
         bool soln = false;
         int minID = 0;
         double tempMin = 0;
+        int oldestID = 0;
+        int oldestT = 0;
         int tries = 0;
         int numNodes = 1;
-        LOG("Ready to grow tree");
+        // LOG("Ready to grow tree");
         while(!soln && tries < getN()){
             //Generate q_rand
             for(int j = 0; j < 3*problem.numAgents(); j += 3){
@@ -40,7 +52,7 @@ amp::MultiAgentPath2D MyFlightPlanner::plan(const UASProblem& problem){
                 q_rand(j+1) = amp::RNG::randd(problem.y_min, problem.y_max); //y
                 q_rand(j+2) = amp::RNG::randd(0, 2*M_PI); //heading angle (velocity i.e. groundspeed is constant)
             }
-            LOG("Got a sample");
+            // LOG("Got a sample");
             //Find closest node in tree to q_rand
             minID = 0;
             tempMin = (samples[0].xy - q_rand).norm();
@@ -51,7 +63,7 @@ amp::MultiAgentPath2D MyFlightPlanner::plan(const UASProblem& problem){
                 }
             }
             splitAndStep2D(samples[minID].xy, q_rand, getS());
-            c.updateLOS(samples[minID].xy, problem, numNodes);
+            c.updateLOS(samples[minID].xy, problem, samples[minID].tFromInit + 1);
             // q_rand = ((1 - stepSize/tempMin)*samples[minID].xy + (stepSize/tempMin)*q_rand);
             if(!c.multDiskCollision2D(samples[minID].xy, q_rand, problem) && c.checkLOS(problem.numGA)){
                 // LOG("Adding state: " << q_rand << " minID: " << minID << ", maxTime: " << problem.maxTime);
@@ -61,21 +73,28 @@ amp::MultiAgentPath2D MyFlightPlanner::plan(const UASProblem& problem){
                 if(q_randS.tFromInit >= problem.maxTime){
                     soln = true;
                 }
+                else if(q_randS.tFromInit >= oldestT){
+                    oldestT = q_randS.tFromInit;
+                    oldestID = minID;
+                }
             }
             tries++;
+            if((tries % 5000) == 0){
+                LOG("tries for samples: " << tries << ", samples found: " << numNodes);
+            }
         }
-        LOG("out of while loop");
+        // LOG("out of while loop");
         std::list<Eigen::VectorXd> l;
         if(soln){
             sampleS testS = samples.back();
-            LOG("Popping state: " << q_rand << " tfrominit: " << testS.tFromInit << ", maxTime: " << problem.maxTime);
+            // LOG("Popping state: " << q_rand << " tfrominit: " << testS.tFromInit << ", maxTime: " << problem.maxTime);
             while(testS.back != -1){
                 l.push_front(testS.xy);
                 // LOG("Pushing to front state " << testS.xy);
                 testS = samples[testS.back];
             }
             l.push_front(init);
-            LOG("ready to split");
+            // LOG("ready to split");
             for(int j = 0; j < 3*problem.numAgents(); j += 3){
                 amp::Path2D tempPath;
                 for (std::list<Eigen::VectorXd>::iterator it=l.begin(); it != l.end(); ++it){
@@ -86,20 +105,31 @@ amp::MultiAgentPath2D MyFlightPlanner::plan(const UASProblem& problem){
                     tempPath.waypoints.push_back(tempVec);
                 }
                 path.agent_paths.push_back(tempPath);
-                LOG("Added tempPath");
+                // LOG("Added tempPath");
                 
             }
         }
         else{
             if(tries == getN()){
                 LOG("Ran outta tries buddy :(");
+                LOG("Longest path: " << oldestT);
+                sampleS testS = samples[oldestID];
+                while(testS.back != -1){
+                    l.push_front(testS.xy);
+                    testS = samples[testS.back];
+                }
+                l.push_front(init);
+                for(int j = 0; j < 3*problem.numAgents(); j += 3){
+                    amp::Path2D tempPath;
+                    for (std::list<Eigen::VectorXd>::iterator it=l.begin(); it != l.end(); ++it){
+                        Eigen::VectorXd tempListEle = *it;
+                        Eigen::Vector2d tempVec(tempListEle(j),tempListEle(j+1));
+                        tempPath.waypoints.push_back(tempVec);
+                    }
+                    path.agent_paths.push_back(tempPath);                    
+                }
             }else{
                 LOG("Couldn't find path :(");
-            }
-            amp::Path2D tempPath;
-            for(int j = 0; j < problem.numAgents(); j++){
-                tempPath.waypoints.push_back(problem.agent_properties[j].q_init);
-                path.agent_paths.push_back(tempPath);
             }
 
         }
@@ -111,7 +141,7 @@ amp::MultiAgentPath2D MyFlightPlanner::plan(const UASProblem& problem){
     auto stop = std::chrono::high_resolution_clock::now();
     auto duration = duration_cast<std::chrono::milliseconds>(stop - start);
     getT() = duration.count();
-    LOG("ready to return");
+    // LOG("ready to return");
     return path;
 }
 // UASProblem constructor
@@ -142,7 +172,7 @@ UASProblem::UASProblem(uint32_t n_GA, uint32_t n_UAV, uint32_t n_Obs, double min
         
     }
     GApaths = tempPaths;
-    // amp::Visualizer::makeFigure(*this,GApaths);
+    amp::Visualizer::makeFigure(*this,GApaths);
     for(int j = 0; j < numGA; j++){
         LOG("GA[" << j << "], init: (" << GApaths.agent_paths[j].waypoints[0](0) << ","<< GApaths.agent_paths[j].waypoints[0](1) << "), path length: " << endGAt[j]);
     }
@@ -155,6 +185,7 @@ UASProblem::UASProblem(uint32_t n_GA, uint32_t n_UAV, uint32_t n_Obs, double min
     Eigen::VectorXd tempInit = Eigen::VectorXd::Zero(3*n_UAV);
     Eigen::Vector2d tempXY = Eigen::Vector2d::Zero();
     bool collision = false;
+    int tries = 0;
     //Generate safe meta state that is free from collisions and allows LOS communication between all GAs
     do{
         collision = false;
@@ -170,16 +201,23 @@ UASProblem::UASProblem(uint32_t n_GA, uint32_t n_UAV, uint32_t n_Obs, double min
             tempInit(j+2) = amp::RNG::randd(0, 2*M_PI); //heading angle (velocity i.e. groundspeed is constant)
         }
         c.updateLOS(tempInit, *this, 0);
-    }while(!c.checkLOS(n_UAV) || collision);
-    //Split up meta state into each UAV's initial xy.
-    for(int j = 0; j < n_UAV; j++){
-        this->agent_properties[j].radius = size_UAV;
-        tempXY(0) = tempInit(3*j);
-        tempXY(1) = tempInit(3*j+1);
-        this->agent_properties[j].q_init = tempXY;
-        LOG("init for UAV " << j << ": " << this->agent_properties[j].q_init);
+        tries++;
+        LOG("looking for init...");
+    }while((!c.checkLOS(numGA) || collision) && tries < 1000);
+    if(tries >= 1000){
+        LOG("Can't find viable initial condition!");
+        initCond = false;
     }
-
+    else{
+        //Split up meta state into each UAV's initial xy.
+        for(int j = 0; j < n_UAV; j++){
+            this->agent_properties[j].radius = size_UAV;
+            tempXY(0) = tempInit(3*j);
+            tempXY(1) = tempInit(3*j+1);
+            this->agent_properties[j].q_init = tempXY;
+            LOG("init for UAV " << j << ": " << this->agent_properties[j].q_init);
+        }
+    }
 }
 
 // FlightChecker member functions
@@ -187,7 +225,7 @@ void FlightChecker::makeLOS(const UASProblem& problem){
     for(int j = 0; j < (problem.numGA + problem.numAgents()); j++){
         std::set<int> temp;
         for(int k = 0; k < (problem.numGA + problem.numAgents()); k++){
-            if(j < k){
+            if(j != k){
                 // LOG(j << " and " << k << ", numGA= " << problem.numGA << ", numUAS= " << problem.numAgents());
                 Eigen::Vector2d posj;
                 Eigen::Vector2d posk;
@@ -198,7 +236,7 @@ void FlightChecker::makeLOS(const UASProblem& problem){
                     posj = problem.agent_properties[j].q_init;
                 }
                 if(k < problem.numGA){
-                    posk = problem.GApaths.agent_paths[j].waypoints[0];
+                    posk = problem.GApaths.agent_paths[k].waypoints[0];
                 }
                 else{
                     posk = problem.agent_properties[k].q_init;
@@ -213,11 +251,13 @@ void FlightChecker::makeLOS(const UASProblem& problem){
 }
 
 void FlightChecker::updateLOS(Eigen::VectorXd state, const UASProblem& problem, int time){
-    // Checks LOS between all ground agents and UAS, and ipdates connections stored in losGraph
+    // Checks LOS between all ground agents and UAS, and updates connections stored in losGraph
+    // auto start = std::chrono::high_resolution_clock::now();
+    losGraph.clear();
     for(int j = 0; j < (problem.numGA + problem.numAgents()); j++){
         std::set<int> temp;
         for(int k = 0; k < (problem.numGA + problem.numAgents()); k++){
-            if(j < k){
+            if(j != k){
                 Eigen::Vector2d posj;
                 Eigen::Vector2d posk;
                 if(j < problem.numGA){
@@ -241,6 +281,9 @@ void FlightChecker::updateLOS(Eigen::VectorXd state, const UASProblem& problem, 
         }
         losGraph.push_back(temp);
     }
+    // auto stop = std::chrono::high_resolution_clock::now();
+    // auto duration = duration_cast<std::chrono::milliseconds>(stop - start);
+    // LOG("Time to update LOS: " << duration.count() << "ms");
 
 }
 
@@ -248,21 +291,49 @@ bool FlightChecker::checkLOS(int numGA){
     std::set<int> openSet;
     std::set<int> closedSet;
     openSet.insert(0);
+    // printLOS();
+    // LOG("start check");
     while(!openSet.empty()){
         //add top element of open set to closed set, and erase from open set
         int top = *openSet.begin();
         closedSet.insert(top);
         openSet.erase(openSet.begin());
+        // LOG("popping " << top);
         //Add children of top to open set if not in closed set
         for (std::set<int>::iterator it=losGraph[top].begin(); it!=losGraph[top].end(); ++it){
             if(closedSet.find(*it) == closedSet.end()){
                 openSet.insert(*it);
+                // LOG("adding to open set " << *it);
             }
         }
     }
+        // LOG("closed set");
+        // for (auto con : closedSet)
+        // {
+        //     std::cout << con << ' ';
+        // }
+        // std::cout << std::endl;
     // check if closed set has numGA ground agents connected
-    auto it = next(closedSet.begin(), numGA - 1);
-    //returns true if all ground agents are connected to eachother
-    return *it == (numGA - 1);
+    if(closedSet.size() > (numGA - 1)){
+        auto it = next(closedSet.begin(), numGA - 1);
+        //returns true if all ground agents are connected to eachother
+        // LOG("returns " << (*it == (numGA - 1)));
+        return (*it == (numGA - 1));
+    }
+    else{
+        // LOG("returns false");
+        return false;
+    }
+}
+
+void FlightChecker::printLOS(){
+    for(int j = 0; j < losGraph.size(); j++){
+        LOG("idx: " << j);
+        for (auto con : losGraph[j])
+        {
+            std::cout << con << ' ';
+        }
+        std::cout << std::endl;
+    }
 }
 

@@ -15,6 +15,7 @@ struct UASProblem : public amp::MultiAgentProblem2D {
     int maxTime = 1; //Largest element in endGAt
     int numGA = 1;
     int numUAV = 1;
+    bool initCond = true;
     UASProblem(uint32_t n_GA = 3, uint32_t n_UAV = 2, uint32_t n_Obs = 10, double min_Obs = 1.0, double max_Obs = 2.0, double size_UAV = 0.2);
 };
 
@@ -24,6 +25,8 @@ class MyFlightPlanner : public MyGoalBiasRRTND{
         /// @param problem Multi-agent motion planning problem
         /// @return Array of paths that are ordered corresponding to the `agent_properties` field in `problem`.
         amp::MultiAgentPath2D plan(const UASProblem& problem);
+
+        void splitAndStep2D(Eigen::VectorXd state, Eigen::VectorXd& next, double stepSize) override;
 };
 
 class FlightChecker : public checkPath{
@@ -37,6 +40,10 @@ class FlightChecker : public checkPath{
         void updateLOS(Eigen::VectorXd state, const UASProblem& problem, int time);
 
         bool checkLOS(int numGA);
+
+        void printLOS();
+
+        inline const std::vector<std::set<int>>& getlosGraph() const {return losGraph;};
 
     private:
         std::vector<std::set<int>> losGraph;

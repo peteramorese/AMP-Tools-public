@@ -1,0 +1,1 @@
+set environment LD_LIBRARY_PATH /home/collinh/ASEN-5254/AMP-Tools-public/install/ubuntu22/lib

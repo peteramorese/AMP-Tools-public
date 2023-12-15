@@ -16,7 +16,8 @@ struct UASProblem : public amp::MultiAgentProblem2D {
     int numGA = 1;
     int numUAV = 1;
     bool initCond = true;
-    UASProblem(uint32_t n_GA = 3, uint32_t n_UAV = 2, uint32_t n_Obs = 10, double min_Obs = 1.0, double max_Obs = 2.0, double size_UAV = 0.2);
+    double losLim = 3.0;
+    UASProblem(uint32_t n_GA = 3, uint32_t n_UAV = 2, uint32_t n_Obs = 10, double min_Obs = 1.0, double max_Obs = 2.0, double size_UAV = 0.2, double los_dist = 3.0);
 };
 
 class MyFlightPlanner : public MyGoalBiasRRTND{

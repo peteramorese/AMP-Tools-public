@@ -145,8 +145,8 @@ amp::MultiAgentPath2D MyFlightPlanner::plan(const UASProblem& problem){
     return path;
 }
 // UASProblem constructor
-UASProblem::UASProblem(uint32_t n_GA, uint32_t n_UAV, uint32_t n_Obs, double min_Obs, double max_Obs, double size_UAV){
-
+UASProblem::UASProblem(uint32_t n_GA, uint32_t n_UAV, uint32_t n_Obs, double min_Obs, double max_Obs, double size_UAV, double los_dist){
+    losLim = los_dist;
     amp::Random2DEnvironmentSpecification eSpec;
     eSpec.n_obstacles = n_Obs;
     eSpec.min_obstacle_region_radius = min_Obs;
@@ -187,36 +187,105 @@ UASProblem::UASProblem(uint32_t n_GA, uint32_t n_UAV, uint32_t n_Obs, double min
     bool collision = false;
     int tries = 0;
     //Generate safe meta state that is free from collisions and allows LOS communication between all GAs
-    do{
-        collision = false;
-        for(int j = 0; j < 3*n_UAV; j += 3){
-            
-            tempInit(j) = amp::RNG::randd(this->x_min, this->x_max); //x
-            tempInit(j+1) = amp::RNG::randd(this->y_min, this->y_max); //y
-            tempXY(0) = tempInit(j);
-            tempXY(1) = tempInit(j+1);
-            if(c.pointCollision2D(tempXY, *this)){
-                collision = true;
+    amp::MultiAgentPath2D losPath; //position of states for all times that enable LOS
+    std::list<Eigen::VectorXd> l;
+    amp::CircularAgentProperties UAV;
+    UAV.radius = size_UAV;
+    for(int t = 0; t < maxTime; t++){
+        do{
+            collision = false;
+            for(int j = 0; j < 3*n_UAV; j += 3){
+                
+                tempInit(j) = amp::RNG::randd(this->x_min, this->x_max); //x
+                tempInit(j+1) = amp::RNG::randd(this->y_min, this->y_max); //y
+                tempXY(0) = tempInit(j);
+                tempXY(1) = tempInit(j+1);
+                if(c.diskCollision2D(tempXY,UAV,*this)){
+                    collision = true;
+                }
+                tempInit(j+2) = amp::RNG::randd(0, 2*M_PI); //heading angle (velocity i.e. groundspeed is constant)
             }
-            tempInit(j+2) = amp::RNG::randd(0, 2*M_PI); //heading angle (velocity i.e. groundspeed is constant)
+            c.updateLOS(tempInit, *this, t);
+            tries++;
+            // LOG("looking for init...");
+        }while((!c.checkLOS(numGA) || collision) && tries < 1000);
+        if(tries >= 1000){
+            LOG("Can't find viable initial condition!");
+            initCond = false;
         }
-        c.updateLOS(tempInit, *this, 0);
-        tries++;
-        LOG("looking for init...");
-    }while((!c.checkLOS(numGA) || collision) && tries < 1000);
-    if(tries >= 1000){
-        LOG("Can't find viable initial condition!");
-        initCond = false;
+        else{
+            //Split up meta state into each UAV's initial xy.
+            // for(int j = 0; j < n_UAV; j++){
+            //     this->agent_properties[j].radius = size_UAV;
+            //     tempXY(0) = tempInit(3*j);
+            //     tempXY(1) = tempInit(3*j+1);
+            //     this->agent_properties[j].q_init = tempXY;
+            //     LOG("init for UAV " << j << ": " << this->agent_properties[j].q_init);
+            // }
+            // //Logging stuff 
+            // LOG("t = " << t);
+            // c.printLOS();
+            // Eigen::Vector2d g1;
+            // Eigen::Vector2d g0;
+            // if(t < this->GApaths.agent_paths[1].waypoints.size()){
+            //     g1 = this->GApaths.agent_paths[1].waypoints[t];
+            // }
+            // else{
+            //     g1 = this->GApaths.agent_paths[1].waypoints.back();
+            // }
+            // if(t < this->GApaths.agent_paths[0].waypoints.size()){
+            //     g0 = this->GApaths.agent_paths[0].waypoints[t];
+            // }
+            // else{
+            //     g0 = this->GApaths.agent_paths[0].waypoints.back();
+            // }
+            // LOG("LOS?: " << c.inLOS(g0, g1,*this));
+            // std::cout <<", dist from " << 0 << " to " << 1 << " = " << (g0 - g1).norm() << std::endl;
+            l.push_back(tempInit);
+        }
+    }
+    if(initCond){
+        for(int j = 0; j < 3*this->numAgents(); j += 3){
+            amp::Path2D tempPath;
+            int t = 0;
+            for (std::list<Eigen::VectorXd>::iterator it=l.begin(); it != l.end(); ++it){
+                Eigen::VectorXd tempListEle = *it;
+                Eigen::Vector2d tempVec(tempListEle(j),tempListEle(j+1));
+                LOG("Adding tempVec " << tempVec << " at t = " << t);
+                // for(int g = 0; g < numGA; g++){
+                //     Eigen::Vector2d g1;
+                //     Eigen::Vector2d g0;
+                //     if(t < this->GApaths.agent_paths[g].waypoints.size()){
+                //         g1 = this->GApaths.agent_paths[g].waypoints[t];
+                //     }
+                //     else{
+                //         g1 = this->GApaths.agent_paths[g].waypoints.back();
+                //     }
+                    
+                //     std::cout <<", dist to " << g << " = " << (g1 - tempVec).norm();
+                //     if(g > 0){
+                //         if(t < this->GApaths.agent_paths[g-1].waypoints.size()){
+                //             g0 = this->GApaths.agent_paths[g-1].waypoints[t];
+                //         }
+                //         else{
+                //             g0 = this->GApaths.agent_paths[g-1].waypoints.back();
+                //         }
+                //         std::cout <<", dist from " << g - 1 << " to " << g << " = " << (g0 - g1).norm();
+                //     }
+                // }
+                // std::cout << std::endl;
+                // LOG("From tempListEle " << tempListEle);
+                tempPath.waypoints.push_back(tempVec);
+                t++;
+            }
+            losPath.agent_paths.push_back(tempPath);
+
+            // LOG("Added tempPath");
+        }
+        amp::Visualizer::makeFigure(*this,losPath);
     }
     else{
-        //Split up meta state into each UAV's initial xy.
-        for(int j = 0; j < n_UAV; j++){
-            this->agent_properties[j].radius = size_UAV;
-            tempXY(0) = tempInit(3*j);
-            tempXY(1) = tempInit(3*j+1);
-            this->agent_properties[j].q_init = tempXY;
-            LOG("init for UAV " << j << ": " << this->agent_properties[j].q_init);
-        }
+        LOG("FAILED TO FIND LOS FOR ALL TIMES");
     }
 }
 
@@ -241,7 +310,7 @@ void FlightChecker::makeLOS(const UASProblem& problem){
                 else{
                     posk = problem.agent_properties[k].q_init;
                 }
-                if(inLOS(posj,posk,problem)){
+                if(inLOS(posj,posk,problem) && ((posj - posk).norm() <= problem.losLim)){
                     temp.insert(k);
                 }
             }
@@ -254,27 +323,38 @@ void FlightChecker::updateLOS(Eigen::VectorXd state, const UASProblem& problem, 
     // Checks LOS between all ground agents and UAS, and updates connections stored in losGraph
     // auto start = std::chrono::high_resolution_clock::now();
     losGraph.clear();
+    std::set<int> temp;
     for(int j = 0; j < (problem.numGA + problem.numAgents()); j++){
-        std::set<int> temp;
+        temp.clear();
         for(int k = 0; k < (problem.numGA + problem.numAgents()); k++){
             if(j != k){
                 Eigen::Vector2d posj;
                 Eigen::Vector2d posk;
                 if(j < problem.numGA){
-                    posj = problem.GApaths.agent_paths[j].waypoints[time];
+                    if(time < problem.GApaths.agent_paths[j].waypoints.size()){
+                        posj = problem.GApaths.agent_paths[j].waypoints[time];
+                    }
+                    else{
+                        posj = problem.GApaths.agent_paths[j].waypoints.back();
+                    }
                 }
                 else{
                     posj(0) = state((j - problem.numGA)*3);
                     posj(1) = state((j - problem.numGA)*3 + 1);
                 }
                 if(k < problem.numGA){
-                    posk = problem.GApaths.agent_paths[k].waypoints[time];
+                    if(time < problem.GApaths.agent_paths[k].waypoints.size()){
+                        posk = problem.GApaths.agent_paths[k].waypoints[time];
+                    }
+                    else{
+                        posk = problem.GApaths.agent_paths[k].waypoints.back();
+                    }
                 }
                 else{
                     posk(0) = state((k - problem.numGA)*3);
                     posk(1) = state((k - problem.numGA)*3 + 1);
                 }
-                if(inLOS(posj,posk,problem)){
+                if(inLOS(posj,posk,problem) && ((posj - posk).norm() <= problem.losLim) ){
                     temp.insert(k);
                 }
             }

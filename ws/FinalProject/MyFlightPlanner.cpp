@@ -42,7 +42,14 @@ amp::MultiAgentPath2D MyFlightPlanner::plan(UASProblem& problem){
                 collision = c.multDiskCollision2D(lastXY,tempXY,problem);
             }
             c.updateLOS(tempInit, problem, t);
-            tries++;
+            //If checkLOS good, randomly sample control inputs from past state to present state
+            // if(c.checkLOS(problem.numGA)){
+            //     if(!propState(lastState, tempInit, problem)){
+            //         collision = true;
+            //     }
+            // }
+            // else{collision = true;}
+            tries++;            
         }while((!c.checkLOS(problem.numGA) || collision) && tries < getN());
         if(tries >= getN()){
             // LOG("Can't find viable state at t=" << t);
@@ -98,6 +105,25 @@ void MyFlightPlanner::makeFlightPlan(int maxUAV, int runs, UASProblem& problem){
     LOG("Planner could not find a solution :(");
 }
 
+bool MyFlightPlanner::propState(Eigen::VectorXd& lastState, Eigen::VectorXd& nextState, const UASProblem& problem){
+    //Use random control inputs to move from lastState to a state near or at tempInit, new state must be free from collisions
+    Eigen::Vector3d tempState = Eigen::Vector3d::Zero();
+    double v = 0;
+    double w = 0;
+    for(int j = 0; j < 3*problem.numUAV; j += 3){
+        for(int k = 0; k < 20; k++){
+            v = amp::RNG::randd(problem.vLim.first, problem.vLim.second);
+            w = amp::RNG::randd(problem.wLim.first, problem.wLim.second);
+        }
+        // Unicycle and Euler Approximation
+        tempState(0) = lastState(j) + v*cos(lastState(j + 2));
+        tempState(1) = lastState(j+1) + v*cos(lastState(j + 2));
+        tempState(2) = lastState(j+2) + w;
+        
+    }
+    return false;
+}
+
 // UASProblem constructor
 UASProblem::UASProblem(uint32_t n_GA, uint32_t n_UAV, uint32_t n_Obs, double min_Obs, double max_Obs, double size_UAV, double los_dist, double conRad){
     losLim = los_dist;
@@ -138,6 +164,10 @@ UASProblem::UASProblem(uint32_t n_GA, uint32_t n_UAV, uint32_t n_Obs, double min
     cSpec.max_agent_radius = radUAV;
     randGen = envGen.generateRandomMultiAgentProblem(eSpec, cSpec); //set the agent properties of problem to number of UAS
     this->agent_properties = randGen.agent_properties;
+    vLim.first = 0.1; //min ground speed
+    vLim.first = connectRadius; //max ground speed
+    wLim.first = -0.5; //min angular velocity [rad/time]
+    wLim.first = 0.5; //max angular velocity [rad/time]
 }
 
 void UASProblem::changeNumUAV(int n_UAV){
@@ -183,7 +213,7 @@ void FlightChecker::makeLOS(const UASProblem& problem){
     }
 }
 
-void FlightChecker::updateLOS(Eigen::VectorXd state, const UASProblem& problem, int time){
+void FlightChecker::updateLOS(Eigen::VectorXd& state, const UASProblem& problem, int time){
     // Checks LOS between all ground agents and UAS, and updates connections stored in losGraph
     // auto start = std::chrono::high_resolution_clock::now();
     losGraph.clear();

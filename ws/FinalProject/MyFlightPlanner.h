@@ -18,7 +18,8 @@ struct UASProblem : public amp::MultiAgentProblem2D {
     double radUAV = 0.2; //radius of disks representing UAVs
     double losLim = 3.0; //range of LOS (signal strength)
     double connectRadius = 2.0; //range that target UAV waypoints can connect to
-    // std::pair
+    std::pair vLim = { first = 0.1, second =  2.0};
+    std::pair wLim = { first = -0.5, second = 0.5};;
     UASProblem(uint32_t n_GA = 3, uint32_t n_UAV = 2, uint32_t n_Obs = 10, double min_Obs = 1.0,
      double max_Obs = 2.0, double size_UAV = 0.2, double los_dist = 3.0, double conRad = 2.0);
     
@@ -31,18 +32,20 @@ class MyFlightPlanner : public MyGoalBiasRRTND{
 
         void makeFlightPlan(int maxUAV, int runs, UASProblem& problem);
 
+        bool propState(Eigen::VectorXd& lastState, Eigen::VectorXd& tempInit, const UASProblem& problem);
+
         bool success = false;
 };
 
 class FlightChecker : public checkPath{
     public:
-        bool inLOS(const Eigen::Vector2d state0, const Eigen::Vector2d state1, const amp::Environment2D& obs){
+        bool inLOS(const Eigen::Vector2d& state0, const Eigen::Vector2d& state1, const amp::Environment2D& obs){
             return !lineCollision2D(state0, state1, obs);
         };
 
         void makeLOS(const UASProblem& problem);
 
-        void updateLOS(Eigen::VectorXd state, const UASProblem& problem, int time);
+        void updateLOS(Eigen::VectorXd& state, const UASProblem& problem, int time);
 
         bool checkLOS(int numGA);
 

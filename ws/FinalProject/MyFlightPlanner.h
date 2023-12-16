@@ -22,16 +22,17 @@ struct UASProblem : public amp::MultiAgentProblem2D {
     double connectRadius = 2.0; //range that target UAV waypoints can connect to
     UASProblem(uint32_t n_GA = 3, uint32_t n_UAV = 2, uint32_t n_Obs = 10, double min_Obs = 1.0,
      double max_Obs = 2.0, double size_UAV = 0.2, double los_dist = 3.0, double conRad = 2.0);
+    
+    void changeNumUAV(int n_UAV);
 };
 
 class MyFlightPlanner : public MyGoalBiasRRTND{
     public:
-        /// @brief Solve a motion planning problem. Derive class and override this method
-        /// @param problem Multi-agent motion planning problem
-        /// @return Array of paths that are ordered corresponding to the `agent_properties` field in `problem`.
-        amp::MultiAgentPath2D plan(const UASProblem& problem);
+        amp::MultiAgentPath2D plan(UASProblem& problem);
 
-        void splitAndStep2D(Eigen::VectorXd state, Eigen::VectorXd& next, double stepSize) override;
+        void makeFlightPlan(int maxUAV, int runs, UASProblem& problem);
+
+        bool success = false;
 };
 
 class FlightChecker : public checkPath{

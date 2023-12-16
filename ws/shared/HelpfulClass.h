@@ -231,6 +231,7 @@ class checkPath {
                 testNext(1) = next(j + 1);
                 //Check for obstacle collisions
                 if(diskPathEval(testState, testNext, problem.agent_properties[j/2], problem) || diskCollision2D(testNext, problem.agent_properties[j/2], problem)){
+                    // LOG("fail at obstacle");
                     return true;
                 }
                 //Check for robot-to-robot collisions
@@ -239,15 +240,35 @@ class checkPath {
                         Eigen::Vector2d testState2(state(k),state(k + 1));
                         Eigen::Vector2d testNext2(next(k),next(k + 1));
                         //Check if two robots next positions collide
+                        // LOG("comparing: (" << testNext(0) << ","<< testNext(1) <<") to (" << testNext2(0) << "," << testNext2(1) << "): dist = " << (testNext - testNext2).norm());
                         if(diskDiskEval(testNext, problem.agent_properties[j/2], testNext2, problem.agent_properties[k/2])){
+                            // LOG("fail at disk disk");
                             return true;
                         }
                         //Check if two robots paths collide
                         for(int m = 0; m <= interp; m++){
                             if(diskDiskEval(((1 - (1/interp)*m)*testState + ((1/interp)*m)*testNext),problem.agent_properties[j/2],
                             ((1 - (1/interp)*m)*testState2 + ((1/interp)*m)*testNext2),problem.agent_properties[k/2])){
+                                // LOG("fail at disk path");
                                 return true;
                             }
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+        bool multDiskDiskCollision2D(const Eigen::VectorXd state, const amp::MultiAgentProblem2D& problem){
+            //Check for robot-to-robot collisions
+            for(int j = 0; j < 2*problem.numAgents(); j += 2){
+                for(int k = 0; k < 2*problem.numAgents(); k += 2){
+                    if(j < k){
+                        Eigen::Vector2d testState1(state(j),state(j + 1));
+                        Eigen::Vector2d testState2(state(k),state(k + 1));
+                        //Check if two robots next positions collide
+                        // LOG("comparing: (" << testState1(0) << ","<< testState1(1) <<") to (" << testState2(0) << "," << testState2(1) << "): dist = " << (testState1 - testState2).norm() << ", agent radii: " << problem.agent_properties[j/2].radius << " , " << problem.agent_properties[k/2].radius );
+                        if(diskDiskEval(testState1, problem.agent_properties[j/2], testState2, problem.agent_properties[k/2])){
+                            return true;
                         }
                     }
                 }

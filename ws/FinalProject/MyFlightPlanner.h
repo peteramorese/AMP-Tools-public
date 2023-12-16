@@ -5,6 +5,7 @@
 #include "hw/HW8.h"
 #include <Eigen/LU>
 #include "HelpfulClass.h"
+// #include <algorithm>
 
 using Node = uint32_t;
 
@@ -15,9 +16,12 @@ struct UASProblem : public amp::MultiAgentProblem2D {
     int maxTime = 1; //Largest element in endGAt
     int numGA = 1;
     int numUAV = 1;
-    bool initCond = true;
-    double losLim = 3.0;
-    UASProblem(uint32_t n_GA = 3, uint32_t n_UAV = 2, uint32_t n_Obs = 10, double min_Obs = 1.0, double max_Obs = 2.0, double size_UAV = 0.2, double los_dist = 3.0);
+    double radUAV = 0.2;
+    // bool initCond = true; // initial condition established
+    double losLim = 3.0; //range of LOS (signal strength)
+    double connectRadius = 2.0; //range that target UAV waypoints can connect to
+    UASProblem(uint32_t n_GA = 3, uint32_t n_UAV = 2, uint32_t n_Obs = 10, double min_Obs = 1.0,
+     double max_Obs = 2.0, double size_UAV = 0.2, double los_dist = 3.0, double conRad = 2.0);
 };
 
 class MyFlightPlanner : public MyGoalBiasRRTND{

@@ -21,6 +21,7 @@ amp::MultiAgentPath2D MyFlightPlanner::plan(UASProblem& problem){
     for(int t = 0; t < problem.maxTime; t++){
         do{
             collision = false;
+            // Generate target configuration
             for(int j = 0; j < 3*problem.numUAV; j += 3){
                 if(t == 0){
                     tempInit(j) = amp::RNG::randd(problem.x_min, problem.x_max); //x
@@ -84,6 +85,7 @@ amp::MultiAgentPath2D MyFlightPlanner::plan(UASProblem& problem){
 void MyFlightPlanner::makeFlightPlan(int maxUAV, int runs, UASProblem& problem){
     for(int n = 1; n < maxUAV; n++){
         problem.changeNumUAV(n);
+        LOG("Attempting to plan with " << n << " UAVs");
         for(int k = 0; k < runs; k++){
             amp::MultiAgentPath2D solution = plan(problem);
             if(success){
@@ -118,7 +120,7 @@ UASProblem::UASProblem(uint32_t n_GA, uint32_t n_UAV, uint32_t n_Obs, double min
     RRT.getS() = 1.5;
     for(int j = 0; j < this->numAgents(); j++){
         RRT.plan(randGen, tempPaths, j);
-        endGAt.push_back(tempPaths.agent_paths[j].waypoints.size());
+        // endGAt.push_back(tempPaths.agent_paths[j].waypoints.size());
         if(tempPaths.agent_paths[j].waypoints.size() > maxTime){
             maxTime = tempPaths.agent_paths[j].waypoints.size();
         }
@@ -127,7 +129,7 @@ UASProblem::UASProblem(uint32_t n_GA, uint32_t n_UAV, uint32_t n_Obs, double min
     GApaths = tempPaths;
     amp::Visualizer::makeFigure(*this,GApaths);
     for(int j = 0; j < numGA; j++){
-        LOG("GA[" << j << "], init: (" << GApaths.agent_paths[j].waypoints[0](0) << ","<< GApaths.agent_paths[j].waypoints[0](1) << "), path length: " << endGAt[j]);
+        LOG("GA[" << j << "], init: (" << GApaths.agent_paths[j].waypoints[0](0) << ","<< GApaths.agent_paths[j].waypoints[0](1) << "), path length: " << GApaths.agent_paths[j].waypoints.size());
     }
     radUAV = size_UAV;
     numUAV = n_UAV;

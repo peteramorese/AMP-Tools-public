@@ -7,7 +7,6 @@ amp::MultiAgentPath2D MyFlightPlanner::plan(UASProblem& problem){
     c.makeLOS(problem);
     Eigen::VectorXd targetState = Eigen::VectorXd::Zero(3*problem.numUAV);
     Eigen::VectorXd tempXY = Eigen::VectorXd::Zero(2*problem.numUAV); //no heading angle included
-    // Eigen::Vector2d tempXY = Eigen::Vector2d::Zero();
     Eigen::VectorXd lastState = targetState;
     Eigen::VectorXd lastXY = tempXY;
     bool collision = false;
@@ -97,12 +96,12 @@ amp::MultiAgentPath2D MyFlightPlanner::plan(UASProblem& problem){
 void MyFlightPlanner::makeFlightPlan(int minUAV, int maxUAV, int runs, UASProblem& problem){
     for(int n = minUAV; n <= maxUAV; n++){
         problem.changeNumUAV(n);
-        LOG("Attempting to plan with " << n << " UAVs");
+        // LOG("Attempting to plan with " << n << " UAVs");
         for(int k = 0; k < runs; k++){
             amp::MultiAgentPath2D solution = plan(problem);
             if(success){
-                amp::Visualizer::makeFigure(problem,solution);
-                LOG("Successful plan found using " << n << " UAVs");
+                // amp::Visualizer::makeFigure(problem,solution);
+                // LOG("Successful plan found using " << n << " UAVs");
                 return;
             }
         }

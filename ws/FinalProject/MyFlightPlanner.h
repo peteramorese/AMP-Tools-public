@@ -18,24 +18,16 @@ struct UASProblem : public amp::MultiAgentProblem2D {
     double radUAV = 0.2; //radius of disks representing UAVs
     double losLim = 3.0; //range of LOS (signal strength)
     double connectRadius = 2.0; //range that target UAV waypoints can connect to
-    std::pair vLim = { first = 0.1, second =  2.0};
-    std::pair wLim = { first = -0.5, second = 0.5};;
+    double vMin = 0.5;
+    double vMax = 0.75;
+    double wMin = -2;
+    double wMax = 2;
     UASProblem(uint32_t n_GA = 3, uint32_t n_UAV = 2, uint32_t n_Obs = 10, double min_Obs = 1.0,
      double max_Obs = 2.0, double size_UAV = 0.2, double los_dist = 3.0, double conRad = 2.0);
     
     void changeNumUAV(int n_UAV);
 };
 
-class MyFlightPlanner : public MyGoalBiasRRTND{
-    public:
-        amp::MultiAgentPath2D plan(UASProblem& problem);
-
-        void makeFlightPlan(int maxUAV, int runs, UASProblem& problem);
-
-        bool propState(Eigen::VectorXd& lastState, Eigen::VectorXd& tempInit, const UASProblem& problem);
-
-        bool success = false;
-};
 
 class FlightChecker : public checkPath{
     public:
@@ -58,3 +50,15 @@ class FlightChecker : public checkPath{
 
 };
 
+class MyFlightPlanner : public MyGoalBiasRRTND{
+    public:
+        amp::MultiAgentPath2D plan(UASProblem& problem);
+
+        void makeFlightPlan(int minUAV, int maxUAV, int runs, UASProblem& problem);
+
+        bool propState(Eigen::VectorXd& lastState, Eigen::VectorXd& tempInit, const UASProblem& problem, FlightChecker& c);
+
+        bool success = false;
+
+        bool kino = false;
+};

@@ -5,10 +5,10 @@
 amp::MultiAgentPath2D MyFlightPlanner::plan(UASProblem& problem){
     FlightChecker c;
     c.makeLOS(problem);
-    Eigen::VectorXd tempInit = Eigen::VectorXd::Zero(3*problem.numUAV);
+    Eigen::VectorXd targetState = Eigen::VectorXd::Zero(3*problem.numUAV);
     Eigen::VectorXd tempXY = Eigen::VectorXd::Zero(2*problem.numUAV); //no heading angle included
     // Eigen::Vector2d tempXY = Eigen::Vector2d::Zero();
-    Eigen::VectorXd lastState = tempInit;
+    Eigen::VectorXd lastState = targetState;
     Eigen::VectorXd lastXY = tempXY;
     bool collision = false;
     int tries = 0;
@@ -24,42 +24,47 @@ amp::MultiAgentPath2D MyFlightPlanner::plan(UASProblem& problem){
             // Generate target configuration
             for(int j = 0; j < 3*problem.numUAV; j += 3){
                 if(t == 0){
-                    tempInit(j) = amp::RNG::randd(problem.x_min, problem.x_max); //x
-                    tempInit(j+1) = amp::RNG::randd(problem.y_min, problem.y_max); //y
+                    targetState(j) = amp::RNG::randd(problem.x_min, problem.x_max); //x
+                    targetState(j+1) = amp::RNG::randd(problem.y_min, problem.y_max); //y
                 }
                 else{
-                    tempInit(j) = amp::RNG::randd(std::max(lastState(j) - problem.connectRadius,problem.x_min), std::min(lastState(j) + problem.connectRadius,problem.x_max));
-                    tempInit(j+1) = amp::RNG::randd(std::max(lastState(j+1) - problem.connectRadius,problem.y_min), std::min(lastState(j+1) + problem.connectRadius,problem.y_max));
+                    targetState(j) = amp::RNG::randd(std::max(lastState(j) - problem.connectRadius,problem.x_min), std::min(lastState(j) + problem.connectRadius,problem.x_max));
+                    targetState(j+1) = amp::RNG::randd(std::max(lastState(j+1) - problem.connectRadius,problem.y_min), std::min(lastState(j+1) + problem.connectRadius,problem.y_max));
                 }
-                tempXY(2*(j/3)) = tempInit(j);
-                tempXY(2*(j/3)+1) = tempInit(j+1);
-                tempInit(j+2) = amp::RNG::randd(0, 2*M_PI); //heading angle (velocity i.e. groundspeed is constant)
+                tempXY(2*(j/3)) = targetState(j);
+                tempXY(2*(j/3)+1) = targetState(j+1);
+                targetState(j+2) = amp::RNG::randd(0, 2*M_PI); //heading angle (velocity i.e. groundspeed is constant)
             }
+            c.updateLOS(targetState, problem, t);
             if(t == 0){
                 collision = c.multDiskDiskCollision2D(tempXY,problem);
             }
             else{
                 collision = c.multDiskCollision2D(lastXY,tempXY,problem);
+                //If checkLOS good, randomly sample control inputs from past state to present state
+                if(kino){
+                    if(c.checkLOS(problem.numGA)){
+                        if(!propState(lastState, targetState, problem, c)){
+                            collision = true;
+                        }
+                        else{
+                            c.updateLOS(targetState, problem, t);
+                        }
+                    }
+                    else{collision = true;}
+                }
             }
-            c.updateLOS(tempInit, problem, t);
-            //If checkLOS good, randomly sample control inputs from past state to present state
-            // if(c.checkLOS(problem.numGA)){
-            //     if(!propState(lastState, tempInit, problem)){
-            //         collision = true;
-            //     }
-            // }
-            // else{collision = true;}
             tries++;            
         }while((!c.checkLOS(problem.numGA) || collision) && tries < getN());
         if(tries >= getN()){
-            // LOG("Can't find viable state at t=" << t);
+            LOG("Can't find viable state at t=" << t);
             soln = false;
             break;
         }
         else{
             // c.printLOS();
-            l.push_back(tempInit);
-            lastState = tempInit;
+            l.push_back(targetState);
+            lastState = targetState;
             lastXY = tempXY;
         }
     }
@@ -89,8 +94,8 @@ amp::MultiAgentPath2D MyFlightPlanner::plan(UASProblem& problem){
     }
 }
 
-void MyFlightPlanner::makeFlightPlan(int maxUAV, int runs, UASProblem& problem){
-    for(int n = 1; n < maxUAV; n++){
+void MyFlightPlanner::makeFlightPlan(int minUAV, int maxUAV, int runs, UASProblem& problem){
+    for(int n = minUAV; n <= maxUAV; n++){
         problem.changeNumUAV(n);
         LOG("Attempting to plan with " << n << " UAVs");
         for(int k = 0; k < runs; k++){
@@ -105,23 +110,52 @@ void MyFlightPlanner::makeFlightPlan(int maxUAV, int runs, UASProblem& problem){
     LOG("Planner could not find a solution :(");
 }
 
-bool MyFlightPlanner::propState(Eigen::VectorXd& lastState, Eigen::VectorXd& nextState, const UASProblem& problem){
-    //Use random control inputs to move from lastState to a state near or at tempInit, new state must be free from collisions
-    Eigen::Vector3d tempState = Eigen::Vector3d::Zero();
+bool MyFlightPlanner::propState(Eigen::VectorXd& lastState, Eigen::VectorXd& nextState, const UASProblem& problem, FlightChecker& c){
+    //Use random control inputs to move from lastState to a state near or at targetState, new state must be free from collisions
+    Eigen::VectorXd tempState = Eigen::VectorXd::Zero(3*problem.numUAV);
     double v = 0;
     double w = 0;
+    bool soln; //bool for if agent found a valid path
+    Eigen::Vector2d tempXY = Eigen::Vector2d::Zero();
+    Eigen::Vector2d nextXY = Eigen::Vector2d::Zero();
+    Eigen::Vector2d closestXY(-99,-99);
     for(int j = 0; j < 3*problem.numUAV; j += 3){
-        for(int k = 0; k < 20; k++){
-            v = amp::RNG::randd(problem.vLim.first, problem.vLim.second);
-            w = amp::RNG::randd(problem.wLim.first, problem.wLim.second);
+        soln = false;
+        closestXY(0) = -99;
+        closestXY(1) = -99;
+        for(int k = 0; k < 50; k++){
+            if(!soln){
+                v = amp::RNG::randd(problem.vMin, problem.vMax);
+                w = amp::RNG::randd(problem.wMin, problem.wMax);
+                // Unicycle and Euler Approximation for UAV j
+                tempXY(0) = lastState(j) + v*cos(lastState(j + 2));
+                tempXY(1) = lastState(j+1) + v*sin(lastState(j + 2));
+                nextXY(0) = nextState(j);
+                nextXY(1) = nextState(j+1);
+                //check if valid state and compare Euler result state to target state
+                if((tempXY(0) >= problem.x_min) && (tempXY(0) <= problem.x_max) &&
+                 (tempXY(1) >= problem.y_min) && (tempXY(1) <= problem.y_max)){
+                    if(!c.diskCollision2D(tempXY, problem.agent_properties[j/2],problem) && 
+                     ((tempXY - nextXY).norm() < (closestXY - nextXY).norm())){
+                        tempState(j) = tempXY(0);
+                        tempState(j + 1) = tempXY(1);
+                        tempState(j + 2) = lastState(j+2) + w;
+                        closestXY(0) = tempXY(0);
+                        closestXY(1) = tempXY(1);
+                        soln = true;
+                    }
+                }
+                
+            }
         }
-        // Unicycle and Euler Approximation
-        tempState(0) = lastState(j) + v*cos(lastState(j + 2));
-        tempState(1) = lastState(j+1) + v*cos(lastState(j + 2));
-        tempState(2) = lastState(j+2) + w;
+        if(!soln){
+            return false;
+        }
         
     }
-    return false;
+    // LOG("target: " << nextState << " achieved: " << tempState);
+    nextState = tempState;
+    return true;
 }
 
 // UASProblem constructor
@@ -164,10 +198,10 @@ UASProblem::UASProblem(uint32_t n_GA, uint32_t n_UAV, uint32_t n_Obs, double min
     cSpec.max_agent_radius = radUAV;
     randGen = envGen.generateRandomMultiAgentProblem(eSpec, cSpec); //set the agent properties of problem to number of UAS
     this->agent_properties = randGen.agent_properties;
-    vLim.first = 0.1; //min ground speed
-    vLim.first = connectRadius; //max ground speed
-    wLim.first = -0.5; //min angular velocity [rad/time]
-    wLim.first = 0.5; //max angular velocity [rad/time]
+    vMin = 0.1; //min ground speed
+    vMax = connectRadius; //max ground speed
+    wMin = -0.5; //min angular velocity [rad/time]
+    wMax = 0.5; //max angular velocity [rad/time]
 }
 
 void UASProblem::changeNumUAV(int n_UAV){

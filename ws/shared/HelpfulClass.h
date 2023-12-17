@@ -259,11 +259,16 @@ class checkPath {
             return false;
         }
         bool multDiskDiskCollision2D(const Eigen::VectorXd state, const amp::MultiAgentProblem2D& problem){
-            //Check for robot-to-robot collisions
+            
             for(int j = 0; j < 2*problem.numAgents(); j += 2){
+                Eigen::Vector2d testState1(state(j),state(j + 1));
+                //check for obstacle collisions
+                if(diskCollision2D(testState1, problem.agent_properties[j/2],problem)){
+                    return true;
+                }
+                //Check for robot-to-robot collisions
                 for(int k = 0; k < 2*problem.numAgents(); k += 2){
                     if(j < k){
-                        Eigen::Vector2d testState1(state(j),state(j + 1));
                         Eigen::Vector2d testState2(state(k),state(k + 1));
                         //Check if two robots next positions collide
                         // LOG("comparing: (" << testState1(0) << ","<< testState1(1) <<") to (" << testState2(0) << "," << testState2(1) << "): dist = " << (testState1 - testState2).norm() << ", agent radii: " << problem.agent_properties[j/2].radius << " , " << problem.agent_properties[k/2].radius );

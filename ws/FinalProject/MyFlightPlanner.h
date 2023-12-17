@@ -22,6 +22,8 @@ struct UASProblem : public amp::MultiAgentProblem2D {
     double vMax = 0.75;
     double wMin = -2;
     double wMax = 2;
+
+    //Constructor that generates and solves an environment using Decentralized RRT for the Ground Agend positions
     UASProblem(uint32_t n_GA = 3, uint32_t n_UAV = 2, uint32_t n_Obs = 10, double min_Obs = 1.0,
      double max_Obs = 2.0, double size_UAV = 0.2, double los_dist = 3.0, double conRad = 2.0);
     
@@ -30,6 +32,7 @@ struct UASProblem : public amp::MultiAgentProblem2D {
 
 
 class FlightChecker : public checkPath{
+    // Extends from helper class used for path collision checking
     public:
         bool inLOS(const Eigen::Vector2d& state0, const Eigen::Vector2d& state1, const amp::Environment2D& obs){
             return !lineCollision2D(state0, state1, obs);

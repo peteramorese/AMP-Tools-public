@@ -205,6 +205,7 @@ UASProblem::UASProblem(uint32_t n_GA, uint32_t n_UAV, uint32_t n_Obs, double min
 }
 
 void UASProblem::changeNumUAV(int n_UAV){
+    //Updates number of agents in the problem to match the number of UAVs (necessary for plotting)
     numUAV = n_UAV;
     amp::EnvironmentTools envGen;
     amp::Random2DEnvironmentSpecification eSpec;
@@ -219,11 +220,12 @@ void UASProblem::changeNumUAV(int n_UAV){
 
 // FlightChecker member functions
 void FlightChecker::makeLOS(const UASProblem& problem){
+    // checks the LOS between all the agents, essentially just instantiating the graph.
+    // objects are rdifferentiated by their index, with all the GAs being added first, followed by all the UAVs
     for(int j = 0; j < (problem.numGA + problem.numUAV); j++){
         std::set<int> temp;
         for(int k = 0; k < (problem.numGA + problem.numUAV); k++){
             if(j != k){
-                // LOG(j << " and " << k << ", numGA= " << problem.numGA << ", numUAS= " << problem.numAgents());
                 Eigen::Vector2d posj;
                 Eigen::Vector2d posk;
                 if(j < problem.numGA){
@@ -249,7 +251,6 @@ void FlightChecker::makeLOS(const UASProblem& problem){
 
 void FlightChecker::updateLOS(Eigen::VectorXd& state, const UASProblem& problem, int time){
     // Checks LOS between all ground agents and UAS, and updates connections stored in losGraph
-    // auto start = std::chrono::high_resolution_clock::now();
     losGraph.clear();
     std::set<int> temp;
     for(int j = 0; j < (problem.numGA + problem.numUAV); j++){
@@ -289,13 +290,11 @@ void FlightChecker::updateLOS(Eigen::VectorXd& state, const UASProblem& problem,
         }
         losGraph.push_back(temp);
     }
-    // auto stop = std::chrono::high_resolution_clock::now();
-    // auto duration = duration_cast<std::chrono::milliseconds>(stop - start);
-    // LOG("Time to update LOS: " << duration.count() << "ms");
 
 }
 
 bool FlightChecker::checkLOS(int numGA){
+    // Breadth first search that checks for connection to all the ground agents
     std::set<int> openSet;
     std::set<int> closedSet;
     openSet.insert(0);

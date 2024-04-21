@@ -127,7 +127,7 @@ VectorXd KinoRRT::propagateState(const VectorXd& x_start, const VectorXd& u, dou
     state.push_back(u(1));
     boost::numeric::odeint::runge_kutta_dopri5<std::vector<double>> stepper;
     duration = 0.0;
-    while (duration < 2) {
+    while (duration < 1.25) {
         // integrateEuler(dynamics, state, u, dt);
         stepper.do_step(dynamics, state, duration, dt);
         if (!collision_checker.isValid(state)) return x_start;

@@ -26,7 +26,7 @@ if __name__ == '__main__':
 
     # Convert polygon strings to lists of obstacles
     obstacles = []
-    for poly_str in workspace2:
+    for poly_str in workspace1:
         coords = poly_str.split('((')[1].split('))')[0].split(',')
         polygon_points = [tuple(map(float, coord.split())) for coord in coords]
         obstacles.append(polygon_points)
@@ -45,10 +45,10 @@ if __name__ == '__main__':
     print(obstacles)
     #ax.scatter(x_pts, y_pts, ls=visualize_config["path_line_style"], color=visualize_config["path_line_color"], lw=visualize_config["path_line_width"], zorder=2)
     #ax.scatter(x_pts, y_pts, marker=visualize_config["path_point_marker"], color=visualize_config["path_line_color"], zorder=2)
-    ax.plot(x_pts, y_pts)
+    ax.plot(x_pts[0], y_pts[0])
     # ax.set_xlim((-1, 15))
     # ax.set_ylim((-1, 15))
-    ax.set_aspect("equal")
+
     for obstacle in obstacles:
         patch = Polygon(obstacle, facecolor="indianred", edgecolor="black", lw=1)
         ax.add_patch(patch)
@@ -70,4 +70,5 @@ if __name__ == '__main__':
         ]
         patch = Polygon(vertices, facecolor="seagreen", edgecolor="black", lw=0.5)
         ax.add_patch(patch)
+    ax.set_aspect("equal")
     plt.show()

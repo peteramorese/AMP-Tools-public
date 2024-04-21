@@ -3,6 +3,7 @@
 #include "hw/HW2.h"
 #include "KinoRRT.h"
 #include "HelpfulClass.h"
+#include "Triangulate.h"
 #include <cmath>
 #include <iostream>
 #include <fstream>
@@ -34,9 +35,38 @@ void writeWaypointsToCSV(const std::vector<Eigen::VectorXd>& waypoints, const st
 
 void problem1() {
     Problem2D problem = HW2::getWorkspace1();
+    pair<double, double> velocityLimit = {-1/3.0, 1/2.0};
+    pair<double, double> steeringLimit = {-M_PI/3.0, M_PI/3.0};
     vector<pair<double, double>> stateLimits = {{problem.x_min, problem.x_max}, {problem.y_min, problem.y_max}, 
                                                 {0, 2.0*M_PI}, {-1/6.0, 1/2.0}, {-M_PI/6.0, M_PI/6.0}};
-    vector<pair<double, double>> controlLimits = {{-1.0/6.0, 1.0/2.0}, {-M_PI/6.0, M_PI/6.0}};
+    vector<pair<double, double>> controlLimits = {{-1.0/3.0, 1.0/2.0}, {-M_PI/3.0, M_PI/3.0}};
+
+    std::vector<Eigen::Vector2d> workspaceVertices = {
+        Eigen::Vector2d(problem.x_min, problem.y_min),
+        Eigen::Vector2d(problem.x_max, problem.y_min),
+        Eigen::Vector2d(problem.x_max, problem.y_max),
+        Eigen::Vector2d(problem.x_min, problem.y_max)
+    };
+
+    std::vector<Eigen::Vector2d> taskA = {
+        Eigen::Vector2d(10, 0),
+        Eigen::Vector2d(12, 0),
+        Eigen::Vector2d(12, 2),
+        Eigen::Vector2d(10, 2)
+    };
+
+    std::vector<Eigen::Vector2d> taskG = {
+        Eigen::Vector2d(9, 9),
+        Eigen::Vector2d(11, 9),
+        Eigen::Vector2d(11, 11),
+        Eigen::Vector2d(9, 11)
+    };
+
+    amp::Polygon polyA(taskA);
+    amp::Polygon polyG(taskG);
+
+    std::vector<std::array<Eigen::Vector2d, 3>> triangles = triangulatePolygon(workspaceVertices, {taskA, taskG});
+    // int okay = triangle();
 
     Eigen::VectorXd initState(5);
     initState << problem.q_init(0), problem.q_init(1), 0.0, 0.0, 0.0;

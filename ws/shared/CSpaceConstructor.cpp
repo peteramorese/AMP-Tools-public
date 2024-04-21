@@ -48,7 +48,6 @@ void CSpaceConstructor::populateGrid(const vector<amp::Obstacle2D>& obstacles)  
     }
 }
 
-
 void CSpaceConstructor::populateGrid(const vector<double>& linkLengths, const vector<amp::Obstacle2D>& obstacles)  {
     MyLinkManipulator manipulator(linkLengths);
     allObstacles = obstacles;

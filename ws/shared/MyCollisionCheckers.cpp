@@ -186,7 +186,7 @@ bool MyKinoChecker::inCollisionRectangle(const vector<double>& state) const {
     polygon agent;
     boost::geometry::read_wkt(points, agent);
     for (polygon obs: obstacles) {
-        if (! boost::geometry::disjoint(agent, obs)) return true;
+        if (!boost::geometry::disjoint(agent, obs)) return true;
     }
     return false;
 }

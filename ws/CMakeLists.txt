@@ -26,6 +26,9 @@ foreach(SUBDIR ${HW_SUBDIRECTORIES})
             Eigen3::Eigen
             AMPCorePrivate
             AMPCorePublic
+            CGAL::CGAL
+            CGAL::CGAL_Basic_viewer
+            gmp
         )
         target_include_directories(${TARGET_NAME} PUBLIC
             ${AMP_INCLUDE_DIRS}

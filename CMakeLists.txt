@@ -25,7 +25,7 @@ endif()
 find_package (Eigen3 3.3.4 REQUIRED NO_MODULE)
 find_package(OpenSSL REQUIRED)
 find_package(CGAL REQUIRED)
-find_package(CGAL COMPONENTS Qt5 REQUIRED)
+# find_package(CGAL COMPONENTS Qt5 REQUIRED)
 message("CGAL version: ${CGAL_VERSION}")
 # Link with CGAL and GMP libraries
 if(AMP_BUILD_LIB)

@@ -8,6 +8,69 @@
 using namespace amp;
 using std::vector, Eigen::VectorXd, Eigen::Vector2d, std::pair, std::size_t;
 
+amp::Path KinoRRT::plan(const VectorXd& init_state, const vector<Vector2d>& goal_region, MyKinoChecker& collision_checker) {
+    Path path;
+    path.valid = false;
+    VectorXd qRand, uRand, nearest;
+    points[0] = init_state;
+    int m = init_state.size() / 2;
+    int ind = 1;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<double> dist(0, 1);    
+    bool success = false;
+    VectorXd u_best(3);
+    while (points.size() < n) {
+        double goalBias = dist(gen);
+        qRand = getRandomPoint(collision_checker.getLimits());
+        if (goalBias > (1 - p)) {
+            Vector2d dRand = sampleFromRegion(goal_region);
+            qRand(0) = dRand.x();
+            qRand(1) = dRand.y();
+        }
+        pair<int, VectorXd> nearest = findNearest(qRand);
+        VectorXd x_near = nearest.second;
+        VectorXd x_best = x_near;
+        bool validPath = false;
+        double duration;
+        for (int i = 0; i < 5; ++i) {
+            uRand = getRandomPoint(controlLimits);
+            VectorXd x_new = propagateState(x_near, uRand, duration, collision_checker);
+            if (distanceMetric(qRand, x_new) < distanceMetric(qRand, x_best)) {
+                x_best = x_new;
+                u_best << uRand(0), uRand(1), duration;
+                validPath = true;
+            }
+        }
+        if (validPath) {
+            parents[ind] = nearest.first;
+            points[ind] = x_best;    
+            controls[ind] = u_best;    
+            ind++;
+            if (isPointInsidePolygon(x_best, goal_region)) {
+                cout << "Goal found in "<< ind << " steps\n";
+                path.valid = true;
+                break;
+            }
+        }
+    }
+    ind--;
+    int node = ind;
+    if (path.valid) {
+        while (node != 0) {
+            VectorXd vector1 = points[node];
+            VectorXd vector2 = controls[node];
+            vector1.conservativeResize(vector1.size() + vector2.size());
+            vector1.tail(vector2.size()) = vector2;
+            path.waypoints.insert(path.waypoints.begin(), vector1);
+            node = parents[node];
+        }
+        path.waypoints.insert(path.waypoints.begin(), init_state);
+        // path.waypoints.push_back(goal_state);
+    } else cout << "Failed to find path\n";
+    return path;
+}
+
 amp::Path KinoRRT::plan(const VectorXd& init_state, const VectorXd& goal_state, MyKinoChecker& collision_checker) {
     Path path;
     path.valid = false;

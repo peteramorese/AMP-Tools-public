@@ -313,7 +313,7 @@ vector<polygon> ampToBoostObstacles(const vector<amp::Obstacle2D>& obstacles) {
             if (j == vertices.size() - 1) points += "))";
             else points += ",";
 		}
-        cout << points << "\n";
+        cout << points << "\n"; // COUTTTT
         polygon poly;
         boost::geometry::read_wkt(points, poly);
 		polygons.push_back(poly);
@@ -356,4 +356,33 @@ vector<std::pair<double, double>> getRectangleVertices(const std::vector<double>
     const double BR_x = cx + ((w / 2) * cos(theta)) + ((l / 2) * sin(theta));
     const double BR_y = cy + ((w / 2) * sin(theta)) - ((l / 2) * cos(theta));
     return {{BR_x, BR_y}, {BL_x, BL_y}, {TL_x, TL_y}, {TR_x, TR_y}, {BR_x, BR_y}};
+}
+
+Vector2d sampleFromRegion(const vector<Vector2d>& polygon) {
+    // Find bounding box
+    double minX = std::numeric_limits<double>::max();
+    double minY = std::numeric_limits<double>::max();
+    double maxX = std::numeric_limits<double>::lowest();
+    double maxY = std::numeric_limits<double>::lowest();
+    for (const auto& vertex : polygon) {
+        minX = std::min(minX, vertex.x());
+        minY = std::min(minY, vertex.y());
+        maxX = std::max(maxX, vertex.x());
+        maxY = std::max(maxY, vertex.y());
+    }
+
+    // Random number generator
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<double> distX(minX, maxX);
+    std::uniform_real_distribution<double> distY(minY, maxY);
+
+    // Sample random points until a point inside the polygon is found
+    Vector2d randomPoint;
+    do {
+        randomPoint.x() = distX(gen);
+        randomPoint.y() = distY(gen);
+    } while (!isPointInsidePolygon(randomPoint, polygon));
+
+    return randomPoint;
 }

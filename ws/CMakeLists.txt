@@ -27,7 +27,6 @@ foreach(SUBDIR ${HW_SUBDIRECTORIES})
             AMPCorePrivate
             AMPCorePublic
             CGAL::CGAL
-            CGAL::CGAL_Basic_viewer
             gmp
         )
         target_include_directories(${TARGET_NAME} PUBLIC

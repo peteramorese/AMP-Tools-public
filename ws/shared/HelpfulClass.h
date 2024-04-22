@@ -4,7 +4,7 @@
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 
-using std::vector, std::string, std::cout, Eigen::Vector2d;
+using std::vector, std::cout, Eigen::Vector2d;
 typedef boost::geometry::model::d2::point_xy<double> point;
 typedef boost::geometry::model::polygon<point> polygon; 
 
@@ -67,3 +67,6 @@ std::vector<double> convertEigenToStd(const Eigen::VectorXd& eigenVec);
 Eigen::VectorXd convertStdToEigen(const std::vector<double>& stdVec);
 
 vector<std::pair<double, double>> getRectangleVertices(const std::vector<double>& state, double w, double l);
+
+Vector2d sampleFromRegion(const vector<Vector2d>& polygon);
+

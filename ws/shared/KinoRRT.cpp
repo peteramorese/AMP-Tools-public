@@ -8,19 +8,22 @@
 using namespace amp;
 using std::vector, Eigen::VectorXd, Eigen::Vector2d, std::pair, std::size_t;
 
-amp::Path KinoRRT::plan(const VectorXd& init_state, const vector<Vector2d>& goal_region, MyKinoChecker& collision_checker) {
+amp::Path KinoRRT::plan(const VectorXd& init_state, const vector<Vector2d>& goal_region, MyKinoChecker& collision_checker, double& attemps) {
     Path path;
     path.valid = false;
     VectorXd qRand, uRand, nearest;
     points[0] = init_state;
+    // cout << "Starting Node: \n" << init_state << std::endl;
     int m = init_state.size() / 2;
     int ind = 1;
+    int samples = 0;
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<double> dist(0, 1);    
     bool success = false;
     VectorXd u_best(3);
-    while (points.size() < n) {
+    while (samples < n) {
+        samples++;
         double goalBias = dist(gen);
         qRand = getRandomPoint(collision_checker.getLimits());
         if (goalBias > (1 - p)) {
@@ -34,9 +37,11 @@ amp::Path KinoRRT::plan(const VectorXd& init_state, const vector<Vector2d>& goal
         bool validPath = false;
         double duration;
         for (int i = 0; i < 5; ++i) {
+            // cout << "Sampling Control\n";
             uRand = getRandomPoint(controlLimits);
             VectorXd x_new = propagateState(x_near, uRand, duration, collision_checker);
             if (distanceMetric(qRand, x_new) < distanceMetric(qRand, x_best)) {
+                // cout << "Extending Tree\n";
                 x_best = x_new;
                 u_best << uRand(0), uRand(1), duration;
                 validPath = true;
@@ -48,7 +53,7 @@ amp::Path KinoRRT::plan(const VectorXd& init_state, const vector<Vector2d>& goal
             controls[ind] = u_best;    
             ind++;
             if (isPointInsidePolygon(x_best, goal_region)) {
-                cout << "Goal found in "<< ind << " steps\n";
+                cout << "Goal found in "<< samples << " samples\n";
                 path.valid = true;
                 break;
             }
@@ -67,7 +72,8 @@ amp::Path KinoRRT::plan(const VectorXd& init_state, const vector<Vector2d>& goal
         }
         path.waypoints.insert(path.waypoints.begin(), init_state);
         // path.waypoints.push_back(goal_state);
-    } else cout << "Failed to find path\n";
+    } else cout << "Failed to find path in " << samples << " samples\n";
+    attemps += samples;
     return path;
 }
 
@@ -184,13 +190,16 @@ void dynamics(const std::vector<double>& state, std::vector<double>& state_dot, 
 
 VectorXd KinoRRT::propagateState(const VectorXd& x_start, const VectorXd& u, double& duration, MyKinoChecker& collision_checker) {
     // cout << "\nStart\n" << x_start;
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<double> dis(0.5, 1.5);
     double dt = 0.1;
     std::vector<double> state = convertEigenToStd(x_start);
     state.push_back(u(0));
     state.push_back(u(1));
     boost::numeric::odeint::runge_kutta_dopri5<std::vector<double>> stepper;
     duration = 0.0;
-    while (duration < 1.25) {
+    while (duration < dis(gen)) {
         // integrateEuler(dynamics, state, u, dt);
         stepper.do_step(dynamics, state, duration, dt);
         if (!collision_checker.isValid(state)) return x_start;

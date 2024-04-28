@@ -1,5 +1,6 @@
 file(GLOB HW_SUBDIRECTORIES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *)
-
+# find_package(CGAL COMPONENTS Qt5)
+# add_definitions(-DCGAL_USE_BASIC_VIEWER)
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/shared")
     message("Found user-created libraries")
     file(GLOB USER_LIB_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/shared/*.cpp")

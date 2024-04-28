@@ -44,7 +44,7 @@ void problem1() {
     pair<double, double> steeringLimit = {-M_PI/3.0, M_PI/3.0};
     vector<pair<double, double>> stateLimits = {{problem.x_min, problem.x_max}, {problem.y_min, problem.y_max}, 
                                                 {0, 2.0*M_PI}, {-1/6.0, 1/2.0}, {-M_PI/6.0, M_PI/6.0}};
-    vector<pair<double, double>> controlLimits = {{-1.0/3.0, 1.0/2.0}, {-M_PI/3.0, M_PI/3.0}};
+    vector<pair<double, double>> controlLimits = {{-1.0/2.0, 1.0/2.0}, {-M_PI/3.0, M_PI/3.0}};
 
     std::vector<Eigen::Vector2d> workspaceVertices = {
         Eigen::Vector2d(problem.x_min, problem.y_min),
@@ -67,32 +67,30 @@ void problem1() {
         Eigen::Vector2d(9, 11)
     };
 
-    const std::unordered_map<uint32_t, xState> M = triangulatePolygon(workspaceVertices, {{taskA, 'a'}, {taskG, 'g'}});
+    std::vector<std::pair<std::vector<Eigen::Vector2d>, char>> polygons = {{taskA, 'a'}, {taskG, 'g'}};
+    for (auto poly : problem.obstacles) {
+        polygons.push_back({poly.verticesCCW(), 'o'});
+        std::cout << "Obstacle\n";
+        for (const auto& vec : poly.verticesCCW()) {
+            std::cout << "(" << vec.x() << ", " << vec.y() << ")" << std::endl;
+        }
+    }
+
+    const std::unordered_map<uint32_t, abstractionNode> M = triangulatePolygon(workspaceVertices, polygons);
     const DFA A = createDFA();
-    ProductAutomaton P(A, M);
-    SynergisticPlanner planner(A, M, 1000, 0.5, 0.05, controlLimits);
-
+    SynergisticPlanner planner(A, M, 5000, 0.5, 0.15, controlLimits);
     MyKinoChecker kinoChecker(problem, stateLimits, 0.5, 1);
-
     amp::Path path = planner.synergisticPlan(initState, kinoChecker);
 
-
-
-    // Eigen::VectorXd initState(5);
-    // initState << problem.q_goal(0), problem.q_goal(1), 0.0, 0.0, 0.0;
-    // MyKinoChecker kinoChecker(problem, stateLimits, 0.5, 1);
-    // KinoRRT RRTplanner(5000, 0.5, 0.05, controlLimits);
-    // amp::Path path = RRTplanner.plan(initState, problem.q_goal, kinoChecker);
-    // if (path.waypoints.size() != 0) {
-    //     Path2D path2d;
-    //     for (const VectorXd point : path.waypoints) path2d.waypoints.push_back({point(0), point(1)});
-    //     Visualizer::makeFigure(problem, path2d);
-    //     writeWaypointsToCSV(path.waypoints, "waypoints.csv");
-    // }
+    if (path.waypoints.size() != 0) {
+        Path2D path2d;
+        for (const VectorXd point : path.waypoints) path2d.waypoints.push_back({point(0), point(1)});
+        Visualizer::makeFigure(problem, path2d);
+        writeWaypointsToCSV(path.waypoints, "waypoints.csv");
+    }
 }
 
 int main(int argc, char** argv) {
-    // problem1();
     problem1();
     // Visualizer::showFigures();
     return 0;

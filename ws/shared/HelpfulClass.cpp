@@ -386,3 +386,4 @@ Vector2d sampleFromRegion(const vector<Vector2d>& polygon) {
 
     return randomPoint;
 }
+

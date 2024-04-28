@@ -59,7 +59,7 @@ public:
 
     // Add an accepting state to the DFA
     void addAcceptingState(uint32_t stateId) {
-        acceptingStates.insert(stateId);
+        accStates.insert(stateId);
     }
 
     // Check if a string is accepted by the DFA
@@ -72,7 +72,7 @@ public:
             }
             currentState = transitions[{currentState, symbol}];
         }
-        return acceptingStates.find(currentState) != acceptingStates.end();
+        return accStates.find(currentState) != accStates.end();
     }
 
     uint32_t transition(uint32_t state, char symbol) const {
@@ -86,18 +86,18 @@ public:
     }
 
     bool isAccepting(uint32_t q) const {
-        return acceptingStates.find(q) != acceptingStates.end();
+        return accStates.find(q) != accStates.end();
     }
 
     std::set<uint32_t> getAcceptingStates() const {
-        return acceptingStates;
+        return accStates;
     }
 
 private:
     std::set<uint32_t> states;
     std::set<char> inputSymbols;
     uint32_t initialState;
-    std::set<uint32_t> acceptingStates;
+    std::set<uint32_t> accStates;
     std::map<std::pair<uint32_t, char>, uint32_t> transitions; 
 };
 
@@ -105,27 +105,33 @@ private:
 class ProductAutomaton {
 public:
     // Constructor to build the product automaton
-    ProductAutomaton(const DFA& dfa, const std::unordered_map<uint32_t, xState>& abstraction) : dfa(dfa), abstraction(abstraction) {
+    ProductAutomaton(const DFA& dfa, const std::unordered_map<uint32_t, abstractionNode>& abstraction) : dfa(dfa), abstraction(abstraction) {
         combineStateSpaces();
         combineTransitionFunctions();
     }
 
-    MyAStarAlgo::GraphSearchResult searchPath(u_int32_t init) {
-        std::cout << "Searching Product\n";
+    MyAStarAlgo::GraphSearchResult searchPath(u_int32_t init, std::map<uint32_t, std::vector<double>> dynamicWeights) {
+        std::cout << "\nSearching Product Graph\n";
+        std::cout << "Size of neighborMap "<< neighborMap.size() << std::endl;
+        std::cout << "Size of weightMap " << weightMap.size() << std::endl;
         MyAStarAlgo algo(true);
-        return algo.search2(init, acceptingStates, neighborMap, weightMap);
+        return algo.search2(init, acceptingStates, neighborMap, dynamicWeights);
     }
 
     void updateWeights() {
 
     }
 
-    const std::unordered_map<uint32_t, xState>& getAbstraction() const {
+    const std::unordered_map<uint32_t, abstractionNode>& getAbstraction() const {
         return abstraction;
     }
 
     const std::map<uint32_t, std::pair<uint32_t, uint32_t>>& getHybridMap() const {
         return hybridStates;
+    }
+
+    const std::map<std::pair<uint32_t, uint32_t>, uint32_t>& getHybridMapBack() const {
+        return hybridMapBack;
     }
 
     const std::map<uint32_t, std::vector<uint32_t>>& getNeighborMap() const {
@@ -142,7 +148,7 @@ public:
 
 private:
     const DFA& dfa;
-    const std::unordered_map<uint32_t, xState>& abstraction;
+    const std::unordered_map<uint32_t, abstractionNode>& abstraction;
     std::map<uint32_t, std::pair<uint32_t, uint32_t>> hybridStates;
     std::map<std::pair<uint32_t, uint32_t>, uint32_t> hybridMapBack;
     std::map<uint32_t, std::vector<uint32_t>> neighborMap;
@@ -164,6 +170,7 @@ private:
                 // HybridState hybridState = {q, pair.second};
                 hybridStates[i] = {q, pair.first};
                 hybridMapBack[{q, pair.first}] = i;
+                // std::cout << "Hybrid state states: (" << q << ", " << pair.first << ")" << std::endl;
                 if (dfa.isAccepting(q)) acceptingStates.insert(i);
                 i++;
             }
@@ -177,19 +184,20 @@ private:
     void combineTransitionFunctions() {
         for (const auto state : hybridStates) {
             uint32_t q = state.second.first;
-            uint32_t xx = state.second.second;
-            const xState x = abstraction.at(state.second.second);
-            char o = x.observation;
+            uint32_t r = state.second.second;
+            const abstractionNode region = abstraction.at(r);
+            char o = region.observation;
             // std::cout << "Mode State: " << q << std::endl;
             // std::cout << "Observation: " << o << std::endl;
             uint32_t qp = dfa.transition(q, o);
-            for (uint32_t i = 0; i < x.neighbors.size(); ++i) {
-                uint32_t n = x.neighbors[i];
-                double w = x.weights[i];
-                uint32_t pp = hybridMapBack[{qp, n}];
-                neighborMap[state.first].push_back(pp);
-                weightMap[state.first].push_back(w);
+            neighborMap[state.first] = {};
+            for (uint32_t i = 0; i < region.neighbors.size(); ++i) {
+                uint32_t r_n = region.neighbors[i];
+                uint32_t pp = hybridMapBack[{qp, r_n}];
+                neighborMap[state.first].push_back(pp); // Key: hybrid state index. Value: vector of hybrid state indices
+                weightMap[state.first].push_back(1.0);
             }
+            // std::cout << "Neighbors for " << state.first << ": " << neighborMap[state.first].size() << std::endl;
         }
         // for (const auto& entry : neighborMap) {
         //     uint32_t key = entry.first;
@@ -211,14 +219,17 @@ private:
 DFA createDFA() {
     // Create a DFA representing the language of strings over {0,1} that end with '0'
     DFA dfa;
-    dfa.addStates({0, 1, 2});
-    dfa.addSymbols({'e', 'a', 'g', 'u'});
+    dfa.addStates({0, 1, 2, 3});
+    dfa.addSymbols({'e', 'a', 'g', 'u', 'o'});
     dfa.addTransition(0, 'e', 0);
     dfa.addTransition(1, 'e', 1);
     dfa.addTransition(2, 'e', 2);
     dfa.addTransition(0, 'a', 1);
     dfa.addTransition(1, 'g', 2);
     dfa.addTransition(0, 'u', 2);
+    dfa.addTransition(0, 'o', 3);
+    dfa.addTransition(1, 'o', 3);
+    dfa.addTransition(2, 'o', 3);
     dfa.setInitialState(0);
     dfa.addAcceptingState(2);
 

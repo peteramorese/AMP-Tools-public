@@ -150,9 +150,9 @@ pair<VectorXd, VectorXd> MyCentralChecker::getLimits() {
     return limits;
 }
 
-bool MyKinoChecker::isValid(const vector<double>& state) const {
-    for (int i = 0; i < state.size() - 2; ++i) {
-        if (i == 2) continue;
+bool MyKinoChecker::isValid(const vector<double>& state, int m) const {
+    for (int i = 0; i < state.size() - m; ++i) {
+        // if (i == 2) continue;
         if (state[i] < stateLimits[i].first || state[i] > stateLimits[i].second) return false;
     }
     // if (isPointInCollision({state[0], state[1]}, ampObstacles)) return false;

@@ -302,17 +302,17 @@ private:
 DFA createDFA() {
     // Create a DFA representing the language of strings over {0,1} that end with '0'
     DFA dfa;
-    dfa.addStates({0, 1, 2, 3, 4, 5});
-    dfa.addSymbols({'e', 'a', 'b', 'g', 'o'});
+    dfa.addStates({0, 1, 2, 3, 4});
+    dfa.addSymbols({'e', 'a', 'b', 'g'});
     dfa.addTransition(0, 'a', 1);
     dfa.addTransition(0, 'b', 2);
     dfa.addTransition(2, 'a', 3);
     dfa.addTransition(1, 'b', 3);
     dfa.addTransition(3, 'g', 4);
-    dfa.addTransition(0, 'o', 5);
-    dfa.addTransition(1, 'o', 5);
-    dfa.addTransition(2, 'o', 5);
-    dfa.addTransition(3, 'o', 5);
+    // dfa.addTransition(0, 'o', 5);
+    // dfa.addTransition(1, 'o', 5);
+    // dfa.addTransition(2, 'o', 5);
+    // dfa.addTransition(3, 'o', 5);
     dfa.setInitialState(0);
     dfa.addAcceptingState(4);
 

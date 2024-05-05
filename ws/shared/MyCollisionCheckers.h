@@ -54,7 +54,7 @@ class MyKinoChecker {
             obstacles = {};
         }
         bool inCollisionRectangle(const vector<double>& state) const;
-        bool isValid(const vector<double>& state) const;
+        bool isValid(const vector<double>& state, int m) const;
         vector<pair<double, double>> getLimits();
 
     private:

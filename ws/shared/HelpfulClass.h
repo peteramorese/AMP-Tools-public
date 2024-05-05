@@ -74,7 +74,12 @@ Eigen::VectorXd sampleFromRegion(const vector<Eigen::VectorXd>& polygon);
 
 double triangleArea(const std::array<Eigen::Vector2d, 3>& vertices);
 
-bool isInsideTetrahedron(const vector<Eigen::VectorXd>& vertices, const Eigen::VectorXd& point);
+bool isInsideTetrahedron(const vector<Eigen::Vector3d>& vertices, const Eigen::Vector3d& point);
 
 bool isPointInsideRegion(const Eigen::VectorXd& point, const vector<Eigen::VectorXd>& polygon);
 
+double tetrahedronVolume(const std::array<Eigen::Vector3d, 4>& vertices);
+
+Eigen::Vector3d tetrahedronCentroid(const std::array<Eigen::Vector3d, 4>& vertices);
+
+bool isPointInsideCube(const Eigen::Vector3d& point, const vector<Eigen::Vector3d>& cubeVertices);

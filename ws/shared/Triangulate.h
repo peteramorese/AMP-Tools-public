@@ -69,10 +69,10 @@ struct abstractionNode {
 
 struct Node3D {
     char label;
-    Cell_handle faceHandle;
+    Cell_handle cellHandle;
     std::vector<uint32_t> neighbors;
     std::vector<Cell_handle> neighborCells;
-    std::array<Eigen::Vector3d, 3> vertices;
+    std::array<Eigen::Vector3d, 4> vertices;
     double volume;
 };
 
@@ -93,7 +93,7 @@ json serializeNode3D(const Node3D& node, uint32_t index) {
     j["label"] = node.label;
     // Serialize vertices
     for (int i = 0; i < 4; ++i) {
-        j["vertices"].push_back({node.vertices[i][0], node.vertices[i][1]});
+        j["vertices"].push_back({node.vertices[i][0], node.vertices[i][1], node.vertices[i][2]});
     }
     return j;
 }
@@ -160,7 +160,7 @@ Vector2d calculateTriangleCentroid(const std::vector<Eigen::Vector2d>& vertices)
     return Vector2d(centroidX, centroidY);
 }
 
-std::unordered_map<uint32_t, Node3D> triangulate3D(const std::vector<Eigen::Vector3d>& workspace, const std::vector<std::pair<std::vector<Eigen::Vector3d>, char>>& polygons, int size) {
+std::unordered_map<uint32_t, Node3D> triangulate3D(const std::vector<Eigen::VectorXd>& workspace, const std::vector<std::pair<std::vector<Eigen::Vector3d>, char>>& polygons, int size) {
     // Create a constrained Delaunay triangulation
     CDT_3 cdt_3;
     
@@ -181,41 +181,11 @@ std::unordered_map<uint32_t, Node3D> triangulate3D(const std::vector<Eigen::Vect
     std::unordered_map<uint32_t, Node3D> graph;
     std::vector<pair<uint32_t, Face_handle>> neigborPairs;
     std::unordered_map<Face_handle, uint32_t> faceIndices;
+
     uint32_t ri = 0;
-    char label;
-
-    // for (FFI_3 f = cdt_3.finite_cells_begin(); f != cdt_3.finite_cells_end(); ++f) {
-    //     Node3D node;
-    //     node.faceHandle = f;
-    //     // Store vertices of the face
-    //     for (int i = 0; i < 4; ++i) {
-    //         Point_3 p = f->vertex(i)->point();
-    //         node.vertices[i] = Eigen::Vector3d(p.x(), p.y(), p.z());
-    //     }
-    //     // Calculate centroid and check label
-    //     // Eigen::Vector3d centroid = calculateTriangleCentroid(node.vertices);
-    //     // Point_3 centroid_point(centroid[0], centroid[1], centroid[2]);
-    //     // for (const auto& region : regions) {
-    //     //     if (boost::geometry::within(centroid_point, region.first)) {
-    //     //         node.label = region.second;
-    //     //         break;
-    //     //     } 
-    //     //     node.label = 'e';
-    //     // }
-    //     // Store neighbor faces
-    //     for (int i = 0; i < 3; ++i) {
-    //         Face_handle_3 neighborFace = f->neighbor(i);
-    //         if (cdt_3.is_infinite(neighborFace)) continue; // Skip infinite faces
-    //         node.neighborsFaces.push_back(neighborFace);
-    //     }
-    //     // node.volume = calculateVolume(node.vertices);
-    //     graph[ri++] = node; // Add node to the graph with index ri
-    // }
-
-    uint32_t nodeIndex = 0;
     for (auto f = cdt_3.finite_cells_begin(); f != cdt_3.finite_cells_end(); ++f) {
         Node3D node;
-        node.faceHandle = f;
+        node.cellHandle = f;
         for (int i = 0; i < 4; ++i) {
             Cell_handle neighborFace = f->neighbor(i);
             if (cdt_3.is_infinite(neighborFace)) continue; // Skip infinite faces
@@ -225,23 +195,36 @@ std::unordered_map<uint32_t, Node3D> triangulate3D(const std::vector<Eigen::Vect
             Point_3 p = f->vertex(i)->point();
             node.vertices[i] = Eigen::Vector3d(p.x(), p.y(), p.z());
         }
-        graph[nodeIndex++] = node;
+        node.volume = tetrahedronVolume(node.vertices);
+        Eigen::Vector3d centriod = tetrahedronCentroid(node.vertices);
+        char label;
+        cout << std::endl << centriod << std::endl;
+        for (auto& polygon : polygons) {
+            if (isPointInsideCube(centriod, polygon.first)) {
+                label = polygon.second;
+                break;
+            } 
+            label = 'e';
+        }
+        cout << label << std::endl;
+        node.label = label;
+        graph[ri++] = node;
     }
 
-    // for (uint32_t r_i = 0; r_i < graph.size(); ++r_i) {
-    //     uint32_t ind = 0;
-    //     for (auto nodeP : graph) {
-    //         uint32_t r_p = nodeP.first;
-    //         if (r_i == r_p) continue;
-    //         for (Face_handle n_i : graph[r_i].neighborsFaces) {
-    //             if (n_i == nodeP.second.faceHandle) {
-    //                 graph[r_i].neighbors.push_back(r_p);
-    //                 ind++;
-    //             }
-    //         }
-    //         if (ind == graph[r_i].neighborsFaces.size()) break;
-    //     }
-    // }
+    for (uint32_t ri = 0; ri < graph.size(); ++ri) {
+        uint32_t ind = 0;
+        for (auto nodeP : graph) {
+            uint32_t rp = nodeP.first;
+            if (ri == rp) continue;
+            for (Cell_handle n_i : graph[ri].neighborCells) {
+                if (n_i == nodeP.second.cellHandle) {
+                    graph[ri].neighbors.push_back(rp);
+                    ind++;
+                }
+            }
+            if (ind == graph[ri].neighborCells.size()) break;
+        }
+    }
 
     json jNodes; 
     for (const auto& entry : graph) {
@@ -250,17 +233,16 @@ std::unordered_map<uint32_t, Node3D> triangulate3D(const std::vector<Eigen::Vect
         // Serialize node and add to JSON array
         jNodes.push_back(serializeNode3D(node, index));
     }
-    std::ofstream outFile("triangles.json");
+    std::ofstream outFile("tetrahedra.json");
     if (outFile.is_open()) {
         outFile << jNodes.dump(4); // Write pretty-printed JSON with 4 spaces indentation
         outFile.close();
-        std::cout << "Triangles saved to triangles.json" << std::endl;
+        std::cout << "Tetrahedra saved to tetrahedra.json" << std::endl;
     }
-    std::cout << "There are " << ri << " faces in the domain." << std::endl;
+    std::cout << "There are " << ri << " tetrahedra in the domain." << std::endl;
     std::cout << "ELEMENTS IN GRAPH: "<< graph.size() << std::endl;
     return graph;
 }
-
 
 std::unordered_map<uint32_t, abstractionNode> triangulatePolygon(const std::vector<Eigen::Vector2d>& boundingBoxVertices, const std::vector<std::pair<std::vector<Eigen::Vector2d>, char>>& polygons, int size) {
     

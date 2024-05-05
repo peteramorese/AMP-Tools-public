@@ -23,7 +23,7 @@ void writeWaypointsToCSV(const std::vector<Eigen::VectorXd>& waypoints, const st
             for (int i = 0; i < waypoint.size(); ++i) {
                 file << waypoint(i);
                 if (i < waypoint.size() - 1) {
-                    file << ","; // Add comma separator between elements
+                    file << ","; 
                 }
             }
             file << "\n"; // Start a new line for the next waypoint
@@ -77,7 +77,7 @@ void problem1() {
 
     const std::unordered_map<uint32_t, abstractionNode> M = triangulatePolygon(workspaceVertices, polygons, 3);
     const DFA A = createDFA();
-    SynergisticPlanner planner(A, M, 5000, 0.5, 0.15, controlLimits);
+    SynergisticPlanner planner(A, M, 5000, 0.5, 0.15, controlLimits, CAR);
     MyKinoChecker kinoChecker(problem, stateLimits, 0.5, 1);
     amp::Path path = planner.synergisticPlan(initState, kinoChecker);
 
@@ -158,7 +158,7 @@ void problem2() {
 
     const std::unordered_map<uint32_t, abstractionNode> M = triangulatePolygon(workspaceVertices, polygons, 2);
     const DFA A = createDFA();
-    SynergisticPlanner planner(A, M, 10000, 0.5, 0.15, controlLimits);
+    SynergisticPlanner planner(A, M, 10000, 0.5, 0.15, controlLimits, CAR);
     MyKinoChecker kinoChecker(walls, stateLimits, 0.5, 1);
     amp::Path path = planner.synergisticPlan(initState, kinoChecker);
 
@@ -173,11 +173,12 @@ void problem2() {
 
 void problem3() {
     Eigen::VectorXd initState(6);
-    initState << 1.0, 0.0, 1.0, 0.0, 0.0, 0.0;
-    vector<pair<double, double>> stateLimits = {{0.0, 10.0}, {-1/2.0, 1/2.0}, {0.0, 10.0}, {-1/2.0, 1/2.0}, {0.0, 10.0}, {-1/2.0, 1/2.0}};
-    vector<pair<double, double>> controlLimits = {{-1.0/4.0, 1.0/4.0}, {-1.0/4.0, 1.0/4.0}, {-1.0/4.0, 1.0/4.0}, {-1.0/4.0, 1.0/4.0}};
+    int nw = 3;
+    initState << 1.0, 0.0, 1.0, 0.0, 0.1, 0.0;
+    vector<pair<double, double>> stateLimits = {{0.0, 10.0}, {-1.0, 1.0}, {0.0, 10.0}, {-1.0, 1.0}, {0.0, 10.0}, {-1.0, 1.0}};
+    vector<pair<double, double>> controlLimits = {{-1.0, 1.0}, {-1.0, 1.0}, {-1.0, 1.0}, {-1.0, 1.0}};
 
-    std::vector<Eigen::Vector3d> workspaceVertices = {
+    vector<Eigen::VectorXd> workspaceVertices = {
         Eigen::Vector3d(0.0, 0.0, 0.0),  
         Eigen::Vector3d(10.0, 0.0, 0.0), 
         Eigen::Vector3d(10.0, 10.0, 0.0),
@@ -189,43 +190,54 @@ void problem3() {
     };
 
     std::vector<Eigen::Vector3d> taskA = {
-        Eigen::Vector3d(7.0, 2.0, 2.0),  // Vertex 1 (corner at (7, 2, 2))
-        Eigen::Vector3d(8.0, 2.0, 2.0),  // Vertex 2
-        Eigen::Vector3d(8.0, 3.0, 2.0),  // Vertex 3
-        Eigen::Vector3d(7.0, 3.0, 2.0),  // Vertex 4
-        Eigen::Vector3d(7.0, 2.0, 3.0),  // Vertex 5
-        Eigen::Vector3d(8.0, 2.0, 3.0),  // Vertex 6
-        Eigen::Vector3d(8.0, 3.0, 3.0),  // Vertex 7
-        Eigen::Vector3d(7.0, 3.0, 3.0)   // Vertex 8
+        Eigen::Vector3d(7.0, 2.0, 2.0), 
+        Eigen::Vector3d(8.0, 2.0, 2.0), 
+        Eigen::Vector3d(8.0, 3.0, 2.0), 
+        Eigen::Vector3d(7.0, 3.0, 2.0), 
+        Eigen::Vector3d(7.0, 2.0, 3.0), 
+        Eigen::Vector3d(8.0, 2.0, 3.0), 
+        Eigen::Vector3d(8.0, 3.0, 3.0), 
+        Eigen::Vector3d(7.0, 3.0, 3.0)  
     };
 
-    // std::vector<Eigen::Vector2d> taskG = {
-    //     Eigen::Vector2d(4, 14),
-    //     Eigen::Vector2d(6, 14),
-    //     Eigen::Vector2d(6, 16),
-    //     Eigen::Vector2d(4, 16)
-    // };
+    std::vector<Eigen::Vector3d> taskB = {
+        Eigen::Vector3d(2.0, 7.0, 7.0), 
+        Eigen::Vector3d(3.0, 7.0, 7.0), 
+        Eigen::Vector3d(3.0, 8.0, 7.0), 
+        Eigen::Vector3d(2.0, 8.0, 7.0), 
+        Eigen::Vector3d(2.0, 7.0, 8.0), 
+        Eigen::Vector3d(3.0, 7.0, 8.0), 
+        Eigen::Vector3d(3.0, 8.0, 8.0), 
+        Eigen::Vector3d(2.0, 8.0, 8.0)  
+    };
 
-    std::vector<std::pair<std::vector<Eigen::Vector3d>, char>> polytopes = {{taskA, 'a'}};
+    std::vector<Eigen::Vector3d> taskG = {
+        Eigen::Vector3d(8.0, 8.0, 8.0), 
+        Eigen::Vector3d(9.0, 8.0, 8.0), 
+        Eigen::Vector3d(9.0, 9.0, 8.0), 
+        Eigen::Vector3d(8.0, 9.0, 8.0), 
+        Eigen::Vector3d(8.0, 8.0, 9.0), 
+        Eigen::Vector3d(9.0, 8.0, 9.0), 
+        Eigen::Vector3d(9.0, 9.0, 9.0), 
+        Eigen::Vector3d(8.0, 9.0, 9.0)  
+    };
+
+    std::vector<std::pair<std::vector<Eigen::Vector3d>, char>> polytopes = {{taskA, 'a'}, {taskB, 'b'}, {taskG, 'g'}};
     // for (auto wall : walls) polytopes.push_back({wall, 'o'});
-
 
     const std::unordered_map<uint32_t, Node3D> M = triangulate3D(workspaceVertices, polytopes, 2);
     const DFA A = createDFA();
-    SynergisticPlanner3D planner(A, M, 10000, 0.5, 0.15, controlLimits);
+    SynergisticPlanner3D planner(A, M, 10000, 0.5, 0.1, controlLimits, QUADROTOR);
     MyKinoChecker kinoChecker({taskA}, stateLimits, 0.5, 0.5, 0.2);
-    // amp::Path path = planner.synergisticPlan(initState, kinoChecker);
+    amp::Path path = planner.synergisticPlan(initState, kinoChecker);
 
-    // if (path.waypoints.size() != 0) {
-    //     Path2D path2d;
-    //     for (const VectorXd point : path.waypoints) path2d.waypoints.push_back({point(0), point(1)});
-    //     // Visualizer::makeFigure(problem, path2d);
-    //     writeWaypointsToCSV(path.waypoints, "waypoints.csv");
-    // }
+    if (path.waypoints.size() != 0) {
+        writeWaypointsToCSV(path.waypoints, "waypoints.csv");
+    }
 }
 
 int main(int argc, char** argv) {
-    problem2();
+    problem3();
     // Visualizer::showFigures();
     return 0;
 }

@@ -49,7 +49,7 @@ if __name__ == '__main__':
    
     with open('build/bin/triangles.json') as f: triangles = json.load(f)
     color_map = {"e": "white", "a": "teal", "b": "teal", "g": "lime", "o": "lightgrey"}
-    HLP = [40, 42, 39, 37, 7, 24, 49, 38, 47, 5, 47, 38, 49, 24, 27, 14, 8, 14, 27, 24, 7, 15, 20, 26, 22, 26]
+    HLP = [40, 42, 39, 37, 7, 24, 27, 14, 8, 14, 27, 24, 49, 38, 47, 5, 47, 38, 49, 24, 7, 15, 20, 26, 22, 26]
 
     for triangle in triangles:
         vertices = triangle["vertices"]

@@ -15,7 +15,7 @@ amp::Path KinoRRT::plan(const VectorXd& init_state, const vector<VectorXd>& goal
     path.valid = false;
     VectorXd qRand, uRand, nearest;
     points[0] = init_state;
-    cout << "Starting Node: \n" << init_state << std::endl;
+    // cout << "Starting Node: \n" << init_state << std::endl;
     int ind = 1;
     int samples = 0;
     std::random_device rd;
@@ -35,19 +35,26 @@ amp::Path KinoRRT::plan(const VectorXd& init_state, const vector<VectorXd>& goal
                 i++;
             }
         }
+        // cout << "q Point: \n" << wRand << std::endl;
+
+        // cout << "Sampled Point: \n" << qRand << std::endl;
+
         pair<int, VectorXd> nearest = findNearest(qRand);
         VectorXd x_near = nearest.second;
         VectorXd x_best = x_near;
         bool validPath = false;
         double duration;
+        // if (samples > 10000)
+        //     cout << "Sampled Tree\n" << qRand << std::endl;
         for (int i = 0; i < 5; ++i) {
             // cout << "Sampling Control\n";
             uRand = getRandomPoint(controlLimits);
             VectorXd x_new = propagateState(x_near, uRand, duration, collision_checker);
             if (distanceMetric(qRand, x_new) < distanceMetric(qRand, x_best)) {
-                // cout << "Extending Tree\n";
+                if (samples > 10000)
+                    // cout << "Extending Tree\n" << x_new << std::endl;
                 x_best = x_new;
-                u_best << uRand(0), uRand(1), duration;
+                u_best << uRand(0), uRand(1), uRand(2), uRand(3), duration;
                 validPath = true;
             }
         }
@@ -55,9 +62,9 @@ amp::Path KinoRRT::plan(const VectorXd& init_state, const vector<VectorXd>& goal
             parents[ind] = nearest.first;
             points[ind] = x_best;    
             controls[ind] = u_best;
-            Eigen::VectorXd wBest(2);  
+            Eigen::VectorXd wBest(workspaceDim);  
             int i = 0;
-            for (int index : {0, 1}) {
+            for (int index : workspaceIndicies) {
                 wBest(i) = x_best(index);
                 i++;
             }
@@ -173,26 +180,12 @@ VectorXd KinoRRT::getRandomPoint(const vector<pair<double, double>>& limits) {
 }
 
 double KinoRRT::distanceMetric(const VectorXd& state1, const VectorXd& state2) {
-    return sqrt(pow(state1(0) - state2(0), 2) + pow(state1(1) - state2(1), 2));
-}
-
-void integrateEuler(const std::function<void(const VectorXd&, const VectorXd&, VectorXd&)>& dynamics, VectorXd& state, const VectorXd& control, double dt) {
-    VectorXd state_dot(state.size());
-    dynamics(state, control, state_dot);
-    state += state_dot * dt;
-}
-
-void dynamics(const std::vector<double>& state, std::vector<double>& state_dot, const double /* time */) {
-    double theta = state[2];
-    double v = state[3];
-    double phi = state[4];
-    state_dot[0] = v * cos(theta);
-    state_dot[1] = v * sin(theta);
-    state_dot[2] = (v / 0.5) * tan(phi);
-    state_dot[3] = state[5];
-    state_dot[4] = state[6];
-    state_dot[5] = 0;
-    state_dot[6] = 0;
+    int dim = state1.size();
+    if (dim == 2) {
+        return sqrt(pow(state1(0) - state2(0), 2) + pow(state1(1) - state2(1), 2));
+    } else {
+        return sqrt(pow(state1(0) - state2(0), 2) + pow(state1(1) - state2(1), 2) + pow(state1(2) - state2(2), 2));
+    }
 }
 
 VectorXd KinoRRT::propagateState(const VectorXd& x_start, const VectorXd& u, double& duration, MyKinoChecker& collision_checker) {
@@ -203,13 +196,14 @@ VectorXd KinoRRT::propagateState(const VectorXd& x_start, const VectorXd& u, dou
     std::vector<double> state = convertEigenToStd(x_start);
     int m = u.size();
     double dt = 0.1;
+    auto dynamicsFunc = (dynamicsModel == QUADROTOR) ? quadrotorDynamics : carDynamics;
     for (int i = 0; i < m; i++) 
         state.push_back(u(i));
     boost::numeric::odeint::runge_kutta_dopri5<std::vector<double>> stepper;
     duration = 0.0;
     while (duration < dis(gen)) {
-        stepper.do_step(dynamics, state, duration, dt);
-        if (!collision_checker.isValid(state)) return x_start;
+        stepper.do_step(dynamicsFunc, state, duration, dt);
+        if (!collision_checker.isValid(state, m)) return x_start;
         duration += dt;
     }
     for (int i = 0; i < m; i++) 

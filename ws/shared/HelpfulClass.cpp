@@ -33,7 +33,6 @@ vector<Vector2d> rearrangeVector(vector<Vector2d>& vertices,int startingIndex) {
     return rearrangedVector;
 }
 
-
 double findAngle(const Vector2d& point1, const Vector2d& point2) {
     Vector2d vector_ = point2 - point1;
     double angle = std::atan2(vector_(1), vector_(0));
@@ -382,6 +381,10 @@ Eigen::VectorXd sampleFromRegion(const vector<Eigen::VectorXd>& polytope) {
     int dim = polytope[0].size();
     if (dim == 3) { // Assuming the first vertex determines the dimensionality
         // Find bounding box
+        vector<Eigen::Vector3d> poly;
+        for (auto vertex : polytope) 
+            poly.push_back({vertex(0) , vertex(1), vertex(2)});
+
         double minX = std::numeric_limits<double>::max();
         double minY = std::numeric_limits<double>::max();
         double minZ = std::numeric_limits<double>::max();
@@ -390,10 +393,10 @@ Eigen::VectorXd sampleFromRegion(const vector<Eigen::VectorXd>& polytope) {
         double maxZ = std::numeric_limits<double>::lowest();
         for (const auto& vertex : polytope) {
             minX = std::min(minX, vertex(0));
-            minY = std::min(minY, vertex(1));
-            minZ = std::min(minZ, vertex(2));
             maxX = std::max(maxX, vertex(0));
+            minY = std::min(minY, vertex(1));
             maxY = std::max(maxY, vertex(1));
+            minZ = std::min(minZ, vertex(2));
             maxZ = std::max(maxZ, vertex(2));
         }
 
@@ -410,14 +413,14 @@ Eigen::VectorXd sampleFromRegion(const vector<Eigen::VectorXd>& polytope) {
             randomPoint(0) = distX(gen);
             randomPoint(1) = distY(gen);
             randomPoint(2) = distZ(gen);
-        } while (!isInsideTetrahedron(polytope, randomPoint));
+        } while (!isInsideTetrahedron(poly, randomPoint));
 
         return randomPoint;
     } else {
         vector<Eigen::Vector2d> poly;
-        for (auto vertex : polytope) {
+        for (auto vertex : polytope) 
             poly.push_back({vertex(0) , vertex(1)});
-        }
+        
 
         double minX = std::numeric_limits<double>::max();
         double minY = std::numeric_limits<double>::max();
@@ -459,42 +462,90 @@ double triangleArea(const std::array<Eigen::Vector2d, 3>& vertices) {
     return sqrt(s * (s - a) * (s - b) * (s - c));
 }
 
-bool isInsideTetrahedron(const vector<Eigen::VectorXd>& vertices, const Eigen::VectorXd& point) {
-
-    Eigen::VectorXd u = vertices[1] - vertices[0];
-    Eigen::VectorXd v = vertices[2] - vertices[0];
-    Eigen::VectorXd w = vertices[3] - vertices[0];
-    Eigen::VectorXd p = point - vertices[0];
-
-    double uu = u.dot(u);
-    double uv = u.dot(v);
-    double uw = u.dot(w);
-    double vv = v.dot(v);
-    double vw = v.dot(w);
-    double ww = w.dot(w);
-    double up = u.dot(p);
-    double vp = v.dot(p);
-    double wp = w.dot(p);
-
-    double denom = uv * uv * ww - uu * vv * ww - uv * uw * vw + uu * ww * vw + uw * uv * vw - vv * ww * uw;
-
-    double s = (uv * ww - uw * vw) * wp + (uw * vw - vv * ww) * vp + (uv * vw - vv * uw) * up;
-    double t = (uv * vw - vv * uw) * wp + (uu * ww - uw * uv) * vp + (uv * uw - uu * vw) * up;
-
-    if ((s >= 0) && (t >= 0) && (s + t <= denom)) {
-        return true;
-    } else {
-        return false;
-    }
+bool SameSide(Eigen::Vector3d v1, Eigen::Vector3d v2, Eigen::Vector3d v3, Eigen::Vector3d v4, Eigen::Vector3d p) {
+    VectorXd normal = (v2 - v1).cross(v3 - v1);
+    double dotV4 = normal.dot(v4 - v1);
+    double dotP = normal.dot(p - v1);
+    return (dotV4 * dotP) >= 0.0;
 }
 
-bool isPointInsideRegion(const VectorXd& point, const vector<VectorXd>& polygon) {
+bool isInsideTetrahedron(const vector<Eigen::Vector3d>& vertices, const Eigen::Vector3d& p) {
+    Eigen::Vector3d v1 = vertices[0];
+    Eigen::Vector3d v2 = vertices[1];
+    Eigen::Vector3d v3 = vertices[2];
+    Eigen::Vector3d v4 = vertices[3];
+
+    return SameSide(v1, v2, v3, v4, p) &&
+           SameSide(v2, v3, v4, v1, p) &&
+           SameSide(v3, v4, v1, v2, p) &&
+           SameSide(v4, v1, v2, v3, p);
+}
+
+bool isPointInsideRegion(const VectorXd& point, const vector<VectorXd>& polytope) {
     if (point.size() == 3) {
-        return isInsideTetrahedron(polygon, point);
-    } else {
+        vector<Eigen::Vector3d> poly;
+        for (auto vertex : polytope) 
+            poly.push_back({vertex(0) , vertex(1), vertex(2)});
+        return isInsideTetrahedron(poly, point);
+    } else if (point.size() == 3) {
         vector<Eigen::Vector2d> poly;
-        for (auto vertex : polygon) 
+        for (auto vertex : polytope) 
             poly.push_back({vertex[0] , vertex[1]});
         return isPointInsidePolygon(point, poly);
     }
+    return false;
+}
+
+double tetrahedronVolume(const std::array<Eigen::Vector3d, 4>& vertices) {
+    // Extract vertices
+    const Eigen::Vector3d& A = vertices[0];
+    const Eigen::Vector3d& B = vertices[1];
+    const Eigen::Vector3d& C = vertices[2];
+    const Eigen::Vector3d& D = vertices[3];
+
+    // Calculate the vectors
+    Eigen::Vector3d BA = B - A;
+    Eigen::Vector3d CA = C - A;
+    Eigen::Vector3d DA = D - A;
+
+    // Calculate the scalar triple product
+    double scalarTripleProduct = BA.dot(CA.cross(DA));
+
+    // Calculate the absolute value and divide by 6 to get the volume
+    return abs(scalarTripleProduct) / 6.0;
+}
+
+Eigen::Vector3d tetrahedronCentroid(const std::array<Eigen::Vector3d, 4>& vertices) {
+    // Calculate the centroid as the average of the vertices
+    Eigen::Vector3d centroid(0, 0, 0);
+    for (const auto& vertex : vertices) {
+        centroid += vertex;
+    }
+    centroid /= 4.0;
+
+    return centroid;
+}
+
+bool isPointInsideCube(const Eigen::Vector3d& point, const vector<Eigen::Vector3d>& cubeVertices) {
+    // Find the minimum and maximum coordinates along each dimension
+    double minX = std::numeric_limits<double>::max();
+    double minY = std::numeric_limits<double>::max();
+    double minZ = std::numeric_limits<double>::max();
+    double maxX = std::numeric_limits<double>::lowest();
+    double maxY = std::numeric_limits<double>::lowest();
+    double maxZ = std::numeric_limits<double>::lowest();
+
+    for (const auto& vertex : cubeVertices) {
+        minX = std::min(minX, vertex(0));
+        minY = std::min(minY, vertex(1));
+        minZ = std::min(minZ, vertex(2));
+        maxX = std::max(maxX, vertex(0));
+        maxY = std::max(maxY, vertex(1));
+        maxZ = std::max(maxZ, vertex(2));
+    }
+
+    // Check if the point lies within the range of the cube along each dimension
+    return point(0) >= minX && point(0) <= maxX &&
+           point(1) >= minY && point(1) <= maxY &&
+           point(2) >= minZ && point(2) <= maxZ;
 }

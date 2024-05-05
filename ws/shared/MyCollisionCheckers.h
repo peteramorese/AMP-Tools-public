@@ -44,15 +44,21 @@ class MyKinoChecker {
         MyKinoChecker(const amp::Problem2D& problem, vector<pair<double, double>> stateLimits, double w, double l) :
         stateLimits(stateLimits), w(w), l(l) {
             obstacles = ampToBoostObstacles(problem.obstacles);
-            ampObstacles = problem.obstacles;
+        }
+        MyKinoChecker(const std::vector<std::vector<Eigen::Vector2d>>& vecObstacles, vector<pair<double, double>> stateLimits, double w, double l) :
+        stateLimits(stateLimits), w(w), l(l) {
+            obstacles = vecToBoostObstacles(vecObstacles);
+        }
+        MyKinoChecker(const std::vector<std::vector<Eigen::Vector3d>>& vecObstacles, vector<pair<double, double>> stateLimits, double w, double l, double h) :
+        stateLimits(stateLimits), w(w), l(l), h(h) {
+            obstacles = {};
         }
         bool inCollisionRectangle(const vector<double>& state) const;
         bool isValid(const vector<double>& state) const;
         vector<pair<double, double>> getLimits();
 
     private:
-        vector<amp::Obstacle2D> ampObstacles;
         vector<polygon> obstacles;
         vector<pair<double, double>> stateLimits;
-        double w, l;
+        double w, l, h;
 };

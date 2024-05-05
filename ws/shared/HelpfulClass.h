@@ -62,11 +62,19 @@ bool checkRobotOverlap(const Eigen::VectorXd state, const vector<double> radii);
 
 vector<polygon> ampToBoostObstacles(const vector<amp::Obstacle2D>& obstacles);
 
+vector<polygon> vecToBoostObstacles(const vector<vector<Vector2d>>& obstacles);
+
 std::vector<double> convertEigenToStd(const Eigen::VectorXd& eigenVec);
 
 Eigen::VectorXd convertStdToEigen(const std::vector<double>& stdVec);
 
 vector<std::pair<double, double>> getRectangleVertices(const std::vector<double>& state, double w, double l);
 
-Vector2d sampleFromRegion(const vector<Vector2d>& polygon);
+Eigen::VectorXd sampleFromRegion(const vector<Eigen::VectorXd>& polygon);
+
+double triangleArea(const std::array<Eigen::Vector2d, 3>& vertices);
+
+bool isInsideTetrahedron(const vector<Eigen::VectorXd>& vertices, const Eigen::VectorXd& point);
+
+bool isPointInsideRegion(const Eigen::VectorXd& point, const vector<Eigen::VectorXd>& polygon);
 

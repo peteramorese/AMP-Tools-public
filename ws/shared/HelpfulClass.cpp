@@ -321,6 +321,25 @@ vector<polygon> ampToBoostObstacles(const vector<amp::Obstacle2D>& obstacles) {
 	return polygons;
 }
 
+vector<polygon> vecToBoostObstacles(const vector<vector<Vector2d>>& obstacles) {
+	vector<polygon> polygons;
+	for (const std::vector<Eigen::Vector2d>& obstacle : obstacles) {
+		std::string points = "POLYGON((";
+        vector<Vector2d> vertices = obstacle;
+		vertices.push_back(vertices[0]);
+		for (int j = 0; j < vertices.size(); ++j) {
+			points += std::to_string(vertices[j](0)) + " " + std::to_string(vertices[j](1));
+            if (j == vertices.size() - 1) points += "))";
+            else points += ",";
+		}
+        cout << points << "\n"; // COUTTTT
+        polygon poly;
+        boost::geometry::read_wkt(points, poly);
+		polygons.push_back(poly);
+	}
+	return polygons;
+}
+
 std::vector<double> convertEigenToStd(const Eigen::VectorXd& eigenVec) {
     std::vector<double> stdVec(eigenVec.size());
     for (int i = 0; i < eigenVec.size(); ++i) {
@@ -358,32 +377,124 @@ vector<std::pair<double, double>> getRectangleVertices(const std::vector<double>
     return {{BR_x, BR_y}, {BL_x, BL_y}, {TL_x, TL_y}, {TR_x, TR_y}, {BR_x, BR_y}};
 }
 
-Vector2d sampleFromRegion(const vector<Vector2d>& polygon) {
+Eigen::VectorXd sampleFromRegion(const vector<Eigen::VectorXd>& polytope) {
     // Find bounding box
-    double minX = std::numeric_limits<double>::max();
-    double minY = std::numeric_limits<double>::max();
-    double maxX = std::numeric_limits<double>::lowest();
-    double maxY = std::numeric_limits<double>::lowest();
-    for (const auto& vertex : polygon) {
-        minX = std::min(minX, vertex.x());
-        minY = std::min(minY, vertex.y());
-        maxX = std::max(maxX, vertex.x());
-        maxY = std::max(maxY, vertex.y());
+    int dim = polytope[0].size();
+    if (dim == 3) { // Assuming the first vertex determines the dimensionality
+        // Find bounding box
+        double minX = std::numeric_limits<double>::max();
+        double minY = std::numeric_limits<double>::max();
+        double minZ = std::numeric_limits<double>::max();
+        double maxX = std::numeric_limits<double>::lowest();
+        double maxY = std::numeric_limits<double>::lowest();
+        double maxZ = std::numeric_limits<double>::lowest();
+        for (const auto& vertex : polytope) {
+            minX = std::min(minX, vertex(0));
+            minY = std::min(minY, vertex(1));
+            minZ = std::min(minZ, vertex(2));
+            maxX = std::max(maxX, vertex(0));
+            maxY = std::max(maxY, vertex(1));
+            maxZ = std::max(maxZ, vertex(2));
+        }
+
+        // Random number generator
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_real_distribution<double> distX(minX, maxX);
+        std::uniform_real_distribution<double> distY(minY, maxY);
+        std::uniform_real_distribution<double> distZ(minZ, maxZ);
+
+        // Sample random points until a point inside the tetrahedron is found
+        Eigen::Vector3d randomPoint(dim);
+        do {
+            randomPoint(0) = distX(gen);
+            randomPoint(1) = distY(gen);
+            randomPoint(2) = distZ(gen);
+        } while (!isInsideTetrahedron(polytope, randomPoint));
+
+        return randomPoint;
+    } else {
+        vector<Eigen::Vector2d> poly;
+        for (auto vertex : polytope) {
+            poly.push_back({vertex(0) , vertex(1)});
+        }
+
+        double minX = std::numeric_limits<double>::max();
+        double minY = std::numeric_limits<double>::max();
+        double maxX = std::numeric_limits<double>::lowest();
+        double maxY = std::numeric_limits<double>::lowest();
+        for (const auto& vertex : polytope) {
+            minX = std::min(minX, vertex.x());
+            minY = std::min(minY, vertex.y());
+            maxX = std::max(maxX, vertex.x());
+            maxY = std::max(maxY, vertex.y());
+        }
+
+        // Random number generator
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_real_distribution<double> distX(minX, maxX);
+        std::uniform_real_distribution<double> distY(minY, maxY);
+
+        // Sample random points until a point inside the polygon is found
+        Eigen::VectorXd randomPoint(dim);
+        do {
+            randomPoint(0) = distX(gen);
+            randomPoint(1) = distY(gen);
+        } while (!isPointInsidePolygon(randomPoint, poly));
+
+        return randomPoint;
     }
-
-    // Random number generator
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<double> distX(minX, maxX);
-    std::uniform_real_distribution<double> distY(minY, maxY);
-
-    // Sample random points until a point inside the polygon is found
-    Vector2d randomPoint;
-    do {
-        randomPoint.x() = distX(gen);
-        randomPoint.y() = distY(gen);
-    } while (!isPointInsidePolygon(randomPoint, polygon));
-
-    return randomPoint;
 }
 
+double triangleArea(const std::array<Eigen::Vector2d, 3>& vertices) {
+    Eigen::Vector2d v1 = vertices[0];
+    Eigen::Vector2d v2 = vertices[1];
+    Eigen::Vector2d v3 = vertices[2];
+
+    double a = (v1 - v2).norm();
+    double b = (v2 - v3).norm();
+    double c = (v3 - v1).norm();
+    double s = (a + b + c) / 2.0; // semiperimeter
+    return sqrt(s * (s - a) * (s - b) * (s - c));
+}
+
+bool isInsideTetrahedron(const vector<Eigen::VectorXd>& vertices, const Eigen::VectorXd& point) {
+
+    Eigen::VectorXd u = vertices[1] - vertices[0];
+    Eigen::VectorXd v = vertices[2] - vertices[0];
+    Eigen::VectorXd w = vertices[3] - vertices[0];
+    Eigen::VectorXd p = point - vertices[0];
+
+    double uu = u.dot(u);
+    double uv = u.dot(v);
+    double uw = u.dot(w);
+    double vv = v.dot(v);
+    double vw = v.dot(w);
+    double ww = w.dot(w);
+    double up = u.dot(p);
+    double vp = v.dot(p);
+    double wp = w.dot(p);
+
+    double denom = uv * uv * ww - uu * vv * ww - uv * uw * vw + uu * ww * vw + uw * uv * vw - vv * ww * uw;
+
+    double s = (uv * ww - uw * vw) * wp + (uw * vw - vv * ww) * vp + (uv * vw - vv * uw) * up;
+    double t = (uv * vw - vv * uw) * wp + (uu * ww - uw * uv) * vp + (uv * uw - uu * vw) * up;
+
+    if ((s >= 0) && (t >= 0) && (s + t <= denom)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+bool isPointInsideRegion(const VectorXd& point, const vector<VectorXd>& polygon) {
+    if (point.size() == 3) {
+        return isInsideTetrahedron(polygon, point);
+    } else {
+        vector<Eigen::Vector2d> poly;
+        for (auto vertex : polygon) 
+            poly.push_back({vertex[0] , vertex[1]});
+        return isPointInsidePolygon(point, poly);
+    }
+}

@@ -8,28 +8,32 @@
 using namespace amp;
 using std::vector, Eigen::VectorXd, Eigen::Vector2d, std::pair, std::size_t;
 
-amp::Path KinoRRT::plan(const VectorXd& init_state, const vector<Vector2d>& goal_region, MyKinoChecker& collision_checker, double& attemps) {
+amp::Path KinoRRT::plan(const VectorXd& init_state, const vector<VectorXd>& goal_region, MyKinoChecker& collision_checker, int maxSamples, int& attemps, vector<int> workspaceIndicies) {
     Path path;
+    int workspaceDim = workspaceIndicies.size(); 
+    int m = controlLimits.size(); 
     path.valid = false;
     VectorXd qRand, uRand, nearest;
     points[0] = init_state;
-    // cout << "Starting Node: \n" << init_state << std::endl;
-    int m = init_state.size() / 2;
+    cout << "Starting Node: \n" << init_state << std::endl;
     int ind = 1;
     int samples = 0;
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<double> dist(0, 1);    
     bool success = false;
-    VectorXd u_best(3);
-    while (samples < n) {
+    VectorXd u_best(m+1);
+    while (samples < maxSamples) {
         samples++;
         double goalBias = dist(gen);
         qRand = getRandomPoint(collision_checker.getLimits());
         if (goalBias > (1 - p)) {
-            Vector2d dRand = sampleFromRegion(goal_region);
-            qRand(0) = dRand.x();
-            qRand(1) = dRand.y();
+            VectorXd wRand = sampleFromRegion(goal_region);
+            int i = 0;
+            for (int index : workspaceIndicies){
+                qRand(index) = wRand(i);
+                i++;
+            }
         }
         pair<int, VectorXd> nearest = findNearest(qRand);
         VectorXd x_near = nearest.second;
@@ -50,13 +54,20 @@ amp::Path KinoRRT::plan(const VectorXd& init_state, const vector<Vector2d>& goal
         if (validPath) {
             parents[ind] = nearest.first;
             points[ind] = x_best;    
-            controls[ind] = u_best;    
+            controls[ind] = u_best;
+            Eigen::VectorXd wBest(2);  
+            int i = 0;
+            for (int index : {0, 1}) {
+                wBest(i) = x_best(index);
+                i++;
+            }
             ind++;
-            if (isPointInsidePolygon(x_best, goal_region)) {
+            if (isPointInsideRegion(wBest, goal_region)) {
                 cout << "Goal found in "<< samples << " samples\n";
                 path.valid = true;
                 break;
             }
+
         }
     }
     ind--;
@@ -165,11 +176,7 @@ double KinoRRT::distanceMetric(const VectorXd& state1, const VectorXd& state2) {
     return sqrt(pow(state1(0) - state2(0), 2) + pow(state1(1) - state2(1), 2));
 }
 
-// Euler integration method
-void integrateEuler(const std::function<void(const VectorXd&, const VectorXd&, VectorXd&)>& dynamics,
-                    VectorXd& state,
-                    const VectorXd& control,
-                    double dt) {
+void integrateEuler(const std::function<void(const VectorXd&, const VectorXd&, VectorXd&)>& dynamics, VectorXd& state, const VectorXd& control, double dt) {
     VectorXd state_dot(state.size());
     dynamics(state, control, state_dot);
     state += state_dot * dt;
@@ -193,20 +200,19 @@ VectorXd KinoRRT::propagateState(const VectorXd& x_start, const VectorXd& u, dou
     std::random_device rd;
     std::mt19937 gen(rd());
     std::uniform_real_distribution<double> dis(0.5, 1.5);
-    double dt = 0.1;
     std::vector<double> state = convertEigenToStd(x_start);
-    state.push_back(u(0));
-    state.push_back(u(1));
+    int m = u.size();
+    double dt = 0.1;
+    for (int i = 0; i < m; i++) 
+        state.push_back(u(i));
     boost::numeric::odeint::runge_kutta_dopri5<std::vector<double>> stepper;
     duration = 0.0;
     while (duration < dis(gen)) {
-        // integrateEuler(dynamics, state, u, dt);
         stepper.do_step(dynamics, state, duration, dt);
         if (!collision_checker.isValid(state)) return x_start;
-        // Do something with the updated state
         duration += dt;
     }
-    state.pop_back();
-    state.pop_back();
+    for (int i = 0; i < m; i++) 
+        state.pop_back();
     return convertStdToEigen(state);
 }

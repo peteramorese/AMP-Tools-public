@@ -155,7 +155,7 @@ public:
                 for (;i < neighborMap[prevHS].size(); ++i)
                     if (neighborMap[prevHS][i] == HS) break;
 
-                subPath = plan(xStart, nextRegion, collision_checker, iter * 2000, numSelected[prevHS][i], {0, 2, 4});
+                subPath = plan(xStart, nextRegion, collision_checker, iter * 3000, numSelected[prevHS][i], {0, 2, 4});
                 dynamicWeights[prevHS][i] = numSelected[prevHS][i] / M.at(di).volume / (qi+1); // M.at(dp).area;
                 cout << "New Weight: " << dynamicWeights[prevHS][i] << std::endl;
                 clearRRT();

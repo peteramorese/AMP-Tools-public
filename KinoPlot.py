@@ -49,12 +49,12 @@ if __name__ == '__main__':
    
     with open('build/bin/triangles.json') as f: triangles = json.load(f)
     color_map = {"e": "white", "a": "teal", "b": "teal", "g": "lime", "o": "lightgrey"}
-    HLP = [40, 42, 39, 37, 7, 24, 27, 14, 8, 14, 27, 24, 49, 38, 47, 5, 47, 38, 49, 24, 7, 15, 20, 26, 22, 26]
+    HLP = []
 
     for triangle in triangles:
         vertices = triangle["vertices"]
         color = color_map.get(chr(triangle["observation"]), "white")
-        patch = Polygon(vertices, facecolor=color, edgecolor="black", lw=1)
+        patch = Polygon(vertices, facecolor=color, edgecolor=color, lw=1)
         ax.add_patch(patch)
         if triangle["index"] in HLP[:-1]:
             ax.add_patch(Polygon(vertices, facecolor="lightcoral", alpha=0.75))
@@ -99,8 +99,9 @@ if __name__ == '__main__':
             (float(state[0]) + half_w * math.cos(float(state[2])) + half_l * math.sin(float(state[2])),
             float(state[1]) + half_w * math.sin(float(state[2])) - half_l * math.cos(float(state[2])))
         ]
-        patch = Polygon(vertices, facecolor="seagreen", edgecolor="black", lw=0.5)
+        patch = Polygon(vertices, facecolor="red", edgecolor="black", lw=0.5)
         ax.add_patch(patch)
+        break
 
     ax.set_aspect("equal")
     plt.show()

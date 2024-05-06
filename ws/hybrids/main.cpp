@@ -175,8 +175,8 @@ void problem3() {
     Eigen::VectorXd initState(6);
     int nw = 3;
     initState << 1.0, 0.0, 1.0, 0.0, 0.1, 0.0;
-    vector<pair<double, double>> stateLimits = {{0.0, 10.0}, {-1.0, 1.0}, {0.0, 10.0}, {-1.0, 1.0}, {0.0, 10.0}, {-1.0, 1.0}};
-    vector<pair<double, double>> controlLimits = {{-1.0, 1.0}, {-1.0, 1.0}, {-1.0, 1.0}, {-1.0, 1.0}};
+    vector<pair<double, double>> stateLimits = {{0.0, 10.0}, {-1.0/2.0, 1.0/2.0}, {0.0, 10.0}, {-1.0/2.0, 1.0/2.0}, {0.0, 10.0}, {-1.0/2.0, 1.0/2.0}};
+    vector<pair<double, double>> controlLimits = {{-1.0/2.0, 1.0/2.0}, {-1.0/2.0, 1.0/2.0}, {-1.0/2.0, 1.0/2.0}, {-1.0/2.0, 1.0/2.0}};
 
     vector<Eigen::VectorXd> workspaceVertices = {
         Eigen::Vector3d(0.0, 0.0, 0.0),  

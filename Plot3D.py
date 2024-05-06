@@ -18,8 +18,8 @@ if __name__ == '__main__':
         vertices = tetrahedron['vertices']
         vertices.append(vertices[0])  # Close the loop
         color = color_map.get(chr(tetrahedron["label"]), "white")
-        lw = 1
-        if color == "black": lw = 0.2
+        lw = 2
+        if color == "black": lw = 0
         vertices = list(zip(*vertices))  # Transpose to separate x, y, z coordinates
         ax.plot(vertices[0], vertices[1], vertices[2], color=color, lw=lw)
 
@@ -28,7 +28,8 @@ if __name__ == '__main__':
     x = df.iloc[:, 0].values
     y = df.iloc[:, 2].values
     z = df.iloc[:, 4].values
-    ax.plot(x.flatten(), y.flatten(), z.flatten(), marker='x', linestyle='-')
+    ax.plot(x.flatten(), y.flatten(), z.flatten(), linestyle='-')
+    ax.plot(x[0], y[0], z[0], marker='*', markersize=20)
     
     # half_w = 1 / 2.75
     # half_l = 0.5 / 2.75

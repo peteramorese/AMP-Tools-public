@@ -192,10 +192,10 @@ VectorXd KinoRRT::propagateState(const VectorXd& x_start, const VectorXd& u, dou
     // cout << "\nStart\n" << x_start;
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::uniform_real_distribution<double> dis(0.5, 1.5);
+    std::uniform_real_distribution<double> dis(0.05, 1.5);
     std::vector<double> state = convertEigenToStd(x_start);
     int m = u.size();
-    double dt = 0.1;
+    double dt = 0.05;
     auto dynamicsFunc = (dynamicsModel == QUADROTOR) ? quadrotorDynamics : carDynamics;
     for (int i = 0; i < m; i++) 
         state.push_back(u(i));

@@ -3,6 +3,7 @@
 
 // MyFlightPlanner member functions
 amp::MultiAgentPath2D MyFlightPlanner::plan(UASProblem& problem){
+    auto start = std::chrono::high_resolution_clock::now();
     FlightChecker c;
     c.makeLOS(problem);
     Eigen::VectorXd targetState = Eigen::VectorXd::Zero(3*problem.numUAV);
@@ -84,11 +85,17 @@ amp::MultiAgentPath2D MyFlightPlanner::plan(UASProblem& problem){
             
         }
         success = true;
+        auto stop = std::chrono::high_resolution_clock::now();
+        auto duration = duration_cast<std::chrono::milliseconds>(stop - start);
+        getT() = duration.count();
         return losPath;
     }
     else{
         // LOG("FAILED TO FIND LOS FOR ALL TIMES");
         success = false;
+        auto stop = std::chrono::high_resolution_clock::now();
+        // auto duration = duration_cast<std::chrono::milliseconds>(stop - start);
+        // getT() = duration.count();
         return losPath;
     }
 }
@@ -100,8 +107,8 @@ void MyFlightPlanner::makeFlightPlan(int minUAV, int maxUAV, int runs, UASProble
         for(int k = 0; k < runs; k++){
             amp::MultiAgentPath2D solution = plan(problem);
             if(success){
-                // amp::Visualizer::makeFigure(problem,solution);
-                // LOG("Successful plan found using " << n << " UAVs");
+                amp::Visualizer::makeFigure(problem,solution);
+                LOG("Successful plan found using " << n << " UAVs");
                 return;
             }
         }

@@ -68,7 +68,7 @@ On Ubuntu (or WSL), first install Eigen 3.3.7 (C++ matrix library), and OpenSSL,
 
 ```
 sudo apt update
-sudo apt install cmake build-essential libeigen3-dev libssl-dev python3-tk zip
+sudo apt install cmake build-essential libeigen3-dev libssl-dev python3-tk python3-pip zip
 ```
 
 Now install the `python3.x-dev` library for your system. To determine which version of python you are using:

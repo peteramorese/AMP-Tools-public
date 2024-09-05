@@ -114,7 +114,7 @@ Refer to the solution here: https://stackoverflow.com/questions/43397162/show-ma
 Specifically:
 1) Install VcXsrv (https://sourceforge.net/projects/vcxsrv/)
 2) Run VcXsrv with default settings, except make sure to check "Disable Access Control"
-3) In your WSL terminal, run this: `export DISPLAY=\`grep -oP "(?<=nameserver ).+" /etc/resolv.conf\`:0.0`
+3) In your WSL terminal, run this: ```export DISPLAY=`grep -oP "(?<=nameserver ).+" /etc/resolv.conf`:0.0```
 4) Try build_and_run.sh again, if you see figures, make sure to add the previous command to the end of your `~/.bashrc` so that it runs every time you open a new terminal.
 
 ### macOS

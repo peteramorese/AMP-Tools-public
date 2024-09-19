@@ -9,8 +9,10 @@
 
 namespace amp {
 
-class GridCSpace2DConstructor {
+class ManipulatorCSConstructor {
     public:
+        /******* User Implemented Methods ********/
+
         /// @brief Create a configuration space object given a maniplator and an environment.
         /// @param manipulator Two link manipulator (consider ussing `ASSERT` to make sure the manipulator is 2D)
         /// @param env Environment
@@ -19,8 +21,10 @@ class GridCSpace2DConstructor {
         /// C-spaces can contain a LOT of memory, so copying would be a very expensive operation. Additionally, a pointer is polymorphic
         /// which allows the type to pose as a GridCSpace2D (even though GridCSpace2D is abstract)
         virtual std::unique_ptr<amp::GridCSpace2D> construct(const amp::LinkManipulator2D& manipulator, const amp::Environment2D& env) = 0;
+
+        /*****************************************/
     
-        virtual ~GridCSpace2DConstructor() {}
+        virtual ~ManipulatorCSConstructor() {}
 };
 
 class HW4 {
@@ -65,7 +69,7 @@ class HW4 {
         /// @param n_samples Number of samples approximating true C-space
         /// @param verbose Display results in terminal
         /// @return Percent success in [0.0, 1.0]
-        static double generateAndCheck(GridCSpace2DConstructor& cspace_constructor, const amp::LinkManipulator2D& manipulator, uint32_t n_samples = 10000, bool verbose = true);
+        static double generateAndCheck(ManipulatorCSConstructor& cspace_constructor, const amp::LinkManipulator2D& manipulator, uint32_t n_samples = 10000, bool verbose = true);
 
         /// @brief Generate a random environment and check you C-space constructor against it
         /// @param cspace_constructor Your C-space constructor
@@ -74,7 +78,7 @@ class HW4 {
         /// @param n_samples Number of samples approximating true C-space
         /// @param verbose Display results in terminal
         /// @return Percent success in [0.0, 1.0]
-        static double generateAndCheck(GridCSpace2DConstructor& cspace_constructor, const amp::LinkManipulator2D& manipulator, amp::Environment2D& random_env, std::unique_ptr<amp::GridCSpace2D>& cspace, uint32_t n_samples = 10000, bool verbose = true);
+        static double generateAndCheck(ManipulatorCSConstructor& cspace_constructor, const amp::LinkManipulator2D& manipulator, amp::Environment2D& random_env, std::unique_ptr<amp::GridCSpace2D>& cspace, uint32_t n_samples = 10000, bool verbose = true);
 
         /// @brief Grade your cspace constructor using your custom manipulator type
         /// @tparam MANIPULATOR_T Your custom manipulator type. Must be a subclass of amp::LinkManipulator2D. Make sure your class has a default constructor
@@ -83,13 +87,13 @@ class HW4 {
         /// @param argc Pass the cmd line args from main
         /// @param argv Pass the cmd line args from main
         template <class MANIPULATOR_T>
-        static int grade(GridCSpace2DConstructor& cspace_constructor, const std::string& email, int argc, char** argv);
+        static int grade(ManipulatorCSConstructor& cspace_constructor, const std::string& email, int argc, char** argv);
 
     private:
-        static int grade(GridCSpace2DConstructor& cspace_constructor, amp::LinkManipulator2D& manipulator, const std::string& email, int argc, char** argv);
+        static int grade(ManipulatorCSConstructor& cspace_constructor, amp::LinkManipulator2D& manipulator, const std::string& email, int argc, char** argv);
         static void gradeFK(const amp::LinkManipulator2D& manipulator, bool& fk_pass);
         static void gradeIK(const amp::LinkManipulator2D& manipulator, bool& ik_pass);
-        static void gradeEx3(GridCSpace2DConstructor& cspace_constructor, const amp::LinkManipulator2D& manipulator, bool& ws1_pass, bool& ws2_pass, bool& ws3_pass);
+        static void gradeEx3(ManipulatorCSConstructor& cspace_constructor, const amp::LinkManipulator2D& manipulator, bool& ws1_pass, bool& ws2_pass, bool& ws3_pass);
 };
 
 #define AMP_HW4_ALIAS "hw4"

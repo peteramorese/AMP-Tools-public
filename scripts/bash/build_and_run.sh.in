@@ -10,6 +10,11 @@ if [[ $# == 0 ]]; then
         echo " - $dir_name"
     done <<< "$options"
     exit 1
+else
+    if [ -f ws/$1/IGNORE ]; then
+        echo "Found 'IGNORE' file inside directory for project '$1'. Please remove this file before calling build_and_run.sh on this project"
+        exit 1
+    fi
 fi
 
 executable="main-$1"

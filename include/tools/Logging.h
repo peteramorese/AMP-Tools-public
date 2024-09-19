@@ -7,6 +7,7 @@
 
 #ifdef AMP_EXCLUDE_LOGS
     #define LOG(msg) 
+    #define LOG_SMLN(msg) 
     #define PRINT(msg) 
     #define PRINT_VEC2(msg, vec2)
     #define PRINT_VEC3(msg, vec3)
@@ -19,6 +20,7 @@
     #define NEW_LINE 
 #elif AMP_LOG_NO_COLOR
     #define LOG(msg) std::cout << " >[LOG] " << msg << " \n"
+    #define LOG_SMLN(msg) std::cout << "\r" << " >[LOG] " << msg << std::flush
     #define PRINT(msg) std::cout <<  msg << "\n"
     #define PRINT_VEC2(msg, vec2) std::cout << msg << " (" << vec2[0] << ", " << vec2[1] << ") \n"
     #define PRINT_VEC3(msg, vec3) std::cout << msg << " (" << vec3[0] << ", " << vec3[1] << ", " << vec3[2] ") \n"
@@ -30,6 +32,7 @@
     #define NEW_LINE std::cout<<"\n"
 #else
     #define LOG(msg) std::cout << "\033[1;36m >[LOG]\033[0;37m " << msg << "\033[0m \n"
+    #define LOG_SMLN(msg) std::cout << "\r" << "\033[1;36m >[LOG]\033[0;37m " << msg << "\033[0m" << std::flush
     #define PRINT(msg) std::cout << "\033[0;37m" << msg << "\033[0m \n"
     #define PRINT_VEC2(msg, vec2) std::cout << "\033[0;37m" << msg << " (" << vec2[0] << ", " << vec2[1] << ")\033[0m \n"
     #define PRINT_VEC3(msg, vec3) std::cout << "\033[0;37m" << msg << " (" << vec3[0] << ", " << vec3[1] << ", " << vec3[2] ")\033[0m \n"

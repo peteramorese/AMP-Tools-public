@@ -68,7 +68,7 @@ On Ubuntu (or WSL), first install Eigen 3.3.7 (C++ matrix library), and OpenSSL,
 
 ```
 sudo apt update
-sudo apt install cmake build-essential libeigen3-dev libssl-dev python3-tk python3-pip zip
+sudo apt install cmake build-essential libeigen3-dev libssl-dev python3-tk zip
 ```
 
 Now install the `python3.x-dev` library for your system. To determine which version of python you are using:
@@ -114,7 +114,7 @@ Refer to the solution here: https://stackoverflow.com/questions/43397162/show-ma
 Specifically:
 1) Install VcXsrv (https://sourceforge.net/projects/vcxsrv/)
 2) Run VcXsrv with default settings, except make sure to check "Disable Access Control"
-3) In your WSL terminal, run this: ```export DISPLAY=`grep -oP "(?<=nameserver ).+" /etc/resolv.conf`:0.0```
+3) In your WSL terminal, run this: `export DISPLAY=\`grep -oP "(?<=nameserver ).+" /etc/resolv.conf\`:0.0`
 4) Try build_and_run.sh again, if you see figures, make sure to add the previous command to the end of your `~/.bashrc` so that it runs every time you open a new terminal.
 
 ### macOS

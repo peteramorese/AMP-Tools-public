@@ -13,6 +13,24 @@
 
 namespace amp {
 
+class PointAgentCSConstructor {
+    public:
+        /******* User Implemented Methods ********/
+
+        /// @brief Create a configuration space object given a maniplator and an environment. Same thing as in HW4 but using a point-agent collision checker instead of manipulator collision checker
+        /// @param manipulator Two link manipulator (consider ussing `ASSERT` to make sure the manipulator is 2D)
+        /// @param env Environment
+        /// @return Unique pointer to your constructed C-space object. 
+        /// NOTE: We use a unique pointer here to be able to move the C-space without copying it, since grid discretization
+        /// C-spaces can contain a LOT of memory, so copying would be a very expensive operation. Additionally, a pointer is polymorphic
+        /// which allows the type to pose as a GridCSpace2D (even though GridCSpace2D is abstract)
+        virtual std::unique_ptr<amp::GridCSpace2D> construct(const amp::Environment2D& env) = 0;
+    
+        /*****************************************/
+
+        virtual ~PointAgentCSConstructor() {}
+};
+
 /// @brief Base class for implementing the WaveFront algorithm
 class WaveFrontAlgorithm {
     public:
@@ -30,44 +48,47 @@ class WaveFrontAlgorithm {
         virtual ~WaveFrontAlgorithm() {}
 };
 
-/// @brief WaveFront for a point agent (Exercise 1)
-class PointWaveFrontAlgorithm : public WaveFrontAlgorithm, public PointMotionPlanner2D {
+/// @brief WaveFront for a point agent (Exercise 1). You do NOT need to derive this class, it is already finished for you
+class PointWaveFrontAlgorithm : public PointMotionPlanner2D {
     public:
-        /******* User Implemented Methods ********/
-
-        /// @brief Create a discretized planning space of an environment (point agent). If you abstracted your GridCSpace2DConstructor, you may be
-        /// able to use that code here to construct a discretized C-space for a point agent.
-        /// @param environment Workspace and/or C-space (point agent)
-        /// @return Unique pointer to a GridCSpace2D object (see HW4)
-        virtual std::unique_ptr<amp::GridCSpace2D> constructDiscretizedWorkspace(const amp::Environment2D& environment) = 0;
-
-        /*****************************************/
+        PointWaveFrontAlgorithm(const std::shared_ptr<WaveFrontAlgorithm>& wf_algo, const std::shared_ptr<PointAgentCSConstructor>& cspace_constructor)
+            : m_wf_algo(wf_algo) 
+            , m_cspace_constructor(cspace_constructor)
+        {}
 
         /// @brief For this problem, I have implemented the plan method for you! This method uses the tools you have created to setup the WaveFront problem.
-        /// Make sure you understand the flow of this implementation. You do NOT need to edit anything in this function, or override it in your class.
-        /// @param link_manipulator_agent Your link manipulator with forward and inverse kinematics implemented in HW4
-        /// @param problem A planning problem with workspace obstacles and init/goal end effector locations
-        /// @return A sequence of ManipulatorStates that takes the manipulator from the q_init location to q_goal
+        /// Make sure you understand the flow of this implementation. You do NOT need to edit or override anything in this function.
+        /// @param problem A planning problem with workspace obstacles and init/goal locations
+        /// @return A path that takes the agent from the q_init location to q_goal
         virtual amp::Path2D plan(const amp::Problem2D& problem) override {
             // Construct the grid discretized workspace/cspace
-            std::unique_ptr<amp::GridCSpace2D> grid_cspace = constructDiscretizedWorkspace(problem);
+            std::unique_ptr<amp::GridCSpace2D> grid_cspace = m_cspace_constructor->construct(problem);
 
             // Call method to plan in C-space using the WaveFront algorithm using the discretized workspace
-            return planInCSpace(problem.q_init, problem.q_goal, *grid_cspace);
+            return m_wf_algo->planInCSpace(problem.q_init, problem.q_goal, *grid_cspace);
         }
 
         virtual ~PointWaveFrontAlgorithm() {}
+    
+    private:
+        /// @brief A shared pointer to the wavefront algorithm object
+        std::shared_ptr<WaveFrontAlgorithm> m_wf_algo;
+        /// @brief A shared pointer to a PointAgentCSConstructor object
+        std::shared_ptr<PointAgentCSConstructor> m_cspace_constructor;
 };
 
-/// @brief WaveFront algorithm for manipulation planning problems (Exercise 2)
-class ManipulatorWaveFrontAlgorithm : public WaveFrontAlgorithm, public LinkManipulatorMotionPlanner2D {
+/// @brief WaveFront algorithm for manipulation planning problems (Exercise 2). You do NOT need to derive this class, it is already finished for you
+class ManipulatorWaveFrontAlgorithm : public LinkManipulatorMotionPlanner2D {
     public:
         /// @brief Construct the algorithm class by providing a C-space constructor member (from HW4). 
-        /// @param c_space_constructor Shared pointer to a C-space constructor object. 
-        ManipulatorWaveFrontAlgorithm(const std::shared_ptr<GridCSpace2DConstructor>& c_space_constructor) : m_c_space_constructor(c_space_constructor) {}
+        /// @param cspace_constructor Shared pointer to a C-space constructor object. 
+        ManipulatorWaveFrontAlgorithm(const std::shared_ptr<WaveFrontAlgorithm>& wf_algo, const std::shared_ptr<ManipulatorCSConstructor>& c_space_constructor) 
+            : m_wf_algo(wf_algo)
+            , m_cspace_constructor(c_space_constructor) 
+        {}
 
         /// @brief For this problem, I have implemented the plan method for you! This method uses the tools you have created to setup the WaveFront problem.
-        /// Make sure you understand the flow of this implementation. You do NOT need to edit anything in this function, or override it in your class.
+        /// Make sure you understand the flow of this implementation. You do NOT need to edit or override anything in this function.
         /// @param link_manipulator_agent Your link manipulator with forward and inverse kinematics implemented in HW4
         /// @param problem A planning problem with workspace obstacles and init/goal end effector locations
         /// @return A sequence of ManipulatorStates that takes the manipulator from the q_init location to q_goal
@@ -81,18 +102,20 @@ class ManipulatorWaveFrontAlgorithm : public WaveFrontAlgorithm, public LinkMani
             amp::ManipulatorState goal_state = link_manipulator_agent.getConfigurationFromIK(problem.q_goal);
 
             // Construct the grid cspace
-            std::unique_ptr<amp::GridCSpace2D> grid_cspace = m_c_space_constructor->construct(link_manipulator_agent, problem);
+            std::unique_ptr<amp::GridCSpace2D> grid_cspace = m_cspace_constructor->construct(link_manipulator_agent, problem);
 
             // Now that we have everything, we can call method to plan in C-space using the WaveFront algorithm
             // Note, we can use the `convert` overloads to easily go between ManipulatorState and ManipulatorState2Link
-            return planInCSpace(convert(init_state), convert(goal_state), *grid_cspace);
+            return m_wf_algo->planInCSpace(convert(init_state), convert(goal_state), *grid_cspace);
         }
 
         virtual ~ManipulatorWaveFrontAlgorithm() {}
 
     protected:
-        /// @brief A shared pointer to a GridCSpace2DConstructor object
-        std::shared_ptr<GridCSpace2DConstructor> m_c_space_constructor;
+        /// @brief A shared pointer to the wavefront algorithm object
+        std::shared_ptr<WaveFrontAlgorithm> m_wf_algo;
+        /// @brief A shared pointer to a ManipulatorCSConstructor object
+        std::shared_ptr<ManipulatorCSConstructor> m_cspace_constructor;
 };
 
 struct LookupSearchHeuristic : public SearchHeuristic {

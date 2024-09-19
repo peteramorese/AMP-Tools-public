@@ -101,6 +101,9 @@ set(AMP_DEPENDENCY_INCLUDE_DIRS
 if (AMP_BUILD_LIB)
     message("Building AMPCore library")
 
+    file(MAKE_DIRECTORY ${AMP_OS_INSTALL_DIR})
+    file(MAKE_DIRECTORY ${AMP_EXECUTABLE_DIRECTORY})
+
     # Dependencies
     set(BUILD_SHARED_LIBS ON) # Toggle on for YAML
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/dependencies/yaml-cpp)

@@ -11,14 +11,14 @@ namespace amp {
 
 
 /// @brief 2D workspace with rectangular bounds and obstacles
-struct Environment2D {
+struct Environment2D { //ZACK  struct same as class?
     double x_min = 0.0; 
     double x_max = 10.0; 
     double y_min = 0.0; 
     double y_max = 10.0; 
     std::vector<Obstacle2D> obstacles;
 
-    void serialize(Serializer& szr) const;
+    void serialize(Serializer& szr) const; //ZACK ??
     void deserialize(const Deserializer& dszr);
 
     /// @brief Print the object
@@ -27,10 +27,10 @@ struct Environment2D {
 };
 
 /// @brief Environment with initial state and goal state
-struct Problem2D : Environment2D {
+struct Problem2D : Environment2D { //ZACK is this like a nested struct?? so it has all the things of environ2d plus more?
     /// @brief Mobile robot: location of reference point on robot
     /// Manipulator: end effector location
-    Eigen::Vector2d q_init;
+    Eigen::Vector2d q_init; //ZACK what is the double ::? what is eigen? LA library? what is this line doing?
     /// @brief Mobile robot: location of reference point on robot
     /// Manipulator: end effector location
     Eigen::Vector2d q_goal;
@@ -76,7 +76,7 @@ struct Random2DEnvironmentSpecification {
     /// @brief Number of (possibly-overlapping) convex obstacles
     uint32_t n_obstacles = 20; 
 
-    /// @brief Max number of vertices in an obstalce before convex hull. Increase for more circular obstacles
+    /// @brief Max number of vertices in an obstacle before convex hull. Increase for more circular obstacles
     uint32_t max_obstacle_vertices = 7;
     /// @brief Largest obstacle region. Increase for larger convex obstacles
     double max_obstacle_region_radius = 2.0;

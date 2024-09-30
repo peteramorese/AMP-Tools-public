@@ -9,12 +9,12 @@
 namespace amp {
 
 /// @brief Derive this class and implement your algorithm in the `plan` method. This class derives the MotionPlanner2D class with a "point" agent type
-class BugAlgorithm : public PointMotionPlanner2D {
+class BugAlgorithm : public PointMotionPlanner2D { //ZACK what is the : public? 
     public:
         /// @brief Solve a motion planning problem using a bug algorithm. Create a derived class and override this method
         //virtual amp::Path2D plan(const amp::Problem2D& problem) = 0;
 
-        virtual ~BugAlgorithm() {}
+        virtual ~BugAlgorithm() {} //ZACK what is virtual
 };
 
 class HW2 {

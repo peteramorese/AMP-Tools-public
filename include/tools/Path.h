@@ -10,7 +10,7 @@ namespace amp {
 /// @brief 2-dimensional path
 struct Path2D {
     Path2D() = default;
-    std::vector<Eigen::Vector2d> waypoints;
+    std::vector<Eigen::Vector2d> waypoints; //ZACK please explain what this std::vector<eigen shit is 
 
     /// @brief `true` if a solution was found, `false` otherwise
     bool valid;

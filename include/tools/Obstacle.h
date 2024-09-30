@@ -17,8 +17,8 @@ class Polygon {
         Polygon(std::vector<Eigen::Vector2d>& vertices_ccw);
         
         /// @brief Access the vertices in memory of the obstacle (counter clock wise coordinates)
-        /// @return Reference to stored CCW vertices
-        std::vector<Eigen::Vector2d>& verticesCCW(); 
+        /// @return Reference to stored CCW vertices //ZACK does this mean a pointer? what is "reference to"
+        std::vector<Eigen::Vector2d>& verticesCCW(); //ZACK explain this? difference between this and the one below?
 
         /// @brief Access the vertices in memory of the obstacle (counter clock wise coordinates)
         /// @return Reference to stored CCW vertices
@@ -38,6 +38,6 @@ class Polygon {
         std::vector<Eigen::Vector2d> m_vertices_ccw;
 };
 
-using Obstacle2D = Polygon;
+using Obstacle2D = Polygon; //ZACK what is this
 
 }

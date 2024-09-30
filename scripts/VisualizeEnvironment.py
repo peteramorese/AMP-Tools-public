@@ -10,8 +10,8 @@ import sys
 visualize_config = {
     "path_line_width": 2.0,
     "path_line_style": '--',
-    "path_line_color": "blue",
-    "path_point_marker": "o",
+    "path_line_color": "darkcyan",
+    "path_point_marker": ".",
     "show_grid": True,
     "text_font_size": 10.0,
     "show_text": False,
@@ -19,7 +19,7 @@ visualize_config = {
     "arrow_color": "path_line_color",
     "arrow_scale": 20.0,
     "arrow_head_width": 2,
-    "obstacle_color": "darkcyan",
+    "obstacle_color": "indianred",
     "collision_point_marker": "*",
     "collision_point_color": "red",
     "init_color": "indianred",
@@ -85,8 +85,8 @@ def visualize_path(path : list, collision_points = None):
     for waypt in path:
         x_pts.append(waypt[0])
         y_pts.append(waypt[1])
-    #ax.scatter(x_pts, y_pts, ls=visualize_config["path_line_style"], color=visualize_config["path_line_color"], lw=visualize_config["path_line_width"], zorder=2)
-    ax.scatter(x_pts, y_pts, marker=visualize_config["path_point_marker"], color=visualize_config["path_line_color"], zorder=2)
+    # ax.scatter(x_pts, y_pts, marker=visualize_config["path_point_marker"], color=visualize_config["path_line_color"], zorder=2)
+    ax.plot(x_pts, y_pts, marker=visualize_config["path_point_marker"], color=visualize_config["path_line_color"], zorder=2)
     if collision_points is not None:
         for colpt in collision_points:
             x_col_pts.append(colpt[0])

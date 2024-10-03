@@ -31,7 +31,7 @@ def visualize_vector_field(bounds: list, n_grid: int, u1_values: list, u2_values
     magnitudes = np.sqrt(u1**2 + u2**2)
 
     # Normalize vectors to have the same length (0.5 in this case)
-    scale = 0.4
+    scale = (bounds[1] - bounds[0]) / n_grid 
     u1_normalized = u1 / magnitudes * scale  # Normalize to length 0.5
     u2_normalized = u2 / magnitudes * scale
 
@@ -40,16 +40,14 @@ def visualize_vector_field(bounds: list, n_grid: int, u1_values: list, u2_values
     yv = np.linspace(bounds[2], bounds[3], n_grid)
     x, y = np.meshgrid(xv, yv)
 
-    # Create figure and axis
-    # fig, ax = plt.gca() 
-    fig, ax = plt.subplots()
-    # fig = ax.get_figure()
+    ax = plt.gca()
+    fig_ = ax.get_figure()
 
     # Plot vector field with normalized vectors, colored by original magnitudes
     quiver = ax.quiver(x, y, u1_normalized, u2_normalized, magnitudes, angles='xy', scale_units='xy', scale=1, cmap='viridis')
 
     # Add color bar to represent the magnitude
-    cbar = fig.colorbar(quiver)
+    cbar = fig_.colorbar(quiver)
 
     # Set axis limits and labels
     ax.set_xlim(bounds[0], bounds[1])

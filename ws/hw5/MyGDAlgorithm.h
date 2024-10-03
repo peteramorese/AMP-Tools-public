@@ -28,4 +28,8 @@ class MyPotentialFunction : public amp::PotentialFunction2D {
         virtual double operator()(const Eigen::Vector2d& q) const override {
             return q[0] * q[0] + q[1] * q[1];
         }
+
+		virtual Eigen::Vector2d getGradient(const Eigen::Vector2d& q) const override {
+            return Eigen::Vector2d(q[0] * q[0],  q[1] * q[1]);
+        }
 };

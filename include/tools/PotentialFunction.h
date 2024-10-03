@@ -17,6 +17,8 @@ class PotentialFunction2D {
         /// @return The potential function value (height)
         virtual double operator()(const Eigen::Vector2d& q) const = 0;
 
+		virtual Eigen::Vector2d getGradient(const Eigen::Vector2d& q) const = 0;
+
         /*****************************************/
 };
 

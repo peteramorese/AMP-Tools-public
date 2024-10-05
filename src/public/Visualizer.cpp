@@ -204,10 +204,10 @@ void amp::Visualizer::makeFigure(const GridCSpace2D& cspace, const Path2D& path)
     createAxes(path);
 }
 
-void amp::Visualizer::makeFigure(const PotentialFunction2D& potential_function, const Problem2D& prob, std::size_t n_grid, double u_min, double u_max) {
+void amp::Visualizer::makeFigure(const PotentialFunction2D& potential_function, const Problem2D& prob, std::size_t n_grid, bool vector, double u_min, double u_max) {
     newFigure();
     createAxes(prob);
-    createAxes(potential_function, prob, n_grid, u_min, u_max);
+    createAxes(potential_function, prob, n_grid, vector, u_min, u_max);
 }
 
 void amp::Visualizer::makeFigure(const Problem2D& prob, const Graph<double>& coordinate_map, const std::map<amp::Node, Eigen::Vector2d>& node_to_coordinate) {
@@ -378,7 +378,7 @@ void amp::Visualizer::createAxes(const GridCSpace2D& cspace) {
     ampprivate::pybridge::ScriptCaller::call("VisualizeCSpace", "visualize_grid_cspace_2d", std::make_tuple(x0_cells_arg->get(), x1_cells_arg->get(), bounds_arg->get(), data_arg->get()));
 }
 
-void amp::Visualizer::createAxes(const PotentialFunction2D& potential_function, const Problem2D& prob, std::size_t n_grid, double u_min, double u_max) {
+void amp::Visualizer::createAxes(const PotentialFunction2D& potential_function, const Problem2D& prob, std::size_t n_grid, bool vector, double u_min, double u_max) {
     // Bounds
     std::unique_ptr<ampprivate::pybridge::PythonObject> bounds_arg = workspaceBoundsToPythonObject(prob.x_min, prob.x_max, prob.y_min, prob.y_max);
 
@@ -416,9 +416,10 @@ void amp::Visualizer::createAxes(const PotentialFunction2D& potential_function, 
     std::unique_ptr<ampprivate::pybridge::PythonObject> u2_values_arg = ampprivate::pybridge::makeList(std::move(u2_values));
 
     // Call Python function to visualize
-    ampprivate::pybridge::ScriptCaller::call("VisualizePotentialFunction", "visualize_vector_field", std::make_tuple(bounds_arg->get(), n_grid_arg->get(), u1_values_arg->get(), u2_values_arg->get()));
-    // newFigure();
-    // ampprivate::pybridge::ScriptCaller::call("VisualizePotentialFunction", "visualize_potential_function", std::make_tuple(bounds_arg->get(), n_grid_arg->get(), u_values_arg->get()));
+    if (vector)
+        ampprivate::pybridge::ScriptCaller::call("VisualizePotentialFunction", "visualize_vector_field", std::make_tuple(bounds_arg->get(), n_grid_arg->get(), u1_values_arg->get(), u2_values_arg->get()));
+    else
+        ampprivate::pybridge::ScriptCaller::call("VisualizePotentialFunction", "visualize_potential_function", std::make_tuple(bounds_arg->get(), n_grid_arg->get(), u_values_arg->get()));
 }
 
 void amp::Visualizer::makeBoxPlot(const std::list<std::vector<double>>& data_sets, const std::vector<std::string>& labels, const std::string& title, const std::string& xlabel, const std::string& ylabel) {

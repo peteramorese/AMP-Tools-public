@@ -1,39 +1,53 @@
 #include "AMPCore.h"
+
+#include "hw/HW2.h"
 #include "hw/HW6.h"
+
+#include "MyAStar.h"
+#include "MyCSConstructors.h"
+#include "ManipulatorSkeleton.h"
 
 using namespace amp;
 
-class MyGridCSpace : public amp::GridCSpace2D {
-    public:
-        //MyGridCSpace()
-        //    : amp::GridCSpace2D(1, 1, 0.0, 1.0, 0.0, 1.0) {}
-        MyGridCSpace(std::size_t x0_cells, std::size_t x1_cells, double x0_min, double x0_max, double x1_min, double x1_max)
-            : amp::GridCSpace2D(x0_cells, x1_cells, x0_min, x0_max, x1_min, x1_max) {}
-
-        virtual std::pair<std::size_t, std::size_t> getCellFromPoint(double x0, double x1) const {
-            return {0, 0};
-        }
-};
-
-class MyWaveFrontAlgo : public amp::WaveFrontAlgorithm {
-    public:
-        // You need to implement here
-        virtual amp::Path2D planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const amp::GridCSpace2D& grid_cspace) override {
-            return amp::Path2D();
-        }
-};
-
-class MyAStarAlgo : public amp::AStar {
-    public:
-        virtual GraphSearchResult search(const amp::ShortestPathProblem& problem, const amp::SearchHeuristic& heuristic) override {
-            return GraphSearchResult();
-        }
-};
-
 int main(int argc, char** argv) {
+    /* Include this line to have different randomized environments every time you run your code (NOTE: this has no affect on grade()) */
     amp::RNG::seed(amp::RNG::randiUnbounded());
+
+    // You will need your 2-link manipulator from HW4
+    MyManipulator2D manipulator;
+    Problem2D point_problem = HW2::getWorkspace1();
+    Problem2D manip_problem = HW6::getHW4Problem2();
     
-    amp::HW6::grade<MyPointWFAlgo, MyManipWFAlgo, MyAStarAlgo>("nonhuman.biologic@myspace.edu", argc, argv, std::make_tuple(), std::make_tuple("hey therre"), std::make_tuple());
+    // Construct point-agent and manipulator cspace instances.
+    std::size_t n_cells = 5;
+    std::shared_ptr<MyPointAgentCSConstructor> point_agent_ctor = std::make_shared<MyPointAgentCSConstructor>(n_cells);
+    std::shared_ptr<MyManipulatorCSConstructor> manipulator_ctor = std::make_shared<MyManipulatorCSConstructor>(n_cells);
+    std::shared_ptr<WaveFrontAlgorithm> wf_algo = std::make_shared<MyWaveFrontAlgorithm>();
+    
+    // Populate the cspace cells with collision values for visulaization.
+    std::unique_ptr<amp::GridCSpace2D> point_cspace = point_agent_ctor->construct(point_problem);
+    std::unique_ptr<amp::GridCSpace2D> manipulator_cspace = manipulator_ctor->construct(manipulator, manip_problem);
+
+    // Combine your wavefront planner with a cspace object (you do not need to modify these classes).
+    PointWaveFrontAlgorithm point_algo(wf_algo, point_agent_ctor);
+    ManipulatorWaveFrontAlgorithm manip_algo(wf_algo, manipulator_ctor);
+
+    // Return a path for the point-agent and manipulator using c-space planning.
+    Path2D path = point_algo.plan(point_problem);
+    Visualizer::makeFigure(point_problem, path); // Visualize path in workspace
+    Visualizer::makeFigure(*point_cspace, path); // Visualize path in cspace
+
+    ManipulatorTrajectory2Link trajectory = manip_algo.plan(manipulator, manip_problem);
+    Visualizer::makeFigure(manip_problem, manipulator, trajectory);
+    Visualizer::makeFigure(*manipulator_cspace, trajectory);
+
+    // For Exercise 3, you will need to implement the A* algorithm.
+    ShortestPathProblem problem = HW6::getEx3SPP();
+    LookupSearchHeuristic heuristic = HW6::getEx3Heuristic();
+    MyAStarAlgo algo;
+    MyAStarAlgo::GraphSearchResult result = algo.search(problem, heuristic);
+
+    Visualizer::showFigures();
     return 0;
 
 }

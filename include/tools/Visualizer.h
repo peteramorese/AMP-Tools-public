@@ -119,7 +119,7 @@ class Visualizer {
         /// @param n_grid Number of grid cells along each dimension to discretize the height map
         /// @param u_min Lower bound for the height map
         /// @param u_max Upper bound for the height map
-        static void makeFigure(const PotentialFunction2D& potential_function,const Problem2D& prob, std::size_t n_grid = 100, double u_min = 0.0, double u_max = 100.0);
+        static void makeFigure(const PotentialFunction2D& potential_function,const Problem2D& prob, std::size_t n_grid = 100, bool vector = true, double u_min = 0.0, double u_max = 100.0);
 
         /// @brief Visualize a 2D problem with a map of coordinates
         /// @tparam FXN Callable type [automatically deduced]
@@ -190,7 +190,7 @@ class Visualizer {
         static void createAxes(const std::vector<Polygon>& polygons, const std::vector<double>& heights_3d);
         static void createAxes(const LinkManipulator2D& link_manipulator, const ManipulatorState& state, double* cmap_scale = nullptr, bool colliding = false);
         static void createAxes(const GridCSpace2D& cspace);
-        static void createAxes(const PotentialFunction2D& potential_function, const Problem2D& prob, std::size_t n_grid, double u_min, double u_max);
+        static void createAxes(const PotentialFunction2D& potential_function, const Problem2D& prob, std::size_t n_grid, bool vector, double u_min, double u_max);
         template <typename FXN>
         static void createAxes(const Graph<double>& map, const FXN& getCoordinateFromNode);
         static void newFigure();

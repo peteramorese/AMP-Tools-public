@@ -73,6 +73,21 @@ class AStar {
 
             /// @brief Path cost (must equal sum of edge weights along node_path)
             double path_cost;
+
+            void print() const {
+                LOG("Results:");
+                std::string valid = success ? "True" : "False";
+                PRINT_NAMED("Valid path: ", valid);
+                PRINT_NAMED("Path cost: ", path_cost);
+                std::stringstream ss;
+                for (auto it = node_path.begin(); it != node_path.end(); ++it) {
+                    ss << *it;
+                    if (std::next(it) != node_path.end())  // Check if this is the last element
+                        ss << " -> ";
+                }
+
+                PRINT_NAMED("Node path: ", ss.str());
+            };
         };
     public:
         /// @brief Find the shortest path from an init node to a goal node on a graph, while using a heuristic.

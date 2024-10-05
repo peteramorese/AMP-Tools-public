@@ -60,6 +60,7 @@ class MyPotentialFunction : public amp::PotentialFunction2D {
             return att + rep;
         }
 
+<<<<<<< HEAD
 		double euclidian(const Eigen::Vector2d& q, const Eigen::Vector2d& p) const{
 			return sqrt(pow((q[0]-p[0]), 2) + pow(q[1]-p[1],2));
 			// return 1;
@@ -79,3 +80,9 @@ class MyPotentialFunction : public amp::PotentialFunction2D {
 };
 
 
+=======
+		virtual Eigen::Vector2d getGradient(const Eigen::Vector2d& q) const override {
+            return Eigen::Vector2d(q[0] * q[0],  q[1] * q[1]);
+        }
+};
+>>>>>>> 548f68329892ba68174407aa97d8ff4ecb6b9568

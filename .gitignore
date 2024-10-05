@@ -4,6 +4,8 @@
 *.swp
 *~
 *.DS_Store
+AMPenv/
+.vscode
 
 # Ignore auto-generated scripts
 /build_and_run.sh

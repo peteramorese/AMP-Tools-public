@@ -10,8 +10,8 @@ import sys
 visualize_config = {
     "path_line_width": 2.0,
     "path_line_style": '--',
-    "path_line_color": "darkcyan",
-    "path_point_marker": ".",
+    "path_line_color": "blue",
+    "path_point_marker": "o",
     "show_grid": True,
     "text_font_size": 10.0,
     "show_text": False,

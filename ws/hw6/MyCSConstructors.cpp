@@ -1,5 +1,9 @@
 #include "MyCSConstructors.h"
 
+////////////////////// THIS IS FROM HW4 //////////////////////
+
+/* You can just move these classes to shared folder and include them instead of copying them to hw6 project*/
+
 std::pair<std::size_t, std::size_t> MyGridCSpace2D::getCellFromPoint(double x0, double x1) const {
     // Implment your discretization procedure here, such that the point (x0, x1) lies within the returned cell
     std::size_t cell_x = 0; // x index of cell
@@ -28,6 +32,8 @@ std::unique_ptr<amp::GridCSpace2D> MyManipulatorCSConstructor::construct(const a
     // The reason why this works is not super important for our purposes, but if you are curious, look up polymorphism!
     return cspace_ptr;
 }
+
+//////////////////////////////////////////////////////////////
 
 // Override this method for computing all of the boolean collision values for each cell in the cspace
 std::unique_ptr<amp::GridCSpace2D> MyPointAgentCSConstructor::construct(const amp::Environment2D& env) {

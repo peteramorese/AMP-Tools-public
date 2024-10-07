@@ -39,7 +39,7 @@ class MyManipulatorCSConstructor : public amp::ManipulatorCSConstructor {
 
 //////////////////////////////////////////////////////////////
 
-// Derive the HW4 ManipulatorCSConstructor class and override the missing method
+// Derive the PointAgentCSConstructor class and override the missing method
 class MyPointAgentCSConstructor : public amp::PointAgentCSConstructor {
     public:
         // To make things easy, add the number of cells as a ctor param so you can easily play around with it

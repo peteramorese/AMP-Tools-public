@@ -216,6 +216,7 @@ void amp::Visualizer::makeFigure(const Problem2D& prob, const Graph<double>& coo
 }
 
 void amp::Visualizer::makeFigure(const Problem2D& prob, const Path2D& path, const Graph<double>& coordinate_map, const std::map<amp::Node, Eigen::Vector2d>& node_to_coordinate) {
+    newFigure();
     createAxes(prob);
     createAxes(coordinate_map, [&](amp::Node node) -> Eigen::Vector2d {return node_to_coordinate.at(node);});
     createAxes(path);

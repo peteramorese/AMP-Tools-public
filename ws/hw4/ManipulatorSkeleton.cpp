@@ -8,45 +8,10 @@ MyManipulator2D::MyManipulator2D()
 
 MyManipulator2D::MyManipulator2D(const std::vector<double>& link_lengths) : LinkManipulator2D(link_lengths){}
 
-// Override this method for implementing forward kinematics
-// Eigen::Vector2d MyManipulator2D::getJointLocation(const amp::ManipulatorState& state, uint32_t joint_index) const {
-//     std::cout<< "nlinks: " << nLinks() << "\n";
-//     std::cout<< "size of linklengths: " << getLinkLengths().size() << "\n";
-//     std::vector<Eigen::Vector3d> joint_positions;
-//     for (int i = state.size(); i>=0; i=i-1){
-//         double theta = -1;
-//         if (i == state.size()){
-//             theta = 0;
-//         }
-//         theta = state[i];
-//         double linklen =  getLinkLengths()[i];
-//         if (i == 0){
-//             linklen = 0;
-//         }
-//         else{
-//             linklen = getLinkLengths()[i-1];
-//         }
-//         Eigen::Matrix3d trans; 
-//         trans << cos(theta), -sin(theta), linklen,
-//                 sin(theta), cos(theta), 0,
-//                 0, 0, 1;
-//         Eigen::Vector3d pose;
-//         pose << 0, 0, 1;
-//         joint_positions.insert(joint_positions.begin(), pose);
-//         for (int j = 0; j < joint_positions.size(); j++){
-//             joint_positions[j] = trans*joint_positions[j];
-//         }
-//     }
-//     Eigen::Vector2d result;
- 
-//     result << joint_positions[joint_index][0], joint_positions[joint_index][1];
-//     //std::cout<< "returning pos " << joint_positions[joint_index][0] << " , " << joint_positions[joint_index][1] << " for joint index " << joint_index << "\n";
-//     std::cout<<"test" << "\n";
-//     return result;
-//     }
     
 
 Eigen::Vector2d MyManipulator2D::getJointLocation(const amp::ManipulatorState& state, uint32_t joint_index) const {
+    std::cout << "HERE" << "\n";
     Eigen::Vector2d result; result << 0, 0;
     double theta = 0;
     for (int i = 0; i < joint_index; i++){

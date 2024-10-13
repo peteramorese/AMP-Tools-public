@@ -20,6 +20,7 @@ class MyGridCSpace2D : public amp::GridCSpace2D {
 
         // Override this method for determining which cell a continuous point belongs to
         virtual std::pair<std::size_t, std::size_t> getCellFromPoint(double x0, double x1) const override;
+        std::vector<std::pair<std::size_t, std::size_t>> getGridNeighbors(int i, int j) const override;
 
 };
 
@@ -55,6 +56,6 @@ class MyPointAgentCSConstructor : public amp::PointAgentCSConstructor {
 class MyWaveFrontAlgorithm : public amp::WaveFrontAlgorithm {
     public:
         virtual amp::Path2D planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const amp::GridCSpace2D& grid_cspace) override;
-
+        
 };
 

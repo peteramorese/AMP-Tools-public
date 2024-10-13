@@ -154,6 +154,13 @@ class GridCSpace2D : public ConfigurationSpace2D, public DenseArray2D<bool> {
         /// @return A pair (i, j) of indices that correspond to the cell that (x0, x1) is in
         virtual std::pair<std::size_t, std::size_t> getCellFromPoint(double x0, double x1) const = 0;
 
+
+
+        /// @brief Given a point in the grid, return a vector containing its neighbors
+        /// @param i x-value of cell
+        /// @param j y-value of cell
+        /// @return A vector of the neighboring cells
+        virtual  std::vector<std::pair<std::size_t, std::size_t>> getGridNeighbors(int i, int j) const = 0;
         /*****************************************/
 
         /// @brief I have overridded this method for you. This method uses the `getCellFromPoint` to determine which cell (x0, x1) is in,
@@ -168,6 +175,7 @@ class GridCSpace2D : public ConfigurationSpace2D, public DenseArray2D<bool> {
 
         /// @brief Virtual dtor
         virtual ~GridCSpace2D() {}
+        
 };
 
 }

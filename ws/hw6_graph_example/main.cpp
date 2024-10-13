@@ -5,13 +5,13 @@ int main() {
 
     // Let's connect some nodes with some edges
     amp::Graph<std::string> graph;
-    graph.connect(0, 1, "aliens");
-    graph.connect(1, 2, "are");
-    graph.connect(1, 0, "not");
-    graph.connect(1, 6, "real,");
-    graph.connect(6, 2, "do");
-    graph.connect(6, 2, "you");
-    graph.connect(6, 1, "believe me");
+    graph.connect(0, 1, "A");
+    graph.connect(1, 2, "B");
+    graph.connect(1, 0, "C");
+    graph.connect(1, 6, "D");
+    graph.connect(6, 2, "E");
+    graph.connect(6, 2, "F");
+    graph.connect(6, 1, "G");
 
     // Make sure the graph is correct by printing it
     graph.print();

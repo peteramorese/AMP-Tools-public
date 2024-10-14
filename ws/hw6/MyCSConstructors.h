@@ -39,7 +39,7 @@ class MyManipulatorCSConstructor : public amp::ManipulatorCSConstructor {
 
 //////////////////////////////////////////////////////////////
 
-// Derive the HW4 ManipulatorCSConstructor class and override the missing method
+// Derive the PointAgentCSConstructor class and override the missing method
 class MyPointAgentCSConstructor : public amp::PointAgentCSConstructor {
     public:
         // To make things easy, add the number of cells as a ctor param so you can easily play around with it
@@ -54,7 +54,7 @@ class MyPointAgentCSConstructor : public amp::PointAgentCSConstructor {
 
 class MyWaveFrontAlgorithm : public amp::WaveFrontAlgorithm {
     public:
-        virtual amp::Path2D planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const amp::GridCSpace2D& grid_cspace) override;
+        virtual amp::Path2D planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const amp::GridCSpace2D& grid_cspace, bool isManipulator) override;
 
 };
 

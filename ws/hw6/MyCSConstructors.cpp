@@ -1,5 +1,9 @@
 #include "MyCSConstructors.h"
 
+////////////////////// THIS IS FROM HW4 //////////////////////
+
+/* You can just move these classes to shared folder and include them instead of copying them to hw6 project*/
+
 std::pair<std::size_t, std::size_t> MyGridCSpace2D::getCellFromPoint(double x0, double x1) const {
     // Implment your discretization procedure here, such that the point (x0, x1) lies within the returned cell
     std::size_t cell_x = 0; // x index of cell
@@ -29,6 +33,8 @@ std::unique_ptr<amp::GridCSpace2D> MyManipulatorCSConstructor::construct(const a
     return cspace_ptr;
 }
 
+//////////////////////////////////////////////////////////////
+
 // Override this method for computing all of the boolean collision values for each cell in the cspace
 std::unique_ptr<amp::GridCSpace2D> MyPointAgentCSConstructor::construct(const amp::Environment2D& env) {
     // Create an object of my custom cspace type (e.g. MyGridCSpace2D) and store it in a unique pointer. 
@@ -53,10 +59,15 @@ std::unique_ptr<amp::GridCSpace2D> MyPointAgentCSConstructor::construct(const am
     return cspace_ptr;
 }
 
-amp::Path2D MyWaveFrontAlgorithm::planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const amp::GridCSpace2D& grid_cspace) {
+amp::Path2D MyWaveFrontAlgorithm::planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const amp::GridCSpace2D& grid_cspace, bool isManipulator) {
     // Implement your WaveFront algorithm here
     amp::Path2D path;
     path.waypoints.push_back(q_init);
     path.waypoints.push_back(q_goal);
+    if (isManipulator) {
+        Eigen::Vector2d bounds0 = Eigen::Vector2d(0.0, 0.0);
+        Eigen::Vector2d bounds1 = Eigen::Vector2d(2*M_PI, 2*M_PI);
+        amp::unwrapWaypoints(path.waypoints, bounds0, bounds1);
+    }
     return path;
 }

@@ -6,9 +6,10 @@
 using namespace amp;
 
 int main(int argc, char** argv) {
-    amp::RNG::seed(amp::RNG::randiUnbounded());
+    // amp::RNG::seed(amp::RNG::randiUnbounded());
+    amp::RNG::seed(350);
     bool makeBoxPlot = false;
-    UASProblem prob(3,3,30,0.25,4.0,0.1,5,0.75); //UASProblem(n_GA, n_UAV, n_Obs, min_Obs, max_Obs, size_UAV, los_dist, conRad)
+    UASProblem prob(3,3,30,0.25,4.0,0.1,10,0.75); //UASProblem(n_GA, n_UAV, n_Obs, min_Obs, max_Obs, size_UAV, los_dist, conRad)
     // UASProblem prob(3,3,20,0.75,4.0,0.1,7,0.75);
     MyFlightPlanner fPlanner;
     fPlanner.getN() = 200; //Max number of attempts for finding the next centralized planner state

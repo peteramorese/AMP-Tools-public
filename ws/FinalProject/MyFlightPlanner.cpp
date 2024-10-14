@@ -103,7 +103,7 @@ amp::MultiAgentPath2D MyFlightPlanner::plan(UASProblem& problem){
 void MyFlightPlanner::makeFlightPlan(int minUAV, int maxUAV, int runs, UASProblem& problem){
     for(int n = minUAV; n <= maxUAV; n++){
         problem.changeNumUAV(n);
-        // LOG("Attempting to plan with " << n << " UAVs");
+        LOG("Attempting to plan with " << n << " UAVs");
         for(int k = 0; k < runs; k++){
             amp::MultiAgentPath2D solution = plan(problem);
             if(success){
@@ -176,7 +176,9 @@ UASProblem::UASProblem(uint32_t n_GA, uint32_t n_UAV, uint32_t n_Obs, double min
     cSpec.n_agents = n_GA;
     numGA = n_GA;
     amp::EnvironmentTools envGen;
-    amp::MultiAgentProblem2D randGen = envGen.generateRandomMultiAgentProblem(eSpec, cSpec);
+    LOG("Starting WITH ENV1");
+    amp::MultiAgentProblem2D randGen = envGen.generateRandomMultiAgentProblem(eSpec, cSpec, 0);
+    LOG("DONE WITH ENV1");
     this->obstacles = randGen.obstacles;
     this->agent_properties = randGen.agent_properties;
     // Solve multiagent paths for Ground Agents to generate paths to plan around using decentralized RRT planner
@@ -202,7 +204,7 @@ UASProblem::UASProblem(uint32_t n_GA, uint32_t n_UAV, uint32_t n_Obs, double min
     cSpec.n_agents = n_UAV;
     cSpec.min_agent_radius = radUAV;
     cSpec.max_agent_radius = radUAV;
-    randGen = envGen.generateRandomMultiAgentProblem(eSpec, cSpec); //set the agent properties of problem to number of UAS
+    randGen = envGen.generateRandomMultiAgentProblem(eSpec, cSpec, 0); //set the agent properties of problem to number of UAS
     this->agent_properties = randGen.agent_properties;
     vMin = 0.1; //min ground speed
     vMax = connectRadius; //max ground speed
@@ -227,7 +229,7 @@ void UASProblem::changeNumUAV(int n_UAV){
 // FlightChecker member functions
 void FlightChecker::makeLOS(const UASProblem& problem){
     // checks the LOS between all the agents, essentially just instantiating the graph.
-    // objects are rdifferentiated by their index, with all the GAs being added first, followed by all the UAVs
+    // objects are identified by their index, with all the GAs being added first, followed by all the UAVs
     for(int j = 0; j < (problem.numGA + problem.numUAV); j++){
         std::set<int> temp;
         for(int k = 0; k < (problem.numGA + problem.numUAV); k++){

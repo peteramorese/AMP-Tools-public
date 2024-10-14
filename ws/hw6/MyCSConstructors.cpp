@@ -13,6 +13,10 @@ Eigen::Vector2d gJL(const amp::ManipulatorState& state, uint32_t joint_index, st
     return result;
 }
 
+////////////////////// THIS IS FROM HW4 //////////////////////
+
+/* You can just move these classes to shared folder and include them instead of copying them to hw6 project*/
+
 std::pair<std::size_t, std::size_t> MyGridCSpace2D::getCellFromPoint(double x0, double x1) const {
     // Implment your discretization procedure here, such that the point (x0, x1) lies within the returned cell
     double cellsize = 0.25;
@@ -145,6 +149,8 @@ std::unique_ptr<amp::GridCSpace2D> MyManipulatorCSConstructor::construct(const a
     return cspace_ptr;
 }
 
+//////////////////////////////////////////////////////////////
+
 // Override this method for computing all of the boolean collision values for each cell in the cspace
 std::unique_ptr<amp::GridCSpace2D> MyPointAgentCSConstructor::construct(const amp::Environment2D& env) {
 
@@ -204,6 +210,7 @@ std::pair<std::size_t, std::size_t> grid_dim = size();
     
 }
 
+<<<<<<< HEAD
 amp::Path2D MyWaveFrontAlgorithm::planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const amp::GridCSpace2D& grid_cspace) {
     //first, create a 2d array with the same number of cells as gridspace; set all values to0
     // then, find the goal and set it to 2 or something
@@ -301,6 +308,10 @@ amp::Path2D MyWaveFrontAlgorithm::planInCSpace(const Eigen::Vector2d& q_init, co
     
     test_cell = grid_cspace.getCellFromPoint(-4.75, 5.57);
     std::cout << "Value of cell at (-4.75, 5.57): " << wave_array[test_cell.first][test_cell.second] << "\n";
+=======
+amp::Path2D MyWaveFrontAlgorithm::planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const amp::GridCSpace2D& grid_cspace, bool isManipulator) {
+    // Implement your WaveFront algorithm here
+>>>>>>> peteramorese-main
     amp::Path2D path;
     std::cout << "Dimensions of wave_array3: " << sizeof(wave_array) << ", " << sizeof(wave_array[0]) << "\n";
     
@@ -340,6 +351,11 @@ amp::Path2D MyWaveFrontAlgorithm::planInCSpace(const Eigen::Vector2d& q_init, co
     std::cout<< grid_cspace.inCollision(0, 0) << " <- IN COLLIS \n"; 
 
     path.waypoints.push_back(q_goal);
+    if (isManipulator) {
+        Eigen::Vector2d bounds0 = Eigen::Vector2d(0.0, 0.0);
+        Eigen::Vector2d bounds1 = Eigen::Vector2d(2*M_PI, 2*M_PI);
+        amp::unwrapWaypoints(path.waypoints, bounds0, bounds1);
+    }
     return path;
 }
 

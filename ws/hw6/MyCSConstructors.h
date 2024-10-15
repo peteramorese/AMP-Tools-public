@@ -55,12 +55,10 @@ class MyPointAgentCSConstructor : public amp::PointAgentCSConstructor {
 
 class MyWaveFrontAlgorithm : public amp::WaveFrontAlgorithm {
     public:
-<<<<<<< HEAD
         virtual amp::Path2D planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const amp::GridCSpace2D& grid_cspace) override;
         
-=======
-        virtual amp::Path2D planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const amp::GridCSpace2D& grid_cspace, bool isManipulator) override;
+        //this is peter's
+        // virtual amp::Path2D planInCSpace(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal, const amp::GridCSpace2D& grid_cspace, bool isManipulator) override;
 
->>>>>>> peteramorese-main
 };
 

@@ -176,9 +176,12 @@ UASProblem::UASProblem(uint32_t n_GA, uint32_t n_UAV, uint32_t n_Obs, double min
     cSpec.n_agents = n_GA;
     numGA = n_GA;
     amp::EnvironmentTools envGen;
-    LOG("Starting WITH ENV1");
-    amp::MultiAgentProblem2D randGen = envGen.generateRandomMultiAgentProblem(eSpec, cSpec, 0);
-    LOG("DONE WITH ENV1");
+    // amp::MultiAgentProblem2D randGen = envGen.generateRandomMultiAgentProblem(eSpec, cSpec);
+    amp::MultiAgentProblem2D randGen = amp::HW8::getWorkspace1(n_GA);
+    x_min = 0.0; 
+    x_max = 15.0; 
+    y_min = 0.0; 
+    y_max = 15.0; 
     this->obstacles = randGen.obstacles;
     this->agent_properties = randGen.agent_properties;
     // Solve multiagent paths for Ground Agents to generate paths to plan around using decentralized RRT planner
@@ -204,12 +207,16 @@ UASProblem::UASProblem(uint32_t n_GA, uint32_t n_UAV, uint32_t n_Obs, double min
     cSpec.n_agents = n_UAV;
     cSpec.min_agent_radius = radUAV;
     cSpec.max_agent_radius = radUAV;
-    randGen = envGen.generateRandomMultiAgentProblem(eSpec, cSpec, 0); //set the agent properties of problem to number of UAS
+    randGen = envGen.generateRandomMultiAgentProblem(eSpec, cSpec); //set the agent properties of problem to number of UAS
     this->agent_properties = randGen.agent_properties;
     vMin = 0.1; //min ground speed
     vMax = connectRadius; //max ground speed
     wMin = -0.5; //min angular velocity [rad/time]
     wMax = 0.5; //max angular velocity [rad/time]
+    x_min = 0.0; 
+    x_max = 15.0; 
+    y_min = 0.0; 
+    y_max = 15.0; 
 }
 
 void UASProblem::changeNumUAV(int n_UAV){

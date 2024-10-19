@@ -111,6 +111,7 @@ struct ShortestPathProblem {
 
 	/// @brief Goal node to find the shortest path to
 	amp::Node goal_node;
+
 };
 
 class GraphTools {

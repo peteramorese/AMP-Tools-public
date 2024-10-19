@@ -6,16 +6,27 @@
 namespace amp {
     
 class GenericPRM {
+    private:
+
+        std::shared_ptr<amp::Graph<double>> mygraph;
+        std::map<amp::Node, Eigen::Vector2d> mynodes;
+        amp::Problem2D myproblem;
+
+        // Add other arguments if needed
     public:
-        // amp::Path plan(const Eigen::VectorXd& init_state, 
-        //         const Eigen::VectorXd& goal_state, 
-        //         const amp::ConfigurationSpace& collision_checker,
-        //         const DistanceMetric& metric);
+        std::map<amp::Node, Eigen::Vector2d> get_nodes();
+        std::shared_ptr<amp::Graph<double>> get_graph();
+        
 
         amp::Path plan(const Eigen::VectorXd& init_state, 
                 const Eigen::VectorXd& goal_state, 
                 const MyPointCollisionChecker& collision_checker,
                 const DistanceMetric& metric);
+
+    protected:
+        void set_problem(const amp::Problem2D& problem) {
+            myproblem = problem;
+        }
 };
 
 class MyPRM2D : public amp::PRM2D, public GenericPRM {
@@ -24,13 +35,10 @@ class MyPRM2D : public amp::PRM2D, public GenericPRM {
         virtual amp::Path2D plan(const amp::Problem2D& problem) override {
             Eigen::VectorXd lower = Eigen::Vector2d{problem.x_min, problem.y_min};
             Eigen::VectorXd upper = Eigen::Vector2d{problem.x_max, problem.y_max};
-            // MyPointCollisionChecker cspace = MyPointCollisionChecker(problem.x_min, problem.x_max, problem.y_min, problem.y_max);
             MyPointCollisionChecker cspace = MyPointCollisionChecker(lower, upper);
-
-         
-            // amp::ConfigurationSpace MPCC = amp::ConfigurationSpace(lower, upper);
-
             const DistanceMetric& metric = DistanceMetric();
+
+            set_problem(problem);
 
             // Call the generic planner
             amp::Path path_nd = GenericPRM::plan(problem.q_init, problem.q_goal, cspace, metric);
@@ -39,7 +47,13 @@ class MyPRM2D : public amp::PRM2D, public GenericPRM {
             amp::Path2D path_2d;
             for (const auto& waypoint : path_nd.waypoints) {
                 path_2d.waypoints.push_back(waypoint.head<2>());
+                std::cout << "waypoint: " << waypoint << "\n";
             }
+
+            
+
+
+            //std::cout << "path length: " << path_2d.length() << "" << "\n";
             return path_2d;
         }
 

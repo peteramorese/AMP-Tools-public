@@ -51,7 +51,7 @@ class HW8 {
         /// @return `true` if path is a valid solution, `false` otherwise
         static bool check(const amp::MultiAgentPath2D& ma_path, const amp::MultiAgentProblem2D& prob, std::vector<std::vector<Eigen::Vector2d>>& collision_states, bool verbose = true);
 
-        /// @brief Generates a random mult-agent problem, runs the algorithm, then check the validity of the returned solution.
+        /// @brief Generates a random multi-agent problem, runs the algorithm, then check the validity of the returned solution.
         /// Similar to what the benchmarker in `grade()` will do
         /// @param algo Your multi-agent algorithm
         /// @param seed Seed the random generator. If the seed is `0u`, no seed is used (random)

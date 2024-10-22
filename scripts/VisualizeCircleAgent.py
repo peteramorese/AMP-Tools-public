@@ -48,3 +48,5 @@ def visualize_path(radius : float, path : list, random_color = False, collision_
     if collision_states is not None:
         for state in collision_states:
             visualize_circle_agent(radius, state, True, None, agent_color)
+
+    ax.plot(x_pts, y_pts, zorder=-1)

@@ -22,4 +22,13 @@ class MyPointCollisionChecker : public amp::ConfigurationSpace {
 
         // Implement the pure virtual method
         virtual bool inCollision(const Eigen::VectorXd& cspace_state) const override;
+        bool inCollision(amp::Problem2D problem, const Eigen::VectorXd& cspace_state) const;
+        bool inCollision(amp::Problem2D problem, const Eigen::VectorXd& startpoint, const Eigen::VectorXd& endpoint) const;
+        void set_problem(amp::Problem2D& problem)  {
+            myproblem = problem;
+        }
+        amp::Problem2D myproblem;
+
+    private:
+        
 };

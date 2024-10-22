@@ -110,7 +110,7 @@ MyAStarAlgo::GraphSearchResult MyAStarAlgo::search(const amp::ShortestPathProble
                 std::cout << "child.g" << child.g << std::endl;
                 // child.h = heuristic(child.id);
                 
-                child.h =myMetric.distance(node_list[child_id], node_list[problem.goal_node]);
+                child.h = myMetric.distance(node_list[child_id], node_list[problem.goal_node]);
                 std::cout << "Child: " << node_list[child_id].transpose() << ", Goal: " << node_list[problem.goal_node].transpose() << ", Distance: " << child.h << std::endl;
                 
                 child.parent = nBest.parent;

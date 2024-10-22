@@ -9,8 +9,17 @@
 
 
 class MyRRT : public amp::GoalBiasRRT2D {
+    private: 
+        std::shared_ptr<amp::Graph<double>> mygraph;
+        std::map<amp::Node, Eigen::Vector2d> mynodes;
+        amp::Problem2D myproblem;
     public:
         virtual amp::Path2D plan(const amp::Problem2D& problem) override; 
+        std::map<amp::Node, Eigen::Vector2d> get_nodes() { return mynodes; }
+        std::shared_ptr<amp::Graph<double>> get_graph() { return mygraph; }
+        void set_problem(const amp::Problem2D& problem) {
+            myproblem = problem;
+        }
 };
 
 

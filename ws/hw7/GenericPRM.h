@@ -11,6 +11,7 @@ class GenericPRM {
         std::shared_ptr<amp::Graph<double>> mygraph;
         std::map<amp::Node, Eigen::Vector2d> mynodes;
         amp::Problem2D myproblem;
+        
 
         // Add other arguments if needed
     public:
@@ -22,6 +23,8 @@ class GenericPRM {
                 const Eigen::VectorXd& goal_state, 
                 const MyPointCollisionChecker& collision_checker,
                 const DistanceMetric& metric);
+        int myN;
+        double myr;
 
     protected:
         void set_problem(const amp::Problem2D& problem) {
@@ -44,10 +47,16 @@ class MyPRM2D : public amp::PRM2D, public GenericPRM {
             amp::Path path_nd = GenericPRM::plan(problem.q_init, problem.q_goal, cspace, metric);
 
             // Convert the ND path to a 2D path and return it...
+            if (path_nd.waypoints.size() == 0) {
+                amp::Path2D path_2d;
+                path_2d.waypoints.push_back(problem.q_goal);
+                return path_2d;
+            }
             amp::Path2D path_2d;
+            // std::cout << "path_nd length: " << path_nd.waypoints.size() << "" << "\n";
             for (const auto& waypoint : path_nd.waypoints) {
                 path_2d.waypoints.push_back(waypoint.head<2>());
-                std::cout << "waypoint: " << waypoint << "\n";
+                // std::cout << "waypoint: " << waypoint << "\n";
             }
 
             

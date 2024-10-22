@@ -21,7 +21,9 @@ Eigen::VectorXd generateRandomNVector(const std::vector<double> &lower_bounds, c
     {
         throw std::invalid_argument("Erororororororrr");
     }
-
+    // std::vector<double> lower_bounds_copy = {lower_bounds[0], -3};
+    // std::vector<double> upper_bounds_copy = {upper_bounds[0], 3};
+    // int n = lower_bounds_copy.size();
     int n = lower_bounds.size();
     Eigen::VectorXd random_vector(n);
     std::random_device rd;
@@ -76,7 +78,7 @@ std::shared_ptr<amp::Graph<double>> amp::GenericPRM::get_graph(){
 //only connect safe nodes
 //implement A* to search for the goal
 std::pair<std::shared_ptr<amp::Graph<double>>, std::map<amp::Node, Eigen::VectorXd>> makeGraph(int N, double r, const MyPointCollisionChecker& cspace, const Eigen::VectorXd& init_state, 
-                const Eigen::VectorXd& goal_state){
+                const Eigen::VectorXd& goal_state, const amp::Problem2D& myproblem){
     // std::shared_ptr<amp::Graph<double>> random_graph;
     // std::vector<Eigen::VectorXd> nodes;
     std::shared_ptr<amp::Graph<double>> random_graph = std::make_shared<amp::Graph<double>>();    
@@ -94,10 +96,14 @@ std::pair<std::shared_ptr<amp::Graph<double>>, std::map<amp::Node, Eigen::Vector
     
     points.push_back(goal_state);
     points.push_back(init_state);
-    for (int i = 0; i < N; i++){
+    for (int i = 2; i < N; i++){
         Eigen::VectorXd point = generateRandomNVector(lowervector, uppervector);
+        if (cspace.inCollision(myproblem, point)) {
+            // std::cout << "collision at point: " << point.transpose() << "\n";
+            continue;
+        }
         points.push_back(point);
-        std::cout << "point: " << points[i].transpose() << "\n";
+        // std::cout << "point: " << points[i].transpose() << "\n";
     }
 
     for (amp::Node i = 0; i < points.size(); ++i) nodes[i] = points[i]; // Add point-index pair to the map
@@ -110,12 +116,15 @@ std::pair<std::shared_ptr<amp::Graph<double>>, std::map<amp::Node, Eigen::Vector
     for (const auto& [from, to, weight] : edges) {
         if (weight < r){
             //TODO: make sure the path is collision-free
-            random_graph->connect(from, to, weight); // Connect the edges in the graph
-            std::cout << "connected: " << from << "," << to << "\n";
+            if (!cspace.inCollision(myproblem, points[from], points[to])) {
+                random_graph->connect(from, to, weight); // Connect the edges in the graph
+                // std::cout << "connected: " << from << "," << to << "\n";
+            }
+            
         }
         
     }
-    random_graph->print("RANDOM GRAPH");
+    // random_graph->print("RANDOM GRAPH");
 
     // return std::make_pair(random_graph, nodes);
     return std::make_pair(random_graph, nodes);
@@ -132,20 +141,23 @@ namespace amp{
             // Implement the sampling-based planner using
             // only these arguments and other hyper parameters ...
             //HYPERPARAMETERS:
-            int N = 300;
-            double r = 2;
+            int N = myN;
+            double r = myr;
+
+
 
            
 
             // 1. Create a data structure to store the graph
             
             
-            auto [random_graph, nodes] = makeGraph(N, r, collision_checker, init_state, goal_state);
+            auto [random_graph, nodes] = makeGraph(N, r, collision_checker, init_state, goal_state, myproblem);
             //olde version:            
             //std::shared_ptr<amp::Graph<double>> random_graph = makeGraph(N, r, collision_checker, init_state, goal_state);
             amp::Path path;
-            path.waypoints.push_back(init_state);
-            double tol = 2;
+
+            //path.waypoints.push_back(init_state);
+            double tol = .5;
             // 5. Perform a graph search to find a path from init_state to goal_state
             amp::Node init_node = random_graph->nodes()[1]; //maybe try printing these
             amp::Node goal_node = random_graph->nodes()[0]; 
@@ -153,70 +165,78 @@ namespace amp{
             std::unordered_map<amp::Node, amp::Node> came_from;
             stack.push(init_node);
             came_from[init_node] = init_node;
-            while (!stack.empty()) {
+            double plength = 0;
+            // std::cout << "is reversible: "  << random_graph->isReversible() << "\n";
+            while (!stack.empty()) {   
                 amp::Node current = stack.top();
+                // std::cout << "current: " << nodes[current] << "\n";
                 stack.pop();
                 double dist_to_goal = (nodes[current] -nodes[goal_node]).norm();
                 // std::cout << "dist_to_goal: " << dist_to_goal << "\n";
                 if (current == goal_node || dist_to_goal < tol) {
-                    
+                    path.waypoints.push_back(nodes[goal_node]);
                     while (current != init_node) {
+                        if (current == goal_node) {
+                            plength = plength + (nodes[current] - nodes[came_from[current]]).norm();
+                            current = came_from[current];
+                            
+                            continue;
+                        }
                         path.waypoints.push_back(nodes[current]);
 
-                        std::cout << "current: " << nodes[current] << "\n";
+                        // std::cout << "pushing waypt: " << nodes[current] << "\n";
+                        plength = plength + (nodes[current] - nodes[came_from[current]]).norm();
                         current = came_from[current];
                     }
                     path.waypoints.push_back(nodes[init_node]); //where hadi's is fucking up
                     std::reverse(path.waypoints.begin(), path.waypoints.end());
-                    return path;
+                    break;
+                    // return path;
                 }
                 for (const auto& neighbor : random_graph->children(current)) {
+                    // std::cout << "child: " << nodes[neighbor] << "\n";
                     if (came_from.find(neighbor) == came_from.end()) {
-                        // std::cout << "neighbor: " << nodes[neighbor] << "\n";
+                        // std::cout << "pushing it" << "\n";
                         stack.push(neighbor);
                         came_from[neighbor] = current;
-                        std::cout << "stack size: " << stack.size() << "\n";
+                        // std::cout << "stack size: " << stack.size() << "\n";
                         
                     }
                 }
-            }
-
-            //NEXT TODO as of thurs night: use A*
-            //need to make a serach heuristic
-            LookupSearchHeuristic heuristic = HW6::getEx3Heuristic(); //this is just a placeholder tbh
-            MyAStarAlgo algo;
-            // amp::Node init_node = random_graph->nodes()[1]; //maybe try printing these
-            // amp::Node goal_node = random_graph->nodes()[0]; 
-            //make a new heuristi
-
+                for (const auto& neighbor : random_graph->parents(current)) {
+                    // std::cout << "parent: " << nodes[neighbor] << "\n";
+                    if (came_from.find(neighbor) == came_from.end()) {
+                        // std::cout << "pushing it" << "\n";
+                        stack.push(neighbor);
+                        came_from[neighbor] = current;
+                        // std::cout << "stack size: " << stack.size() << "\n";
+                        
+                    }
+                }
+                // std::cout << "stack size: " << stack.size() << "\n";
            
-            amp::ShortestPathProblem spp = amp::ShortestPathProblem();
-            spp.graph = random_graph;
-            spp.init_node = init_node;
-            spp.goal_node = goal_node;
-            // MyAStarAlgo::GraphSearchResult result = algo.search(spp, heuristic, nodes);            
-            // if (result.success) {
-            //     std::cout << "Path found" << std::endl;
-            //     for (const auto& node : result.node_path) {
-            //         path.waypoints.push_back(nodes[node]);
-            //     }
-            // } else {
-            //     std::cout << "Path not found" << std::endl;
-            // }
-            
-            
-            // auto [random_graph, nodes] = makeGraph(N, r, collision_checker);
-            //Visualizer::makeFigure(problem, amp::Path(), *random_graph, nodes);
-            NEW_LINE;
-            std::cout << "Path: ";
-            for (const auto& waypoint : path.waypoints) {
-                // std::cout << waypoint.transpose() << " ";
             }
+            bool smoothing = true;
+            if (smoothing && path.waypoints.size() > 2) {
+                for (int i = 1; i < path.waypoints.size() - 1; ++i) {
+                    Eigen::VectorXd p0 = path.waypoints[i-1];
+                    Eigen::VectorXd p1 = path.waypoints[i];
+                    Eigen::VectorXd p2 = path.waypoints[i+1];
+                    if (!collision_checker.inCollision(myproblem, p0, p2)) {
+                        path.waypoints.erase(path.waypoints.begin() + i);
+                        --i;
+                    }
+                }
+            }
+            
+            
             for (const auto& node : nodes) {
                 mynodes[node.first] = node.second.head<2>();
             }
             mygraph = random_graph;
+            // std::cout << "Path length: " << plength << "\n";
             return path;
         
-}   
+   
+}
 }

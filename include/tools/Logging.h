@@ -11,6 +11,7 @@
     #define PRINT(msg) 
     #define PRINT_VEC2(msg, vec2)
     #define PRINT_VEC3(msg, vec3)
+    #define PRINT_VECX(msg, vecX)
     #define PRINT_NAMED(name, msg) 
     #define DEBUG(msg)
     #define INFO(msg) 
@@ -24,6 +25,7 @@
     #define PRINT(msg) std::cout <<  msg << "\n"
     #define PRINT_VEC2(msg, vec2) std::cout << msg << " (" << vec2[0] << ", " << vec2[1] << ") \n"
     #define PRINT_VEC3(msg, vec3) std::cout << msg << " (" << vec3[0] << ", " << vec3[1] << ", " << vec3[2] ") \n"
+    #define PRINT_VECX(msg, vecX) {std::cout << msg << " ("; for (int i = 0; i < vecX.size(); i++) {std::cout << vecX[i]; if (i != vecX.size() - 1) std::cout << ", ";} std::cout << ") \n";}
     #define PRINT_NAMED(name, msg) std::cout << "        "<< name << ": " << msg << "\n"
     #define DEBUG(msg) std::cout << " >[DBG] ("<< __func__ << "): " << msg << " \n"
     #define INFO(msg) std::cout << " >[IFO] " << msg << " \n"
@@ -36,6 +38,7 @@
     #define PRINT(msg) std::cout << "\033[0;37m" << msg << "\033[0m \n"
     #define PRINT_VEC2(msg, vec2) std::cout << "\033[0;37m" << msg << " (" << vec2[0] << ", " << vec2[1] << ")\033[0m \n"
     #define PRINT_VEC3(msg, vec3) std::cout << "\033[0;37m" << msg << " (" << vec3[0] << ", " << vec3[1] << ", " << vec3[2] ")\033[0m \n"
+    #define PRINT_VECX(msg, vecX) {std::cout << "\033[0;37m" << msg << " ("; for (int i = 0; i < vecX.size(); i++) {std::cout << vecX[i]; if (i != vecX.size() - 1) std::cout << ", ";} std::cout << ")\033[0m \n";}
     #define PRINT_NAMED(name, msg) std::cout << "\033[1;32m        "<< name << ": \033[0;37m" << msg << "\033[0m \n"
     #define DEBUG(msg) std::cout << "\033[1;36m >[DBG]("<< __func__ << "): \033[0;37m" << msg << "\033[0m \n"
     #define INFO(msg) std::cout << "\033[1;37m >[IFO] \033[0;37m" << msg << "\033[0m \n"

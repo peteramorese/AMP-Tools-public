@@ -28,6 +28,9 @@ def visualize_agent(path : list, duration : list, length : float, width : float,
     for dt in duration:
         times.append(dt + times[-1])
 
+    if len(path) + 1 == len(times): 
+        times.pop(0)
+
     isPoint = length == 0 or width == 0
     if animate:
         print("Saving animating to file_dump/video...")

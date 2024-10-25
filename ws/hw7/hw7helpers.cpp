@@ -10,6 +10,7 @@ double DistanceMetric::distance(const Eigen::VectorXd& lhs, const Eigen::VectorX
 }
 
 
+
 bool MyPointCollisionChecker::inCollision(amp::Problem2D problem, const Eigen::VectorXd& startpoint, const Eigen::VectorXd& endpoint) const{
     // std::cout << "checking collision between points: " << startpoint.transpose() << ", " << endpoint.transpose() << "\n";
     for (double t = 0; t <= 1; t+= 0.05){

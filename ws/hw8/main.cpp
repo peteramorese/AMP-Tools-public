@@ -20,11 +20,11 @@ void timer_example() {
 
 int main(int argc, char** argv) {
     // Run timer example (useful for benchmarking)
-    timer_example();
+    //timer_example();
 
     // Initialize Workspace 1 with 3 agents
     amp::RNG::seed(amp::RNG::randiUnbounded());
-    MultiAgentProblem2D problem = HW8::getWorkspace1(3);
+    MultiAgentProblem2D problem = HW8::getWorkspace1(6);
     std::vector<std::vector<Eigen::Vector2d>> collision_states;
 
     // Solve using a centralized approach
@@ -34,13 +34,13 @@ int main(int argc, char** argv) {
     Visualizer::makeFigure(problem, path, collision_states);
 
     // Solve using a decentralized approach
-    MyDecentralPlanner decentral_planner;
-    collision_states = {{}};
-    HW8::generateAndCheck(decentral_planner, path, problem, collision_states);
-    Visualizer::makeFigure(problem, path, collision_states);
+    // MyDecentralPlanner decentral_planner;
+    // collision_states = {{}};
+    // HW8::generateAndCheck(decentral_planner, path, problem, collision_states);
+    // Visualizer::makeFigure(problem, path, collision_states);
 
     // Visualize and grade methods
     Visualizer::showFigures();
-    HW8::grade<MyCentralPlanner, MyDecentralPlanner>("firstName.lastName@colorado.edu", argc, argv, std::make_tuple(), std::make_tuple());
+    // HW8::grade<MyCentralPlanner, MyDecentralPlanner>("firstName.lastName@colorado.edu", argc, argv, std::make_tuple(), std::make_tuple());
     return 0;
 }

@@ -12,12 +12,14 @@ class GenericPRM {
         std::shared_ptr<amp::Graph<double>> mygraph;
         std::map<amp::Node, Eigen::VectorXd> mynodes;
         amp::MultiAgentProblem2D myproblem;
+        int numAgents;
         
 
         // Add other arguments if needed
     public:
         void set_problem(const amp::MultiAgentProblem2D& problem) {
                 myproblem = problem;
+                numAgents = problem.numAgents();
             }
         std::map<amp::Node, Eigen::VectorXd> get_nodes();
         std::shared_ptr<amp::Graph<double>> get_graph();

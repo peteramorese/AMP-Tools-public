@@ -24,12 +24,20 @@ int main(int argc, char** argv) {
 
     // Initialize Workspace 1 with 3 agents
     amp::RNG::seed(amp::RNG::randiUnbounded());
-    MultiAgentProblem2D problem = HW8::getWorkspace1(6);
+    MultiAgentProblem2D problem = HW8::getWorkspace1(4);
     std::vector<std::vector<Eigen::Vector2d>> collision_states;
 
     // Solve using a centralized approach
     MyCentralPlanner central_planner;
     MultiAgentPath2D path = central_planner.plan(problem);
+    std::cout << "Path waypoints: ";
+    for (int i=0; i < path.agent_paths.size(); ++i) {
+        std::cout << "Agent " << i << ": ";
+        for (int j=0; j < path.agent_paths[i].waypoints.size(); ++j){
+            std::cout << path.agent_paths[i].waypoints[j] << " ";
+        }
+    }
+    std::cout << std::endl;
     bool isValid = HW8::check(path, problem, collision_states);
     Visualizer::makeFigure(problem, path, collision_states);
 
@@ -41,6 +49,6 @@ int main(int argc, char** argv) {
 
     // Visualize and grade methods
     Visualizer::showFigures();
-    // HW8::grade<MyCentralPlanner, MyDecentralPlanner>("firstName.lastName@colorado.edu", argc, argv, std::make_tuple(), std::make_tuple());
+    // HW8::grade<MyCentralPlanner, MyDecentralPlanner>("shaya.naimi@colorado.edu", argc, argv, std::make_tuple(), std::make_tuple());
     return 0;
 }

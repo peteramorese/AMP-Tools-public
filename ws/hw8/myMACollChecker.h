@@ -16,6 +16,8 @@ class MyMACollChecker : public amp::ConfigurationSpace {
         bool diskCollision(Eigen::Vector2d p1, Eigen::Vector2d p2) const;
         amp::MultiAgentProblem2D myproblem; //change this to multiagentproblem
         double robot_radius = 0.5;
+        double cautious_radius = 1.2;
+        void set_robot_radius(double radius) {robot_radius = radius;}
 
     private:
         

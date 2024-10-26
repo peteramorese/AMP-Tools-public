@@ -64,6 +64,20 @@ std::shared_ptr<amp::Graph<double>> amp::GenericPRM::get_graph(){
     return mygraph;
 }
 
+
+//want to return true if all of the agents' positions are within tol of the goal
+bool agentTol(Eigen::VectorXd sample, Eigen::VectorXd goal, double tol){
+    int numAgents = goal.size()/2;
+    for (int i = 0; i < numAgents; i++){
+        Eigen::Vector2d agentState(sample[i * 2], sample[(i * 2) + 1]);
+        Eigen::Vector2d agentGoal(goal[i * 2], goal[(i * 2) + 1]);
+        if ((agentState - agentGoal).norm() > tol){
+            return false;
+        }
+
+    }
+    return true;
+}
 /**
  * @brief Create a random graph with N nodes, such that each node is connected
  * to all other nodes within a distance of r in the configuration space cspace.
@@ -95,16 +109,26 @@ std::pair<std::shared_ptr<amp::Graph<double>>, std::map<amp::Node, Eigen::Vector
     for (int i = 1; i < N; i++){
         // std::cout << "iteration: " << i << "\n";
         Eigen::VectorXd sample = generateRandomNVector(lowervector, uppervector);
+        
+        if (goalBiasCtr % 20 == 0){ // with a 0.5 chance
+            // std::cout << "goal bias" << "\n";
+            sample = goal_state;
+        }
+        else{
+            int failcount = 0;
         while (cspace.inCollision(myproblem, sample)) {
+            failcount++;
+            if (failcount > 200) {
+                std::cout << "can't find a valid sample; collision at " << sample.transpose() << "\n";
+                break;
+            }
         // for (int j = 0; j < 10; j++){
             // std::cout << "collision at point: " << sample.transpose() << "\n";
             sample = generateRandomNVector(lowervector, uppervector);
             // std::cout << "can't find a valid sample" << "\n";
         }
-        if (goalBiasCtr % 20 == 0){ // with a 0.5 chance
-            // std::cout << "goal bias" << "\n";
-            sample = goal_state;
         }
+        // std::cout << "sample: " << sample.transpose() << "\n";
         goalBiasCtr = goalBiasCtr + 1;
         Eigen::VectorXd closest_point;
         int index_counter = 0;
@@ -121,12 +145,15 @@ std::pair<std::shared_ptr<amp::Graph<double>>, std::map<amp::Node, Eigen::Vector
         }
         // double stepsize = 0.5; //used to be 0.2
         //FIS THIS SO ITS NOT MIDPOINT AND SO IT COLL CHECKS
-        Eigen::VectorXd mid_point = closest_point + (sample - closest_point) * step_size;
+        Eigen::VectorXd mid_point = closest_point + (sample - closest_point).normalized() * step_size;
+        // std::cout << "midpoint: " << mid_point.transpose() << "closest point: " << closest_point.transpose() << "\n";
+
         if (cspace.inCollision(myproblem, mid_point, closest_point)) {
+            // std::cout << "ditching sample " << "\n";
             i = i - 1; //make sure we don't increment i
             continue;
         }
-        if ((mid_point - goal_state).norm() < 3) {
+        if (agentTol(mid_point, goal_state, 1)) {
             std::cout << "found goal" << "\n";
             mid_point = goal_state;
             if (cspace.inCollision(myproblem, mid_point, closest_point)) {
@@ -148,13 +175,38 @@ std::pair<std::shared_ptr<amp::Graph<double>>, std::map<amp::Node, Eigen::Vector
         
         points.push_back(mid_point);
         nodes[i] = mid_point;
-        double distance_to_sample = (mid_point - sample).norm();
-        random_graph->connect(i, closest_index, distance_to_sample); // Connect the edges in the graph
+        double distance_to_sample = (mid_point - closest_point).norm();
+        // std::cout << "distance to sample: " << distance_to_sample << "\n";
+        random_graph->connect(closest_index, i, distance_to_sample); // Connect the edges in the graph
         ctr++;
         // std::cout << "ctr: " << ctr << "\n";
+        // if (i == N-1 && (points.back() - goal_state).norm() > 0.2) {
+        //     std::cout << i << " " << (points.back() - goal_state).norm() << "\n";
+        //     N = N + 1000;
+        //     std::cout << "increasing N" << "\n";
+        // }
 
     }
     std::cout << "make graph ctr: " << ctr << "\n";
+    if ((points.back() - goal_state).norm() > 0.1) {
+        Eigen::VectorXd closest_point;
+        int index_counter = 0;
+        int closest_index = 0;
+        double min_distance = std::numeric_limits<double>::max(); // initialize the minimum distance to positive infinity
+        for (const auto& point : points) { // iterate over all points that have been sampled so far
+            double distance = (point - goal_state).norm();
+            if (distance < min_distance) {
+                min_distance = distance;
+                closest_point = point;
+                closest_index = index_counter;
+            }
+            index_counter ++;
+        }
+        double distance_to_sample = (goal_state - closest_point).norm();
+        random_graph->connect(points.size(), closest_index, distance_to_sample); // Connect the edges in the graph
+        points.push_back(goal_state);
+        nodes[points.size() - 1] = goal_state;
+    }
     return std::make_pair(random_graph, nodes);
 }
 std::pair<std::shared_ptr<amp::Graph<double>>, std::map<amp::Node, Eigen::VectorXd>> makeGraph(int N, double r, const MyMACollChecker& cspace, const Eigen::VectorXd& init_state, 
@@ -231,8 +283,9 @@ namespace amp{
             int N = 3000*numAgents;
             double r = 4+(numAgents)*1.5;
 
-            r = 2;
-            N = 10000;
+            r = 1;
+            N = 8000*numAgents;
+            N = 15000;
             std::cout << "r: " << r << "\n";
 
 
@@ -250,7 +303,7 @@ namespace amp{
             amp::Path path;
 
             //path.waypoints.push_back(init_state);
-            double tol = 1;
+            
             // std::cout << "nodes in the graph: ";
             for (const auto& node : random_graph->nodes()) {
                 // std::cout << nodes[node].transpose() << "\n";
@@ -271,13 +324,14 @@ namespace amp{
             double plength = 0;
             // std::cout << "graph is created, starting breadth-first search" << "\n";
             // std::cout << "is reversible: "  << random_graph->isReversible() << "\n";
+            double tol = 1;
             while (!stack.empty()) {   
                 amp::Node current = stack.top();
                 // std::cout << "current: " << nodes[current] << "\n";
                 stack.pop();
                 double dist_to_goal = (nodes[current]-nodes[goal_node]).norm();
                 // std::cout << "dist_to_goal: " << dist_to_goal << "\n";
-                if (current == goal_node || dist_to_goal < tol) {
+                if (current == goal_node || agentTol(nodes[current], nodes[goal_node], tol)) {
                     std::cout << "found goal near " << nodes[current] << "\n";
                     path.waypoints.push_back(nodes[goal_node]);
                     while (current != init_node) {

@@ -20,8 +20,16 @@ bool MyMACollChecker::diskCollision(Eigen::Vector2d p1, Eigen::Vector2d p2) cons
 }
 
 //could try using this circlePoly intersection.
-bool circlePoly(amp::Obstacle2D obs, Eigen::Vector2d point, double radius){
+bool MyMACollChecker::circlePoly(amp::Obstacle2D obs, Eigen::Vector2d point, double radius) const {
     std::vector<Eigen::Vector2d> vertices = obs.verticesCCW();
+    for (int i = 0; i < vertices.size(); i++) {
+        Eigen::Vector2d v1 = vertices[i];
+        bool coll = diskCollision(point, v1);
+        if (coll) { 
+            
+            return true;
+        }
+    }
     for (int i = 0; i < vertices.size(); i++) {
         Eigen::Vector2d v1 = vertices[i];
         Eigen::Vector2d v2 = vertices[(i+1)%vertices.size()];
@@ -31,7 +39,8 @@ bool circlePoly(amp::Obstacle2D obs, Eigen::Vector2d point, double radius){
         double edgeDotProduct = edge.dot(pointToEdge);
         if (edgeDotProduct >= 0 && edgeDotProduct <= edgeLength) {
             Eigen::Vector2d closestPoint = v1 + (edge * (edgeDotProduct / edgeLength));
-            if ((point - closestPoint).norm() < radius*2) {
+            if ((point - closestPoint).norm() < radius*cautious_radius) {
+                // std::cout << "circlePoly collision at" << point.transpose() << "\n";
                 return true;
             }
         }
@@ -70,7 +79,8 @@ bool MyMACollChecker::inCollision(amp::MultiAgentProblem2D problem, const Eigen:
             // std::cout<<"checking obstacle" << "\n";
             if (circlePoly(obs, point, robot_radius*cautious_radius)){
                 // std::cout << "obstacle collision at" << point.transpose() << "\n";
-                return true;
+             
+               return true;
             }
 
         }

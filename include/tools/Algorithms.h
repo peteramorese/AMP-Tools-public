@@ -61,6 +61,20 @@ class LinkManipulatorMotionPlanner2D {
         virtual ~LinkManipulatorMotionPlanner2D() {}
 };
 
+class KinodynamicMotionPlanner {
+    public:
+        /// @brief Type of planning agent. NOTE: The origin the frame that the polygon vertices are defined in
+        /// is the 'relative' point for each waypoint in the solution Path
+        typedef Polygon AgentType;
+    public:
+        /// @brief Solve a motion planning problem. Derive class and override this method
+        /// @param problem Motion planning problem
+        /// @return Path solution of the kinodynamic agent
+        virtual amp::KinoPath plan(const amp::KinodynamicProblem2D& problem) = 0;
+
+        virtual ~KinodynamicMotionPlanner() {}
+};
+
 class AStar {
     public:
         /// @brief Result struct containing the node path and path cost returned by A*

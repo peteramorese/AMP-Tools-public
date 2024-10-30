@@ -17,6 +17,20 @@ std::unique_ptr<ampprivate::pybridge::PythonObject> ampprivate::pybridge::ListOf
 }
 
 template <>
+std::unique_ptr<ampprivate::pybridge::PythonObject> ampprivate::pybridge::ListOfTriples<double>::toPyList() const {
+    std::unique_ptr<PythonObject> list = std::make_unique<PythonObject>(PyList_New(0));
+    for (const auto& tuple : list_of_tuples) {
+        PyObject* py_tuple = PyTuple_Pack(3, 
+            PyFloat_FromDouble(tuple[0]), 
+            PyFloat_FromDouble(tuple[1]),
+            PyFloat_FromDouble(tuple[2]));
+        PyList_Append(list->get(), py_tuple);
+        list->addDependentObject(py_tuple);
+    }
+    return list;
+}
+
+template <>
 std::unique_ptr<ampprivate::pybridge::PythonObject> ampprivate::pybridge::ListOfQuadrouples<double>::toPyList() const {
     std::unique_ptr<PythonObject> list = std::make_unique<PythonObject>(PyList_New(0));
     for (const auto& tuple : list_of_tuples) {

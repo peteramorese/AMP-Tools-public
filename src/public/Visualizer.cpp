@@ -53,6 +53,25 @@ std::unique_ptr<ampprivate::pybridge::PythonObject> listOfPointsToPythonObject(c
     return list_of_doubles.toPyList();
 }
 
+std::unique_ptr<ampprivate::pybridge::PythonObject> listOfPointsToPythonObject(const std::vector<Eigen::VectorXd>& list_of_points) {
+    ampprivate::pybridge::ListOfTriples<double> list_of_doubles;
+    list_of_doubles.list_of_tuples.reserve(list_of_points.size());
+    for (const auto& pt : list_of_points) {
+        std::array<double, 3> point = {pt[0], pt[1], pt[2]};
+        list_of_doubles.list_of_tuples.push_back({point});
+    }
+    return list_of_doubles.toPyList();
+}
+
+std::unique_ptr<ampprivate::pybridge::PythonObject> listOfPairsToPythonObject(const std::vector<std::pair<double, double>>& list_of_pairs) {
+    ampprivate::pybridge::ListOfPairs<double> list_of_doubles;
+    list_of_doubles.list_of_tuples.reserve(list_of_pairs.size());
+    for (const auto& pt : list_of_pairs) {
+        list_of_doubles.list_of_tuples.push_back({{pt.first, pt.second}});
+    }
+    return list_of_doubles.toPyList();
+}
+
 } // namespace amp
 
 void amp::Visualizer::makeFigure(const Environment2D& env) {
@@ -105,6 +124,13 @@ void amp::Visualizer::makeFigure(const MultiAgentProblem2D& prob, const amp::Mul
         createAxes(props.q_init, props.q_goal);
     }
     createAxes(static_cast<const Environment2D&>(prob));
+}
+
+void amp::Visualizer::makeFigure(const KinodynamicProblem2D& prob, const amp::KinoPath& path, const std::pair<double, double> dimensions, bool isPoint) {
+    newFigure();
+    createAxes(static_cast<const Environment2D&>(prob));
+    createAxes(prob.q_init, prob.q_goal);
+    createAxes(path, dimensions, isPoint);
 }
 
 void amp::Visualizer::makeFigure(const MultiAgentProblem2D& prob, const amp::MultiAgentPath2D& ma_path, const std::vector<std::vector<Eigen::Vector2d>>& ma_collision_states) {
@@ -267,6 +293,26 @@ void amp::Visualizer::createAxes(const Path2D& path, const std::vector<Eigen::Ve
     std::unique_ptr<ampprivate::pybridge::PythonObject> path_arg = listOfPointsToPythonObject(path.waypoints);
     std::unique_ptr<ampprivate::pybridge::PythonObject> collison_points_arg = listOfPointsToPythonObject(collision_points);
     ampprivate::pybridge::ScriptCaller::call("VisualizeEnvironment", "visualize_path", std::make_tuple(path_arg->get(), collison_points_arg->get()));
+}
+
+void amp::Visualizer::createAxes(const KinoPath& path, const std::pair<double, double> dimensions, bool isPoint) {
+    std::unique_ptr<ampprivate::pybridge::PythonObject> path_arg = listOfPointsToPythonObject(path.waypoints);
+    std::vector<std::unique_ptr<ampprivate::pybridge::PythonObject>> python_object_ptrs;
+    python_object_ptrs.reserve(path.durations.size());
+    for (const auto& duration : path.durations)
+        python_object_ptrs.push_back(ampprivate::pybridge::makeScalar(duration));
+    std::unique_ptr<ampprivate::pybridge::PythonObject> length_arg = ampprivate::pybridge::makeScalar(dimensions.first);
+    std::unique_ptr<ampprivate::pybridge::PythonObject> width_arg = ampprivate::pybridge::makeScalar(dimensions.second);
+    std::unique_ptr<ampprivate::pybridge::PythonObject> duration_arg = ampprivate::pybridge::makeList(std::move(python_object_ptrs));
+    ampprivate::pybridge::ScriptCaller::call("VisualizeDynamicAgent", "visualize_car", std::make_tuple(path_arg->get(), duration_arg->get(), length_arg->get(), width_arg->get(), ampprivate::pybridge::makeBool(isPoint)->get()));
+}
+
+void amp::Visualizer::createAxes(const Eigen::VectorXd& q_init, const std::vector<std::pair<double, double>>& q_goal) {
+    Eigen::Vector2d q_init_2d = q_init.head<2>();
+    std::unique_ptr<ampprivate::pybridge::PythonObject> q_init_obj = pointToPythonObject(q_init_2d);
+    std::unique_ptr<ampprivate::pybridge::PythonObject> q_goal_obj = listOfPairsToPythonObject(q_goal);
+    ampprivate::pybridge::ScriptCaller::call("VisualizeDynamicAgent", "visualize_goal", std::make_tuple(q_init_obj->get(), q_goal_obj->get()));
+
 }
 
 void amp::Visualizer::createAxes(double circular_agent_radius, const Eigen::Vector2d& state, double* cmap_scale, bool colliding) {

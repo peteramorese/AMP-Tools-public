@@ -15,21 +15,19 @@ void timer_example() {
         std::cout << "Time since last run: " << timer.now(TimeUnit::ms) - startTime << std::endl;
     }
     timer.stop();
-    std::cout << "Total time elapsed: " << Profiler::getTotalProfile("timer") << std::endl;
+    std::cout << "Total time since last run: " << Profiler::getTotalProfile("timer") << std::endl;
 }
 
 int main(int argc, char** argv) {
-    // Run timer example (useful for benchmarking)
-    timer_example();
-
-    // Initialize Workspace 1 with 3 agents
+    // Initializing workspace 1 with 3 agents
     amp::RNG::seed(amp::RNG::randiUnbounded());
+    MultiAgentPath2D path;
     MultiAgentProblem2D problem = HW8::getWorkspace1(3);
     std::vector<std::vector<Eigen::Vector2d>> collision_states;
 
     // Solve using a centralized approach
     MyCentralPlanner central_planner;
-    MultiAgentPath2D path = central_planner.plan(problem);
+    path = central_planner.plan(problem);
     bool isValid = HW8::check(path, problem, collision_states);
     Visualizer::makeFigure(problem, path, collision_states);
 

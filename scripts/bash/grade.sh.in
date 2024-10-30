@@ -45,6 +45,11 @@ case "$2" in
         cd bin/hw8 && ./grade-hw8 -e $1
         exit 1
         ;;
+    --hw9)
+        echo "Grading hw9 using project: $1"
+        cd bin/hw9 && ./grade-hw9 -e $1
+        exit 1
+        ;;
     *)
         echo "Unrecognized homework '$2'"
 esac

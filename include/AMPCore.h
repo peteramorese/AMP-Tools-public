@@ -8,6 +8,7 @@
 #include "tools/Obstacle.h"
 #include "tools/Path.h"
 #include "tools/PotentialFunction.h"
+#include "tools/StatePropagator.h"
 #include "tools/Random.h"
 #include "tools/Serializer.h"
 #include "tools/Time.h"

@@ -63,6 +63,30 @@ struct MultiAgentProblem2D : Environment2D {
     inline std::size_t numAgents() const {return agent_properties.size();}
 };
 
+struct KinodynamicProblem2D : Environment2D {
+    /// @brief State bounds
+    std::vector<std::pair<double, double>> q_bounds;
+    /// @brief Control input bounds
+    std::vector<std::pair<double, double>> u_bounds;
+    /// @brief Control duration bounds
+    std::pair<double, double> dt_bounds = {0.0, 0.5};  
+    /// @brief True if the dimension is Cartesian, false if it's polar
+    std::vector<bool> isDimCartesian;
+    /// @brief Initial state
+    Eigen::VectorXd q_init;
+    /// @brief Goal state
+    std::vector<std::pair<double, double>> q_goal;
+    /// @brief Dynamics function
+    std::function<Eigen::VectorXd(const Eigen::VectorXd&, const Eigen::VectorXd&)> dynamics;
+    /// @brief true if point agent, false if polygon agent
+    bool isPointAgent = true;
+    /// @brief Dimensions of the rectangular agent
+    std::pair<double, double> dimensions = {0.0, 0.0};
+    
+    void serialize(Serializer& szr) const;
+    void deserialize(const Deserializer& dszr);
+};
+
 /// @brief Properties that dictate how the environment is generated
 struct Random2DEnvironmentSpecification {
     /// @brief Left margin of workspace

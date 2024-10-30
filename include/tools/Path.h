@@ -35,11 +35,18 @@ struct Path {
     /// @brief `true` if a solution was found, `false` otherwise
     bool valid;
 
+    /// @brief Project the waypoints to 2D workspace
+    /// @return 2D waypoints using the first two dimensions of the full state (x, y)
+    std::vector<Eigen::Vector2d> getWaypoints2D() const;
+    std::vector<Eigen::Vector3d> getWaypoints3D() const;
+
     /// @brief Print the object
     /// @param heading Log what type of object is being printed
     void print(const std::string& heading = "Path") const;
 };
 
+
+/// @brief Multi-agent path with 2D waypoints
 struct MultiAgentPath2D {
     MultiAgentPath2D() = default;
     MultiAgentPath2D(uint32_t n_agents) : agent_paths(n_agents) {}
@@ -49,6 +56,17 @@ struct MultiAgentPath2D {
     bool valid;
 
     inline std::size_t numAgents() const {return agent_paths.size();}
+};
+
+/// @brief N-dimensional path with control inputs and durations
+struct KinoPath : Path {
+    KinoPath() = default;
+
+    /// @brief Control inputs between waypoints
+    std::vector<Eigen::VectorXd> controls;
+
+    /// @brief Duration of each control input
+    std::vector<double> durations;
 };
 
 /// @brief Given a path that has waypoints wrapped within a hyper-cube from `wrapped_lower_bounds` to `wrapped_upper_bounds`, unwrap the waypoints to

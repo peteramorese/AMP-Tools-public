@@ -37,6 +37,13 @@ struct ListOfPairs {
 };
 
 template <typename T>
+struct ListOfTriples {
+    std::vector<std::array<T, 3>> list_of_tuples;
+    std::unique_ptr<PythonObject> toPyList() const;
+};
+
+
+template <typename T>
 struct ListOfQuadrouples {
     std::vector<std::array<T, 4>> list_of_tuples;
     std::unique_ptr<PythonObject> toPyList() const;

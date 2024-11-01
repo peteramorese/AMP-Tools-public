@@ -4,8 +4,8 @@
 
 #include "tools/Obstacle.h" 
 #include "tools/Path.h" 
-#include "tools/Serializer.h"
 #include "tools/LinkManipulator.h"
+#include "tools/DynamicAgent.h"
 
 namespace amp { 
 
@@ -63,25 +63,30 @@ struct MultiAgentProblem2D : Environment2D {
     inline std::size_t numAgents() const {return agent_properties.size();}
 };
 
+enum class AgentType { SingleIntegrator, FirstOrderUnicycle, SecondOrderUnicycle, SimpleCar };
+/// @brief Kinodynamic problem with 2D workspace, obstacles, and bounds
 struct KinodynamicProblem2D : Environment2D {
-    /// @brief State bounds
+    KinodynamicProblem2D() = default;
+    KinodynamicProblem2D(const Problem2D& prob);
+
+    /// @brief Flag to indicate the agent type
+    AgentType agent_type;
+    /// @brief 'true' if point agent, 'false' if polygon agent
+    bool isPointAgent = true;
+    /// @brief Initial state of agent
+    Eigen::VectorXd q_init;
+    /// @brief Goal region bounding each dimension of the state (vector<pair<min, max>>)
+    std::vector<std::pair<double, double>> q_goal;
+    /// @brief State space bounds
     std::vector<std::pair<double, double>> q_bounds;
-    /// @brief Control input bounds
+    /// @brief Control space bounds
     std::vector<std::pair<double, double>> u_bounds;
     /// @brief Control duration bounds
     std::pair<double, double> dt_bounds = {0.0, 0.5};  
-    /// @brief True if the dimension is Cartesian, false if it's polar
+    /// @brief 'true' if the dimension is Cartesian, 'false' if it's polar
     std::vector<bool> isDimCartesian;
-    /// @brief Initial state
-    Eigen::VectorXd q_init;
-    /// @brief Goal state
-    std::vector<std::pair<double, double>> q_goal;
-    /// @brief Dynamics function
-    std::function<Eigen::VectorXd(const Eigen::VectorXd&, const Eigen::VectorXd&)> dynamics;
-    /// @brief true if point agent, false if polygon agent
-    bool isPointAgent = true;
-    /// @brief Dimensions of the rectangular agent
-    std::pair<double, double> dimensions = {0.0, 0.0};
+    /// @brief Dimensions of the rectangular agent (length, width)
+    AgentDimensions agent_dim = {0.0, 0.0};
     
     void serialize(Serializer& szr) const;
     void deserialize(const Deserializer& dszr);

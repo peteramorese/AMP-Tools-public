@@ -6,12 +6,27 @@
 // Include the correct homework headers
 #include "hw/HW9.h"
 
-class MyStatePropagator : public amp::StatePropagator {
-    public:
-        virtual bool propagate(Eigen::VectorXd& state, Eigen::VectorXd& control, double dt) override;
-};
-
 class MyKinoRRT : public amp::KinodynamicRRT {
     public:
-        virtual amp::KinoPath plan(const amp::KinodynamicProblem2D& problem) override;
-};     
+        virtual amp::KinoPath plan(const amp::KinodynamicProblem2D& problem, amp::DynamicAgent& agent) override;
+};  
+
+class MySingleIntegrator : public amp::DynamicAgent {
+    public:
+        virtual void propagate(Eigen::VectorXd& state, Eigen::VectorXd& control, double dt) override;
+};
+
+class MyFirstOrderUnicycle : public amp::DynamicAgent {
+    public:
+        virtual void propagate(Eigen::VectorXd& state, Eigen::VectorXd& control, double dt) override {};
+};
+
+class MySecondOrderUnicycle : public amp::DynamicAgent {
+    public:
+        virtual void propagate(Eigen::VectorXd& state, Eigen::VectorXd& control, double dt) override {};
+};
+
+class MySimpleCar : public amp::DynamicAgent {
+    public:
+        virtual void propagate(Eigen::VectorXd& state, Eigen::VectorXd& control, double dt) override {};
+};

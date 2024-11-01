@@ -1,18 +1,20 @@
 #include "MyKinoRRT.h"
 
-bool MyStatePropagator::propagate(Eigen::VectorXd& state, Eigen::VectorXd& control, double dt) {
+void MySingleIntegrator::propagate(Eigen::VectorXd& state, Eigen::VectorXd& control, double dt) {
     state += dt * control;
-    return true;
 };
 
-amp::KinoPath MyKinoRRT::plan(const amp::KinodynamicProblem2D& problem) {
+amp::KinoPath MyKinoRRT::plan(const amp::KinodynamicProblem2D& problem, amp::DynamicAgent& agent) {
     amp::KinoPath path;
-    path.waypoints.push_back(problem.q_init);
+    Eigen::VectorXd state = problem.q_init;
+    path.waypoints.push_back(state);
     for (int i = 0; i < 10; i++) {
-        Eigen::VectorXd waypoint = Eigen::VectorXd::Random(problem.q_init.size());
-        path.waypoints.push_back(waypoint + problem.q_init);
-        path.controls.push_back(Eigen::VectorXd::Random(problem.q_init.size()));
-        path.durations.push_back(amp::RNG::randf(0, 1.0));
+        Eigen::VectorXd control = Eigen::VectorXd::Random(problem.q_init.size());
+        agent.propagate(state, control, 1.0);
+        path.waypoints.push_back(state);
+        path.controls.push_back(control);
+        path.durations.push_back(1.0);
     }
+    path.valid = true;
     return path;
 }

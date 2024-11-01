@@ -39,8 +39,8 @@ class Visualizer {
         /// @brief Visualize a problem and a path on the same figure for a kinodynamic problem w/ rectangular body.
         /// @param prob Problem to display
         /// @param path Path to display
-        /// @param dimensions Dimensions of the rectangular agent
-        static void makeFigure(const KinodynamicProblem2D& prob, const amp::KinoPath& path, const std::pair<double, double> dimensions = std::make_pair(0.0, 0.0), bool isPoint = true);
+        /// @param agent_dim Dimensions of the rectangular agent
+        static void makeFigure(const KinodynamicProblem2D& prob, const amp::KinoPath& path, bool animate = false);
 
         /// @brief Visualize a problem and a path on the same figure for a circular robot. 
         /// @param env Environment to display
@@ -189,7 +189,7 @@ class Visualizer {
         static void createAxes(const MultiAgentProblem2D& prob);
         static void createAxes(const Path2D& path);
         static void createAxes(const Path2D& path, const std::vector<Eigen::Vector2d>& collision_points);
-        static void createAxes(const KinoPath& path, const std::pair<double, double> dimensions, bool isPoint);
+        static void createAxes(const KinoPath& path, const AgentDimensions& agent_dim, bool isCar, bool animate);
         static void createAxes(const Eigen::VectorXd& q_init, const std::vector<std::pair<double, double>>& q_goal);
         static void createAxes(double circular_agent_radius, const Eigen::Vector2d& state, double* cmap_scale = nullptr, bool colliding = false);
         static void createAxes(double circular_agent_radius, const Path2D& path, bool random_color = false, const std::vector<Eigen::Vector2d>* collision_states = nullptr);

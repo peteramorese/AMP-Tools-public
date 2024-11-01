@@ -126,11 +126,11 @@ void amp::Visualizer::makeFigure(const MultiAgentProblem2D& prob, const amp::Mul
     createAxes(static_cast<const Environment2D&>(prob));
 }
 
-void amp::Visualizer::makeFigure(const KinodynamicProblem2D& prob, const amp::KinoPath& path, const std::pair<double, double> dimensions, bool isPoint) {
+void amp::Visualizer::makeFigure(const KinodynamicProblem2D& prob, const amp::KinoPath& path, bool animate) {
     newFigure();
     createAxes(static_cast<const Environment2D&>(prob));
     createAxes(prob.q_init, prob.q_goal);
-    createAxes(path, dimensions, isPoint);
+    createAxes(path, prob.agent_dim, prob.agent_type == amp::AgentType::SimpleCar, animate);
 }
 
 void amp::Visualizer::makeFigure(const MultiAgentProblem2D& prob, const amp::MultiAgentPath2D& ma_path, const std::vector<std::vector<Eigen::Vector2d>>& ma_collision_states) {
@@ -295,16 +295,14 @@ void amp::Visualizer::createAxes(const Path2D& path, const std::vector<Eigen::Ve
     ampprivate::pybridge::ScriptCaller::call("VisualizeEnvironment", "visualize_path", std::make_tuple(path_arg->get(), collison_points_arg->get()));
 }
 
-void amp::Visualizer::createAxes(const KinoPath& path, const std::pair<double, double> dimensions, bool isPoint) {
+void amp::Visualizer::createAxes(const KinoPath& path, const AgentDimensions& agent_dim, bool isCar, bool animate) {
     std::unique_ptr<ampprivate::pybridge::PythonObject> path_arg = listOfPointsToPythonObject(path.waypoints);
     std::vector<std::unique_ptr<ampprivate::pybridge::PythonObject>> python_object_ptrs;
     python_object_ptrs.reserve(path.durations.size());
     for (const auto& duration : path.durations)
         python_object_ptrs.push_back(ampprivate::pybridge::makeScalar(duration));
-    std::unique_ptr<ampprivate::pybridge::PythonObject> length_arg = ampprivate::pybridge::makeScalar(dimensions.first);
-    std::unique_ptr<ampprivate::pybridge::PythonObject> width_arg = ampprivate::pybridge::makeScalar(dimensions.second);
     std::unique_ptr<ampprivate::pybridge::PythonObject> duration_arg = ampprivate::pybridge::makeList(std::move(python_object_ptrs));
-    ampprivate::pybridge::ScriptCaller::call("VisualizeDynamicAgent", "visualize_car", std::make_tuple(path_arg->get(), duration_arg->get(), length_arg->get(), width_arg->get(), ampprivate::pybridge::makeBool(isPoint)->get()));
+    ampprivate::pybridge::ScriptCaller::call("VisualizeDynamicAgent", "visualize_agent", std::make_tuple(path_arg->get(), duration_arg->get(), ampprivate::pybridge::makeScalar(agent_dim.length)->get(), ampprivate::pybridge::makeScalar(agent_dim.width)->get(), ampprivate::pybridge::makeBool(animate)->get(), ampprivate::pybridge::makeBool(isCar)->get()));
 }
 
 void amp::Visualizer::createAxes(const Eigen::VectorXd& q_init, const std::vector<std::pair<double, double>>& q_goal) {

@@ -14,10 +14,16 @@
 class MyCentralPlanner : public amp::CentralizedMultiAgentRRT {
     public:
         virtual amp::MultiAgentPath2D plan(const amp::MultiAgentProblem2D& problem) override; 
+        int myN = 30000;
+        double myr = 0.5;
+        double treeSize = 0;
 };
 
 
 class MyDecentralPlanner : public amp::DecentralizedMultiAgentRRT {
     public:
         virtual amp::MultiAgentPath2D plan(const amp::MultiAgentProblem2D& problem) override;
+        int myN = 30000;
+        double myr = 0.5;
+        double treeSize = 0;
 };

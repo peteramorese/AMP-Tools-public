@@ -28,10 +28,32 @@ class GenericPRM {
         amp::Path plan(const Eigen::VectorXd& init_state, 
                 const Eigen::VectorXd& goal_state, 
                 const MyMACollChecker& collision_checker);
-        int myN = 100;
-        double myr =1 ;
+        int myN = 30000;
+        double myr = 0.5;
+        int treeSize = 0;
 
 };
+
+
+class MyRRTDecent : public amp::GoalBiasRRT2D {
+    private: 
+        std::shared_ptr<amp::Graph<double>> mygraph;
+        std::map<amp::Node, Eigen::Vector2d> mynodes;
+        amp::MultiAgentProblem2D myproblem;
+        int numAgents;
+
+    public:
+        virtual amp::Path2D plan(const amp::Problem2D& problem) override; 
+        amp::Path2D plan(int agent, const amp::MultiAgentProblem2D& problem, MyMACollChecker& cspace); 
+        std::map<amp::Node, Eigen::Vector2d> get_nodes() { return mynodes; }
+        std::shared_ptr<amp::Graph<double>> get_graph() { return mygraph; }
+        void set_problem(const amp::MultiAgentProblem2D& problem) {
+            myproblem = problem;
+        }
+        int myN = 30000;
+        double myr = 0.5;
+};
+
 
 
 }

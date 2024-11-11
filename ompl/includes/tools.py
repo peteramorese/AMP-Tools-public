@@ -2,10 +2,10 @@ import os
 import math
 from matplotlib.patches import Polygon
 
-def get_vertices(state : tuple, dimensions : tuple, isCar : bool):
+def get_vertices(state : tuple, dimensions : tuple, isCar : bool, theta_ind : int):
     half_l = dimensions[1] / 2
     half_w = dimensions[0] / 2
-    theta = state[4]
+    theta = state[theta_ind]
     ref_x = state[0] + half_w * math.cos(theta) if isCar else state[0]
     ref_y = state[1] + half_w * math.sin(theta) if isCar else state[1]
     vertices = [

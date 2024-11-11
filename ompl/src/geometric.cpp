@@ -48,8 +48,7 @@ namespace ob = ompl::base;
 namespace og = ompl::geometric;
 
 // this function sets-up an ompl planning problem for an arbtrary number of agents
-og::SimpleSetupPtr geometricSimpleSetUp(const World *w)
-{
+og::SimpleSetupPtr geometricSimpleSetUp(const World *w) {
     // grab the agent -- assume only one
     Agent *a = w->getAgents()[0];
 
@@ -88,10 +87,9 @@ og::SimpleSetupPtr geometricSimpleSetUp(const World *w)
 }
 
 // main planning function -- uses simple setup
-void planGeometric(std::string planner_string)
-{
+void planGeometric(std::string planner_string, std::string problem_file) {
     //create world from YAML file
-    World *w = yaml2world("Problem.yml");
+    World *w = yaml2world("problems/" + problem_file + ".yml");
     // create simple setup object
     og::SimpleSetupPtr ss = geometricSimpleSetUp(w);
 
@@ -117,16 +115,16 @@ void planGeometric(std::string planner_string)
     
     // solve the instance
     bool solved = ss->solve(30.0);
-    if (solved)
-    {
+    if (solved) {
         ss->simplifySolution();
-        write2sys(ss, w->getAgents());
+        write2sys(ss, w->getAgents(), problem_file);
     }
 }
 
 int main(int argc, char ** argv)
 {
     std::string plannerName = "RRT";
+    std::string problem = "DemoGeo";
     OMPL_INFORM("Planning for OMPL Lecture Example using Gemoetric Planning with %s", plannerName.c_str());
-    planGeometric(plannerName);
+    planGeometric(plannerName, problem);
 }

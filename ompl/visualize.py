@@ -37,17 +37,19 @@ plt.ylim(y_min, y_max)
 
 for obs_name, obstacle in obstacles.items():
     x1, y1, x2, y2 = obstacle
-    plt.fill([x1, x2, x2, x1], [y1, y1, y2, y2], color='indianred', edgecolor="black")
+    plt.fill([x1, x2, x2, x1], [y1, y1, y2, y2], color='lightcoral', edgecolor="black")
 
 # Plot path 
 for agent_i, path in zip(range(0, len(paths)), paths):
     agent = data['Agents'][f"agent{agent_i}"]
+    isGeo = True if agent['Model'] == "None" else False
     for state in path:
-        patch = get_vertices(state, agent['Shape'], agent['Model'] == 'Car')
+        theta_ind = 2 if isGeo else 4
+        patch = get_vertices(state, agent['Shape'], agent['Model'] == 'Car', theta_ind)
         ax.add_patch(patch)
 
     path_t = list(zip(*path))
-    # plt.plot(path_t[0], path_t[1], 'co-', label="Path")  # Blue line for path
+    if isGeo: plt.plot(path_t[0], path_t[1], 'co-', label="Path")  # Blue line for path
     plt.plot(*agent['Start'], 'g*', label=f"Start_{agent_i}")  # Green for Start
     plt.plot(*agent['Goal'], 'r*', label=f"Goal_{agent_i}")    # Red for Goal
 

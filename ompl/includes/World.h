@@ -143,24 +143,18 @@ private:
 };
 
 // function that parses YAML file to world object
-World* yaml2world(std::string file)
-{
+World* yaml2world(std::string file) {
     YAML::Node config;
     World *w = new World();
-    try
-    {
+    try {
         OMPL_INFORM("Path to Problem File: %s", file.c_str());
         config = YAML::LoadFile(file);
         std::cout << "" << std::endl;
         OMPL_INFORM("File loaded successfully. Parsing...");
-    }
-    catch (const std::exception& e) 
-    {
+    } catch (const std::exception& e) {
         OMPL_ERROR("Invalid file path. Aborting prematurely to avoid critical error.");
         exit(1);
-    }
-    try
-    {        
+    } try {        
         // grab dimensions from problem definition
         const auto& dims = config["Map"]["Dimensions"];
         const double x_min = dims[0].as<double>();
@@ -171,8 +165,7 @@ World* yaml2world(std::string file)
    
         // set Obstacles
         const auto& obs = config["Map"]["Obstacles"];
-        for (int i=0; i < obs.size(); i++)
-        {
+        for (int i=0; i < obs.size(); i++) {
             std::string name = "obstacle" + std::to_string(i);
             const double minX = obs[name][0].as<double>();
             const double minY = obs[name][1].as<double>();
@@ -197,11 +190,9 @@ World* yaml2world(std::string file)
 
         // Define the agents
         const auto& agents = config["Agents"];
-        for (int i=0; i < agents.size(); i++)
-        {
+        for (int i=0; i < agents.size(); i++) {
             std::string name = "agent" + std::to_string(i);
             const std::vector<double> shape{agents[name]["Shape"][0].as<double>(), agents[name]["Shape"][1].as<double>()};
-            std::cout << "Shape: " << shape[0] << " " << shape[1] << std::endl;
             const std::vector<double> start{agents[name]["Start"][0].as<double>(), agents[name]["Start"][1].as<double>()};
             const std::vector<double> goal{agents[name]["Goal"][0].as<double>(), agents[name]["Goal"][1].as<double>()};
             Agent *a = new Agent(name, agents[name]["Model"].as<std::string>(), shape, start, goal);
@@ -210,10 +201,7 @@ World* yaml2world(std::string file)
         OMPL_INFORM("Parsing Complete.");
         std::cout << "" << std::endl;
         w->printWorld();
-
-    }
-    catch (const std::exception& e) 
-    {
+    } catch (const std::exception& e) {
         OMPL_ERROR("Error During Parsing. Aborting prematurely to avoid critical error.");
         exit(1);
     }

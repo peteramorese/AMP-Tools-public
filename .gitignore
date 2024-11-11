@@ -6,6 +6,7 @@
 *.DS_Store
 AMPenv/
 .vscode
+ompl/build
 
 # Ignore auto-generated scripts
 /build_and_run.sh

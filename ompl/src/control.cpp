@@ -130,7 +130,6 @@ void planControl(std::string planner_string, std::string problem_file) {
 
 int main(int argc, char ** argv) {
     std::string plannerName = "RRT";
-    // std::string problem = "DemoCntrl";
     std::string problem = "WS1Car";
     OMPL_INFORM("Planning for OMPL Lecture Example using Control Planning with %s", plannerName.c_str());
     planControl(plannerName, problem);

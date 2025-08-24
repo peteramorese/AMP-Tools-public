@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
 
     // Visualize your potential function
     Visualizer::makeFigure(MyPotentialFunction{}, prob, 30);
-    Visualizer::showFigures();
+    Visualizer::saveFigures();
     
     // Arguments following argv correspond to the constructor arguments of MyGDAlgorithm:
     HW5::grade<MyGDAlgorithm>("nonhuman.biologic@myspace.edu", argc, argv, 1.0, 1.0, 1.0, 1.0);

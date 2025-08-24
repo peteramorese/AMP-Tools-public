@@ -1,0 +1,8 @@
+services:
+  ws:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - .:/root/AMP-Tools
+    command: tail -f /dev/null  # Temporary command to keep the container running

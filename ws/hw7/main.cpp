@@ -29,7 +29,7 @@ int main(int argc, char** argv) {
     Path2D path;
     HW7::generateAndCheck(rrt, path, problem);
     Visualizer::makeFigure(problem, path, *graphPtr, nodes);
-    Visualizer::showFigures();
+    Visualizer::saveFigures();
 
     // Grade method
     HW7::grade<MyPRM, MyRRT>("firstName.lastName@colorado.edu", argc, argv, std::make_tuple(), std::make_tuple());

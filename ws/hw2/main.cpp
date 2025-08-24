@@ -65,7 +65,8 @@ int main(int argc, char** argv) {
         Visualizer::makeFigure(random_prob, path, collision_points);
     }
 
-    Visualizer::showFigures();
+    Visualizer::saveFigures(true, "hw2_figs");
+
 
     HW2::grade(algo, "nonhuman.biologic@myspace.edu", argc, argv);
     

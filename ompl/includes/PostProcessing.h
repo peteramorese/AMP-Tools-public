@@ -45,7 +45,8 @@ namespace oc = ompl::control;
 
 
 // generate date/time information to solutions or solution directories
-std::string GetCurrentTimeForFileName() {
+std::string GetCurrentTimeForFileName()
+{
     auto time = std::time(nullptr);
     std::stringstream ss;
     ss << std::put_time(std::localtime(&time), "%Y_%m_%d_%T"); // ISO 8601 without timezone information.
@@ -55,35 +56,41 @@ std::string GetCurrentTimeForFileName() {
 }
 
 // parent function for including date/time information to files
-fs::path appendTimeToFileName(const fs::path& fileName) {
+fs::path appendTimeToFileName(const fs::path& fileName)
+{
     return fileName.stem().string() + "_" + GetCurrentTimeForFileName() + fileName.extension().string();
 }
 
-template <typename SimpleSetupPtr>
-void write2sys(const SimpleSetupPtr& problem, const std::vector<Agent*>& agents, const std::string& problem_name) {
+// write solultion to the system
+void write2sys(const og::SimpleSetupPtr problem, const std::vector<Agent*> agents)
+{
     fs::path sol_dir = "solutions/" + GetCurrentTimeForFileName();
     fs::create_directories(sol_dir);
 
-    // Copy the problem file
+    std::string fileName = agents[0]->getName() + ".txt";
+    auto filePath = fs::current_path() / sol_dir / fs::path(fileName); /// appendTimeToFileName(fileName); // e.g. MyPrettyFile_2018-06-09_01-42-00.txt
+    std::ofstream file(filePath);
+    const og::PathGeometric p = problem->getSolutionPath();
+    p.printAsMatrix(file);
+}
+
+// write solultion to the system
+void write2sys(const oc::SimpleSetupPtr problem, const std::vector<Agent*> agents, const std::string& problem_name)
+{
+    fs::path sol_dir = "solutions/" + GetCurrentTimeForFileName();
+    fs::create_directories(sol_dir);
     auto filePath = fs::current_path() / sol_dir / fs::path("problem.yml");
     std::ifstream src("problems/" + problem_name + ".yml", std::ios::binary);
     std::ofstream dst(filePath, std::ios::binary);
     dst << src.rdbuf();
-
-    // Iterate through agents and write their paths
-    for (auto agent : agents) {
+    for (auto agent : agents)
+    {
         std::string fileName = agent->getName() + ".txt";
-        filePath = fs::current_path() / sol_dir / fs::path(fileName);
+        filePath = fs::current_path() / sol_dir / fs::path(fileName); /// appendTimeToFileName(fileName); // e.g. MyPrettyFile_2018-06-09_01-42-00.txt
         std::ofstream file(filePath);
-
-        // Write based on problem type (geometric or control)
-        if constexpr (std::is_same_v<SimpleSetupPtr, og::SimpleSetupPtr>) {
-            const og::PathGeometric& p = problem->getSolutionPath();
-            p.printAsMatrix(file); // Write only states at each propagation step
-        } else if constexpr (std::is_same_v<SimpleSetupPtr, oc::SimpleSetupPtr>) {
-            const oc::PathControl& p = problem->getSolutionPath();
-            p.printAsMatrix(file); // save output as concatenated [state, control, duration] matrix
-            // p.asGeometric().printAsMatrix(file); // save output as states only at each propogation step size
-        }
+        const oc::PathControl p = problem->getSolutionPath();
+        // p.printAsMatrix(file); // save output as concatenated [state, control, duration] matrix
+        p.asGeometric().printAsMatrix(file); // save output as states only at each propogation step size
     }
+
 }

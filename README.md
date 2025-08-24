@@ -60,7 +60,14 @@ Currently supported OS:
  - macOS x86
  - macOS arm64 
 
-If your OS is not supported, and the project does not compile, please reach out to me (info at the bottom of the page).
+If your OS is not supported, and the project does not compile, you can use Docker.
+
+### Docker
+Using Docker with VSCode is recommended for avoiding dependency issues. **NOTE:** If you want separate figure windows to pop up, Docker generally does not support this, so you must use a traditional installation (see below).
+
+Download the `Dev Containers` extension in VSCode. Open the `AMP-Tools-public` directory in VSCode. Press `ctrl+shift+p` to open a menu at the top of VSCode. Type in `Dev Containers: Rebuild and Reopen in Container`. Select this option, and VSCode should open a new window inside the docker container where you can work.
+
+To close the container, click the small icon that resembles "><" in the bottom left of VSCode. Then select `Close Connection`. 
 
 ---
 ### Ubuntu (or WSL)

@@ -179,10 +179,14 @@ class Visualizer {
         static void makeBarGraph(const std::vector<double>& values, const std::vector<std::string>& labels, 
                                 const std::string& title = std::string(), const std::string& xlabel = std::string(), const std::string& ylabel = std::string());
 
-        /// @brief Show all figures that were created with `makeFigure()`
-        static void showFigures();
+        /// @brief Save and show all figures that were created with `makeFigure()`
+        /// @param show Make the figures pop up in GUI
+        /// @param directory Directory relative to the root of the project to save the figures in
+        /// @param format File extension format to save the figure in, e.g. png, pdf
+        static void saveFigures(bool show = true, const std::string& directory = "all", const std::string& format = "png");
 
     private:
+        static void saveFigures(const std::string& format, const std::string& directory);
         static void createAxes(const Environment2D& env);
         static void createAxes(const Eigen::Vector2d& q_init, const Eigen::Vector2d& q_goal);
         static void createAxes(const Problem2D& prob);

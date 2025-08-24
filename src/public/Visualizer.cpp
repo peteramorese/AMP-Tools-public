@@ -248,8 +248,13 @@ void amp::Visualizer::makeFigure(const Problem2D& prob, const Path2D& path, cons
     createAxes(path);
 }
 
-void amp::Visualizer::showFigures() {
-    ampprivate::pybridge::ScriptCaller::call("FigureHandler", "show_figure", std::make_tuple());
+void amp::Visualizer::saveFigures(bool show, const std::string& directory, const std::string& format) {
+    std::unique_ptr<ampprivate::pybridge::PythonObject> directory_arg = ampprivate::pybridge::makeString(directory);
+    std::unique_ptr<ampprivate::pybridge::PythonObject> format_arg = ampprivate::pybridge::makeString(format);
+    ampprivate::pybridge::ScriptCaller::call("FigureHandler", "save_figures", std::make_tuple(directory_arg->get(), format_arg->get()));
+    if (show) {
+        ampprivate::pybridge::ScriptCaller::call("FigureHandler", "show_figure", std::make_tuple());
+    }
 }
 
 void amp::Visualizer::newFigure() {

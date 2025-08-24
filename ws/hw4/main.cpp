@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
     // You can visualize your cspace 
     Visualizer::makeFigure(*cspace);
 
-    Visualizer::showFigures();
+    Visualizer::saveFigures();
 
     // Grade method
     amp::HW4::grade<MyManipulator2D>(cspace_constructor, "nonhuman.biologic@myspace.edu", argc, argv);

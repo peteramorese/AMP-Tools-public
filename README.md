@@ -31,17 +31,11 @@ After installation, verify the `build_and_run.sh` script works.
 ### Workspace `ws/`
 The workspace direction `ws/` is where you will put all of your code. You will find a `main.cpp` file which contains your `main()` function. Feel free to add any headers `.h` and class definition files `.cpp` into that directory. They will automatically be linked to `main.cpp`. **NOTE**: to skip building a project, make a file in the project directory named `IGNORE` (e.g. `ws/my_project/IGNORE`).
 
-### File IO `file_dump/`
-If you are NOT using C++, this is directory contains an `in` and `out` folder for input and output files respectively.
-
 ### Include `include/`
 This directory includes all of the header files you need. The files contain documentation that will help you understand the classes and methods. Do not edit these files, this will cause build errors.
 
-### Build files `build/`
-Here you will find the build artifacts (compiled binaries, etc.). You will generally not need to worry about files in here. If you would like to manually run your `main` executable, you will find it in `build/bin`. 
-
-### Prebuilt executable tools `bin/`
-After you build your project for the first time, this directory will automatically be generated. If you are NOT using C++, you can call these executables the generate workspaces, check solutions, etc. Any file input and output for these executables is done through the `file_dump/` directory. When calling the executable, pass the `-h` (e.g. `./generate_problem -h`) flag to see the command line arguments. 
+### Figures `figures/`
+Figures that you create will be saved to this directory
 
 ## Release Setup/Installation
 Forking the `https://github.com/peteramorese/AMP-Tools-public` is preferred, especially if you would like to commit your changes to GitHub. If you would not like to fork the repository, you can directly clone the repository.

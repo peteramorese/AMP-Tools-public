@@ -29,8 +29,10 @@ if(AMP_BUILD_LIB)
 endif()
 
 # Python stuff
-find_package(PythonInterp)
-find_package(PythonLibs 3.4 REQUIRED)
+# Python3 - modern way (CMake 3.12+)
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+
+# Optional: allow user to override PYTHONPATH for script runtime
 set(AMP_PYTHONPATH "" CACHE STRING "Manually specify the PYTHONPATH")
 
 # Directory for input and output files
@@ -94,7 +96,7 @@ set(AMP_INCLUDE_DIRS
 set(AMP_DEPENDENCY_INCLUDE_DIRS 
     ${CMAKE_CURRENT_SOURCE_DIR}/dependencies/yaml-cpp/include
     ${EIGEN3_INCLUDE_DIRS}
-    ${PYTHON_INCLUDE_DIRS}
+    ${Python3_INCLUDE_DIRS}
 )
 
 # Core artifacts

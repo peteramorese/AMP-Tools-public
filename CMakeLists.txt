@@ -29,10 +29,8 @@ if(AMP_BUILD_LIB)
 endif()
 
 # Python stuff
-# Python3 - modern way (CMake 3.12+)
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 
-# Optional: allow user to override PYTHONPATH for script runtime
 set(AMP_PYTHONPATH "" CACHE STRING "Manually specify the PYTHONPATH")
 
 # Directory for input and output files

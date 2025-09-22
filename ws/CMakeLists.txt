@@ -21,11 +21,11 @@ foreach(SUBDIR ${HW_SUBDIRECTORIES})
         file(GLOB_RECURSE USER_SOURCES "${SUBDIR}/*.cpp")
         set(TARGET_NAME "main-${SUBDIR}")
         add_executable(${TARGET_NAME} ${USER_SOURCES})
-        target_link_libraries(${TARGET_NAME} PRIVATE
-            yaml-cpp
+        find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+
+	target_link_libraries(${TARGET_NAME} PRIVATE
             Eigen3::Eigen
-            AMPCorePrivate
-            AMPCorePublic
+	    Python3::Python
         )
         target_include_directories(${TARGET_NAME} PUBLIC
             ${AMP_INCLUDE_DIRS}
